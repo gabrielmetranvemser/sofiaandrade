@@ -1,0 +1,130 @@
+import type { Municipio } from './tipos'
+
+/**
+ * Normaliza nome de cidade para busca: sem acento, sem apóstrofo,
+ * sem hífen, minúsculo. "Alta Floresta d'Oeste" → "alta floresta doeste".
+ * Usado tanto na busca por digitação quanto no casamento do header da Vercel.
+ */
+export function normalizar(texto: string): string {
+  return texto
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '') // remove acentos
+    .toLowerCase()
+    .replace(/['’`]/g, '')
+    .replace(/[^a-z0-9]+/g, ' ')
+    .trim()
+}
+
+/** Distância de Levenshtein com corte. Tolera erro de digitação. */
+export function distanciaTexto(a: string, b: string): number {
+  if (a === b) return 0
+  const m = a.length
+  const n = b.length
+  if (m === 0) return n
+  if (n === 0) return m
+
+  let anterior = Array.from({ length: n + 1 }, (_, i) => i)
+  let atual = new Array<number>(n + 1)
+
+  for (let i = 1; i <= m; i++) {
+    atual[0] = i
+    for (let j = 1; j <= n; j++) {
+      const custo = a[i - 1] === b[j - 1] ? 0 : 1
+      atual[j] = Math.min(atual[j - 1] + 1, anterior[j] + 1, anterior[j - 1] + custo)
+    }
+    ;[anterior, atual] = [atual, anterior]
+  }
+  return anterior[n]
+}
+
+/**
+ * Busca tolerante. Ordem de prioridade:
+ * 1. começa com o termo   2. contém o termo   3. erro de digitação pequeno
+ */
+export function buscarMunicipios<T extends Municipio>(lista: T[], termo: string, limite = 8): T[] {
+  const t = normalizar(termo)
+  if (t.length < 2) return []
+
+  const pontuados = lista
+    .map((m) => {
+      const nome = normalizar(m.nome)
+      if (nome.startsWith(t)) return { m, p: 0 }
+      if (nome.includes(t)) return { m, p: 1 }
+      const partes = nome.split(' ')
+      if (partes.some((parte) => parte.startsWith(t))) return { m, p: 2 }
+      const d = distanciaTexto(t, nome.slice(0, Math.max(t.length, 3)))
+      const tolerancia = t.length <= 4 ? 1 : 2
+      if (d <= tolerancia) return { m, p: 3 + d }
+      return null
+    })
+    .filter((x): x is { m: T; p: number } => x !== null)
+    .sort((a, b) => a.p - b.p || a.m.nome.localeCompare(b.m.nome, 'pt-BR'))
+
+  return pontuados.slice(0, limite).map((x) => x.m)
+}
+
+const RAIO_TERRA_KM = 6371
+
+/** Haversine. Retorna km. */
+export function distanciaKm(
+  lat1: number,
+  lon1: number,
+  lat2: number,
+  lon2: number,
+): number {
+  const rad = (g: number) => (g * Math.PI) / 180
+  const dLat = rad(lat2 - lat1)
+  const dLon = rad(lon2 - lon1)
+  const a =
+    Math.sin(dLat / 2) ** 2 +
+    Math.cos(rad(lat1)) * Math.cos(rad(lat2)) * Math.sin(dLon / 2) ** 2
+  return 2 * RAIO_TERRA_KM * Math.asin(Math.sqrt(a))
+}
+
+/**
+ * Município mais próximo de uma coordenada.
+ * Roda no aparelho da pessoa. A posição é descartada logo depois.
+ */
+export function municipioMaisProximo<T extends Municipio>(
+  lista: T[],
+  latitude: number,
+  longitude: number,
+): { municipio: T; km: number } | null {
+  let melhor: { municipio: T; km: number } | null = null
+  for (const m of lista) {
+    const km = distanciaKm(latitude, longitude, m.latitude, m.longitude)
+    if (!melhor || km < melhor.km) melhor = { municipio: m, km }
+  }
+  return melhor
+}
+
+/**
+ * Casa o header de cidade da Vercel (`x-vercel-ip-city`) com um dos 52.
+ * Header vem URL-encoded e sem acento em alguns casos.
+ */
+export function casarCidadePorHeader<T extends Municipio>(
+  lista: T[],
+  cidadeHeader: string | null | undefined,
+  regiaoHeader?: string | null,
+): T | null {
+  if (!cidadeHeader) return null
+  // Fora de Rondônia, não sugere nada.
+  if (regiaoHeader && normalizar(regiaoHeader) !== 'ro') return null
+
+  let cidade: string
+  try {
+    cidade = decodeURIComponent(cidadeHeader)
+  } catch {
+    cidade = cidadeHeader
+  }
+  const alvo = normalizar(cidade)
+  if (!alvo) return null
+
+  const exato = lista.find((m) => normalizar(m.nome) === alvo)
+  if (exato) return exato
+
+  const parcial = lista.find(
+    (m) => normalizar(m.nome).startsWith(alvo) || alvo.startsWith(normalizar(m.nome)),
+  )
+  return parcial ?? null
+}

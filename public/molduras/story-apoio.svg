@@ -1,0 +1,54 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1080" height="1920" viewBox="0 0 1080 1920" role="img" aria-label="Moldura Story">
+  <title>Moldura Story — PLACEHOLDER, substituir pela arte final</title>
+
+  <defs>
+    <linearGradient id="faixa" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0%" stop-color="#0d2440"/>
+      <stop offset="100%" stop-color="#12539e"/>
+    </linearGradient>
+    <clipPath id="corte">
+      <rect x="0" y="0" width="1080" height="1920" rx="49" ry="49"/>
+    </clipPath>
+  </defs>
+
+  <g clip-path="url(#corte)">
+    <!-- faixa inferior -->
+    <rect x="0" y="1622" width="1080" height="298" fill="url(#faixa)"/>
+
+    <!-- "Eu apoio": lê como apoiador, não como post oficial da campanha.
+         É a única mitigação real contra uso da marca em foto ofensiva. -->
+    <text x="76" y="1711"
+          font-family="Helvetica, Arial, sans-serif" font-size="36" font-weight="600"
+          fill="#f2b134" letter-spacing="4">EU APOIO</text>
+
+    <text x="76" y="1801"
+          font-family="Helvetica, Arial, sans-serif" font-size="67" font-weight="700"
+          fill="#ffffff" letter-spacing="-1">Sofia Andrade</text>
+
+    <!-- EXIGÊNCIA LEGAL: CNPJ da campanha na arte que circula -->
+    <text x="76" y="1869"
+          font-family="Helvetica, Arial, sans-serif" font-size="23"
+          fill="#ffffff" fill-opacity="0.62">Deputada Federal · Rondônia — CNPJ 68.379.640/0001-98</text>
+
+    <!-- número -->
+    <rect x="735" y="1706"
+          width="269" height="131" rx="37" fill="#ffffff"/>
+    <text x="869.5" y="1798"
+          font-family="Helvetica, Arial, sans-serif" font-size="81" font-weight="700"
+          fill="#12539e" text-anchor="middle" letter-spacing="-2">2233</text>
+
+    <!-- borda fina de acabamento -->
+    <rect x="6" y="6"
+          width="1067" height="1907"
+          rx="49" fill="none" stroke="#ffffff" stroke-opacity="0.55" stroke-width="10"/>
+
+    <!-- marca de placeholder: some quando a arte real entrar -->
+    <g opacity="0.75">
+      <rect x="76" y="67" width="648" height="56"
+            rx="28" fill="#0d2440" fill-opacity="0.55"/>
+      <text x="104" y="105"
+            font-family="Helvetica, Arial, sans-serif" font-size="25"
+            fill="#ffffff">moldura placeholder — trocar pela arte final</text>
+    </g>
+  </g>
+</svg>
