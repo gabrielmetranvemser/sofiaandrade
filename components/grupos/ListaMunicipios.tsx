@@ -1,6 +1,6 @@
 'use client'
 
-import { grupos as copy } from '@/content/copy'
+import { useConteudo } from '@/lib/conteudo/contexto'
 import type { MunicipioComGrupo } from '@/lib/tipos'
 import { LinhaMunicipio } from './LinhaMunicipio'
 
@@ -9,6 +9,7 @@ import { LinhaMunicipio } from './LinhaMunicipio'
  * escondido — isso é regra do plano, não preferência de layout.
  */
 export function ListaMunicipios({ municipios }: { municipios: MunicipioComGrupo[] }) {
+  const { grupos: copy } = useConteudo()
   const abertos = municipios.filter((m) => m.disponivel).length
 
   return (

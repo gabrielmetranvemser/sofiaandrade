@@ -1,7 +1,7 @@
 'use client'
 
 import { useCallback, useEffect, useRef, useState } from 'react'
-import { filtro as copy } from '@/content/copy'
+import { useConteudo } from '@/lib/conteudo/contexto'
 import { desenharFoto, ENQUADRAMENTO_INICIAL, type Enquadramento, type FotoCarregada } from '@/lib/imagem'
 import type { Moldura } from '@/lib/molduras'
 
@@ -24,6 +24,7 @@ export function EditorCanvas({
   enquadramento: Enquadramento
   onMudarEnquadramento: (e: Enquadramento) => void
 }) {
+  const { filtro: copy } = useConteudo()
   const canvasRef = useRef<HTMLCanvasElement>(null)
   const areaRef = useRef<HTMLDivElement>(null)
   const molduraRef = useRef<HTMLImageElement | null>(null)

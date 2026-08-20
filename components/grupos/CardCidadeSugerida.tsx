@@ -1,6 +1,6 @@
 'use client'
 
-import { grupos as copy } from '@/content/copy'
+import { useConteudo } from '@/lib/conteudo/contexto'
 import { idSessao } from '@/lib/eventos'
 import type { MunicipioComGrupo, OrigemClique } from '@/lib/tipos'
 
@@ -19,6 +19,7 @@ export function CardCidadeSugerida({
   distanciaKm?: number
   onNaoEMinha: () => void
 }) {
+  const { grupos: copy } = useConteudo()
   const longe = typeof distanciaKm === 'number' && distanciaKm > 60
 
   return (

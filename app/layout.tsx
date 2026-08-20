@@ -3,6 +3,8 @@ import { Archivo, Inter } from 'next/font/google'
 import { candidata, meta } from '@/content/copy'
 import { config } from '@/lib/config'
 import { Revelar } from '@/components/ui/Revelar'
+import { ConteudoProvider } from '@/lib/conteudo/contexto'
+import { lerConteudoCliente } from '@/lib/conteudo/subconjunto'
 import './globals.css'
 
 /**
@@ -76,7 +78,10 @@ export const viewport: Viewport = {
   initialScale: 1,
 }
 
-export default function LayoutRaiz({ children }: { children: React.ReactNode }) {
+export default async function LayoutRaiz({ children }: { children: React.ReactNode }) {
+  // Só o recorte que a árvore de cliente consome atravessa a fronteira.
+  const conteudoCliente = await lerConteudoCliente()
+
   return (
     <html lang="pt-BR" className={`${titulo.variable} ${corpo.variable} sem-js`}>
       <body>
@@ -88,7 +93,7 @@ export default function LayoutRaiz({ children }: { children: React.ReactNode }) 
           Pular para o conteúdo
         </a>
 
-        {children}
+        <ConteudoProvider valor={conteudoCliente}>{children}</ConteudoProvider>
         <Revelar />
       </body>
     </html>

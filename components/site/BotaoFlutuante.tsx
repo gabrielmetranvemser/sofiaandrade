@@ -2,7 +2,7 @@
 
 import Link from 'next/link'
 import { useEffect, useState } from 'react'
-import { ctas } from '@/content/copy'
+import { useConteudo } from '@/lib/conteudo/contexto'
 import { evento } from '@/lib/eventos'
 
 /**
@@ -14,6 +14,7 @@ import { evento } from '@/lib/eventos'
  * se ele trabalha ou é enfeite.
  */
 export function BotaoFlutuante({ silencio = false }: { silencio?: boolean }) {
+  const { ctas } = useConteudo()
   const [visivel, setVisivel] = useState(false)
 
   useEffect(() => {

@@ -1,7 +1,7 @@
 import type { Metadata } from 'next'
 import Link from 'next/link'
 import { headers } from 'next/headers'
-import { ctas, grupos as copy } from '@/content/copy'
+import { lerConteudo } from '@/lib/conteudo/ler'
 import { listarMunicipiosComStatus, municipioPorSlug } from '@/lib/dados'
 import { casarCidadePorHeader } from '@/lib/geo'
 import { config, emSilencioEleitoral } from '@/lib/config'
@@ -36,11 +36,13 @@ export default async function PaginaGrupos({
     silencio?: string
   }>
 }) {
-  const [municipios, cabecalhos, params] = await Promise.all([
+  const [municipios, cabecalhos, params, conteudo] = await Promise.all([
     listarMunicipiosComStatus(),
     headers(),
     searchParams,
+    lerConteudo(),
   ])
+  const { ctas, grupos: copy } = conteudo
 
   const sugerido = casarCidadePorHeader(
     municipios,

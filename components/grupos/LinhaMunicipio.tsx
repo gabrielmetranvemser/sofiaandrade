@@ -1,6 +1,6 @@
 'use client'
 
-import { grupos as copy } from '@/content/copy'
+import { useConteudo } from '@/lib/conteudo/contexto'
 import { evento, idSessao } from '@/lib/eventos'
 import type { MunicipioComGrupo, OrigemClique } from '@/lib/tipos'
 
@@ -27,6 +27,7 @@ export function LinhaMunicipio({
   /** classes aplicadas no <li>, para a grade desenhar as separações */
   className?: string
 }) {
+  const { grupos: copy } = useConteudo()
   const { status, disponivel } = municipio
 
   const selo =

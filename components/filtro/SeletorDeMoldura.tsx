@@ -1,6 +1,6 @@
 'use client'
 
-import { filtro as copy } from '@/content/copy'
+import { useConteudo } from '@/lib/conteudo/contexto'
 import { MOLDURAS, type FormatoMoldura, type Moldura } from '@/lib/molduras'
 
 /**
@@ -15,6 +15,7 @@ export function SeletorDeMoldura({
   selecionada: Moldura
   onSelecionar: (m: Moldura) => void
 }) {
+  const { filtro: copy } = useConteudo()
   return (
     <fieldset>
       <legend className="text-sm font-semibold tracking-[0.06em] text-azul uppercase">

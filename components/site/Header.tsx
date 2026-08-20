@@ -2,11 +2,12 @@
 
 import Link from 'next/link'
 import { useEffect, useState } from 'react'
-import { candidata, ctas, navegacao } from '@/content/copy'
+import { useConteudo } from '@/lib/conteudo/contexto'
 import { evento } from '@/lib/eventos'
 import { Simbolo } from '@/components/ui/Marca'
 
 export function Header({ silencio = false }: { silencio?: boolean }) {
+  const { candidata, ctas, navegacao } = useConteudo()
   const [rolou, setRolou] = useState(false)
   const [aberto, setAberto] = useState(false)
 
