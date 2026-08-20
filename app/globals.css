@@ -522,12 +522,26 @@
   .cena-amarelo { background-color: var(--color-amarelo); color: var(--color-azul-escuro); }
   .cena-azul    { background-color: var(--color-azul-escuro); color: var(--color-branco); }
 
-  /* A cunha amarela: um polígono de bico à esquerda que atravessa a
-     tela da direita para a esquerda. O bico é o que dá o movimento de
-     lâmina — borda reta lê como cortina, não como bandeira.
+  /* ── Como cada cor entra ──────────────────────────────────────
+     Dois desenhos, um por largura de tela, e não por gosto.
 
-     Fora da tela até 0.10, cobrindo tudo a partir de 0.50. Passar de
-     0% não estraga nada: continua cobrindo. */
+     EM TELA LARGA a cunha amarela atravessa da direita para a
+     esquerda e o disco azul cresce do canto. Numa tela deitada há
+     percurso horizontal de sobra para isso respirar, e a diagonal do
+     bico é a diagonal do losango da marca.
+
+     NO CELULAR o mesmo desenho desanda. A tela é alta e estreita: a
+     cunha vira uma faixa quase vertical passando de raspão, e o disco
+     entra por um canto onde não cabe curva nenhuma. As duas formas
+     ficam sem parentesco entre si e sem parentesco com a tela.
+
+     Lá, então, as duas cores SOBEM DE BAIXO com a mesma aresta
+     inclinada — uma gramática só, no eixo em que um celular tem
+     espaço. Um polígono de quatro pontos servindo às duas camadas:
+     clip-path só interpola entre formas do mesmo tipo e com o mesmo
+     número de pontos, então partilhar a regra não é economia de
+     linha, é o que garante que as duas se movam idênticas. */
+
   .cena-amarelo {
     clip-path: polygon(
       calc(162.5% - var(--palco-p) * 325%) 0%,
@@ -538,31 +552,62 @@
     );
   }
 
-  /* O azul cresce como disco a partir da direita, de 0.55 a 0.95.
-     max(0%, …) não é zelo: raio negativo invalida a função inteira, o
-     clip-path é descartado, e a camada apareceria de uma vez na
+  /* max(0%, …) não é zelo: raio negativo invalida a função inteira, o
+     clip-path é descartado, e a camada apareceria de uma vez só na
      primeira metade da cena. */
   .cena-azul {
     clip-path: circle(max(0%, calc((var(--palco-p) - 0.55) * 375%)) at 100% 50%);
   }
 
-  /* Cada texto anda junto com a cor que o carrega: entra com ela e sai
+  @media (max-width: 767px) {
+    /* --cena-q é o avanço da camada, de 0 (ainda um ponto abaixo da
+       tela) a 1 (cobrindo tudo). O clamp é o que dá as esperas: antes
+       de 0.10 é tudo verde, entre 0.42 e 0.55 é tudo amarelo, de 0.87
+       em diante é tudo azul.
+
+       As duas crescem do mesmo ponto e sobem juntas — o movimento é
+       um só. O que não pode ser um só é a FORMA: o amarelo é o
+       losango e o azul é o círculo. É o símbolo da marca, e é o que
+       faz a cena ser a bandeira em vez de duas cores passando. Que
+       apareçam cortados pela tela não tira o parentesco: um losango
+       cortado ainda é duas diagonais se encontrando. */
+    .cena-amarelo,
+    .cena-azul {
+      /* centro subindo de 130% (abaixo da tela) até o meio */
+      --cena-cy: calc(130% - var(--cena-q) * 80%);
+    }
+
+    .cena-amarelo {
+      --cena-q: clamp(0, calc((var(--palco-p) - 0.10) / 0.32), 1);
+      /* Losango: meia-diagonal de 115% em cada eixo. É o que basta
+         para cobrir a tela pelos quatro cantos quando --cena-q chega
+         a 1 — em 50%/115 + 50%/115 o canto cai dentro do losango. */
+      --cena-r: calc(var(--cena-q) * 115%);
+      clip-path: polygon(
+        50% calc(var(--cena-cy) - var(--cena-r)),
+        calc(50% + var(--cena-r)) var(--cena-cy),
+        50% calc(var(--cena-cy) + var(--cena-r)),
+        calc(50% - var(--cena-r)) var(--cena-cy)
+      );
+    }
+
+    .cena-azul {
+      --cena-q: clamp(0, calc((var(--palco-p) - 0.55) / 0.32), 1);
+      clip-path: circle(calc(var(--cena-q) * 80%) at 50% var(--cena-cy));
+    }
+  }
+
+  /* Cada texto anda junto com a cor que o carrega: chega com ela e sai
      quando a próxima cobre. O último para no lugar natural — é o que
      fica na tela quando a cena acaba.
 
-     O passeio é parametrizado em distância E EM EIXO, e o eixo é a
-     parte que importa.
-
-     No desktop o movimento é horizontal, acompanhando a cunha. No
-     celular isso quebra duas vezes: 55vw de 375px são 206px jogando a
-     frase para fora da direita; e, encolhendo a distância para caber,
-     os dois textos passam a dividir a mesma linha de base no meio da
-     transição — o olho lê "Aqui a terra tra" emendado com "volta é
-     conta." como se fosse uma frase só.
-
-     Por isso, abaixo de 768px, o mesmo passeio corre na VERTICAL: um
-     texto sobe enquanto o outro chega por baixo. Nenhuma frase é
-     cortada pela largura e as duas nunca compartilham a linha. */
+     O eixo do texto é sempre o eixo em que a cor entra. Em tela larga
+     isso é horizontal, acompanhando a cunha. No celular é vertical,
+     acompanhando a subida — e ali a horizontal quebrava duas vezes:
+     55vw de 375px jogam a frase para fora da direita, e encolhendo a
+     distância para caber os dois textos passam a dividir a linha de
+     base no meio da transição, o que faz o olho ler "Aqui a terra
+     tra" emendado com "volta é conta." como se fosse uma frase só. */
   .cena-camada {
     --cena-entrada: 55vw;
     --cena-saida: 55vw;
@@ -578,8 +623,6 @@
       --cena-y: 1;
     }
   }
-
-  .cena-texto { will-change: transform; }
 
   .cena-verde .cena-texto {
     --cena-d: calc((var(--palco-p) - 0.1) * var(--cena-saida) / -0.9);
@@ -602,6 +645,7 @@
       calc(var(--cena-d, 0px) * var(--cena-y)),
       0
     );
+    will-change: transform;
   }
 
   /* ── Fita de cartões ──────────────────────────────────────────
