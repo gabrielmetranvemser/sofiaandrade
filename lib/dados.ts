@@ -107,38 +107,23 @@ export async function listarMunicipiosComStatus(): Promise<MunicipioComGrupo[]> 
   })
 }
 
-/** Conta o clique e aplica a virada automática por limite. */
+/**
+ * Conta o clique e aplica a virada por limite.
+ *
+ * Delega para a função `contar_clique` no banco, que faz tudo dentro de
+ * uma transação com a linha travada. Antes isto era ler-modificar-escrever
+ * em JS: dois cliques simultâneos liam o mesmo valor e contavam um só —
+ * exatamente o cenário de uma carreata com o mesmo QR circulando.
+ */
 export async function registrarCliqueNoGrupo(grupo: Grupo): Promise<void> {
   if (!config.supabaseAtivo) return
   const sb = criarClienteAdmin()
   if (!sb) return
 
-  const cliques = grupo.cliques + 1
-  const estourou = grupo.limite_cliques !== null && cliques >= grupo.limite_cliques
+  const { error } = await sb.rpc('contar_clique', { p_grupo_id: grupo.id })
 
-  await sb
-    .from('grupos')
-    .update({
-      cliques,
-      status: estourou ? 'cheio' : grupo.status,
-      atualizado_em: new Date().toISOString(),
-    })
-    .eq('id', grupo.id)
-
-  // Estourou o fixado: o próximo da fila assume sozinho.
-  if (estourou && grupo.fixado) {
-    const { data: proximos } = await sb
-      .from('grupos')
-      .select('id')
-      .eq('municipio_slug', grupo.municipio_slug)
-      .eq('status', 'aberto')
-      .gt('ordem', grupo.ordem)
-      .order('ordem')
-      .limit(1)
-
-    if (proximos && proximos.length > 0) {
-      await sb.from('grupos').update({ fixado: false }).eq('id', grupo.id)
-      await sb.from('grupos').update({ fixado: true }).eq('id', proximos[0].id)
-    }
+  if (error) {
+    // Métrica nunca pode impedir a pessoa de entrar no grupo.
+    console.error('[contar_clique]', error.message)
   }
 }

@@ -1,7 +1,7 @@
 import { NextResponse, type NextRequest } from 'next/server'
 import { grupoDeDestino, municipioPorSlug, registrarCliqueNoGrupo } from '@/lib/dados'
 import { criarClienteAdmin } from '@/lib/supabase/admin'
-import { config } from '@/lib/config'
+import { config, emSilencioEleitoral } from '@/lib/config'
 import type { OrigemClique } from '@/lib/tipos'
 
 /**
@@ -33,6 +33,17 @@ export async function GET(
   // Município que não existe: manda para a lista, nunca erro 404 seco.
   if (!municipio) {
     return NextResponse.redirect(new URL('/grupos?nao-encontrado=1', req.url), 307)
+  }
+
+  // ⚠️ CONFORMIDADE. Esconder o CTA na página não basta: o link
+  //    /g/ji-parana está impresso em panfleto e colado em QR de carro
+  //    de som. Sem esta trava, alguém entra no grupo às 2h do dia da
+  //    votação porque escaneou um adesivo. A checagem tem que estar
+  //    aqui, no redirecionador, não só no layout.
+  if (emSilencioEleitoral()) {
+    const destino = new URL('/grupos', req.url)
+    destino.searchParams.set('silencio', '1')
+    return NextResponse.redirect(destino, 307)
   }
 
   const deParam = req.nextUrl.searchParams.get('de')

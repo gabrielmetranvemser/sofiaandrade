@@ -16,10 +16,10 @@ export function Revelar() {
     document.documentElement.classList.remove('sem-js')
 
     const reduzido = window.matchMedia('(prefers-reduced-motion: reduce)').matches
-    const alvos = document.querySelectorAll<HTMLElement>('[data-revelar]')
-
     if (reduzido || !('IntersectionObserver' in window)) {
-      alvos.forEach((el) => el.setAttribute('data-visivel', 'true'))
+      document
+        .querySelectorAll<HTMLElement>('[data-revelar]')
+        .forEach((el) => el.setAttribute('data-visivel', 'true'))
       return
     }
 
@@ -35,8 +35,34 @@ export function Revelar() {
       { rootMargin: '0px 0px -12% 0px', threshold: 0.08 },
     )
 
-    alvos.forEach((el) => observador.observe(el))
-    return () => observador.disconnect()
+    const passarAObservar = (raiz: ParentNode) => {
+      raiz.querySelectorAll<HTMLElement>('[data-revelar]:not([data-visivel])').forEach((el) => {
+        observador.observe(el)
+      })
+    }
+
+    passarAObservar(document)
+
+    // ⚠️ A consulta única no mount não bastava: qualquer elemento que
+    //    entrasse no DOM depois (resultado de busca, item de lista
+    //    aberto, etapa do filtro) ficava preso em opacity: 0 para
+    //    sempre. Com o conteúdo vindo do admin isso só piora.
+    const mutacoes = new MutationObserver((lista) => {
+      for (const m of lista) {
+        m.addedNodes.forEach((no) => {
+          if (no.nodeType !== Node.ELEMENT_NODE) return
+          const el = no as HTMLElement
+          if (el.matches?.('[data-revelar]')) observador.observe(el)
+          passarAObservar(el)
+        })
+      }
+    })
+    mutacoes.observe(document.body, { childList: true, subtree: true })
+
+    return () => {
+      observador.disconnect()
+      mutacoes.disconnect()
+    }
   }, [])
 
   return null

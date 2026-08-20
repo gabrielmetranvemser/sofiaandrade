@@ -11,12 +11,14 @@ import { NextResponse, type NextRequest } from 'next/server'
 
 const NOME_COOKIE = 'sofia_painel'
 
+/** Mesma cadeia de lib/painel/sessao.ts, e falha fechado igual. */
 function segredo(): string {
-  return (
-    process.env.PAINEL_SESSION_SECRET ||
-    process.env.PAINEL_SENHA ||
-    'segredo-de-desenvolvimento-trocar'
-  )
+  const s = process.env.PAINEL_SESSION_SECRET || process.env.PAINEL_SENHA
+  if (s) return s
+  if (process.env.NODE_ENV === 'production') {
+    throw new Error('PAINEL_SESSION_SECRET (ou PAINEL_SENHA) não está definida.')
+  }
+  return 'segredo-apenas-de-desenvolvimento'
 }
 
 async function assinar(valor: string): Promise<string> {
