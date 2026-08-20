@@ -5,6 +5,17 @@
  * Isso é o que o plano chama de separar "motor" de "maquiagem":
  * em 2028 troca-se este arquivo e o site é de outra pessoa.
  *
+ * ⚠️  SOBRE OS CAMPOS `id`
+ *     Toda lista de OBJETO carrega um `id` estável. Não é enfeite:
+ *     as chaves de React vinham do próprio conteúdo (`key={item.ano}`,
+ *     `key={item.numero}`, `key={n.texto}`). No dia em que o painel
+ *     deixar alguém digitar "01" duas vezes ou repetir um ano, o React
+ *     embaralha ou some com itens. O `id` nunca é exibido; existe só
+ *     para dar identidade ao item.
+ *
+ *     Listas de STRING não têm `id` de propósito — string não tem
+ *     identidade, e ali a chave por índice é a correta.
+ *
  * ⚠️  MARCADORES
  *     Toda linha marcada com  // ⚠️ CONFIRMAR  depende de dado que a
  *     campanha ainda não entregou. Ver PENDENCIAS.md.
@@ -47,10 +58,10 @@ export const meta = {
 } as const
 
 export const navegacao = [
-  { rotulo: 'Quem é Sofia', href: '/#origem' },
-  { rotulo: 'Compromissos', href: '/#futuro' },
-  { rotulo: 'Grupos de WhatsApp', href: '/#grupos' },
-  { rotulo: 'Coloque o 2233', href: '/filtro' },
+  { id: 'nav-01', rotulo: 'Quem é Sofia', href: '/#origem' },
+  { id: 'nav-02', rotulo: 'Compromissos', href: '/#futuro' },
+  { id: 'nav-03', rotulo: 'Grupos de WhatsApp', href: '/#grupos' },
+  { id: 'nav-04', rotulo: 'Coloque o 2233', href: '/filtro' },
 ] as const
 
 export const ctas = {
@@ -98,10 +109,10 @@ export const origem = {
   ],
   citacao: 'Quem nunca dependeu de ninguém para chegar não precisa obedecer a ninguém para ficar.',
   linhaDoTempo: [
-    { ano: '1998', titulo: 'A infância no interior', texto: 'A vida começa em Rondônia, longe do asfalto.' }, // ⚠️ CONFIRMAR
-    { ano: '2010', titulo: 'O primeiro trabalho', texto: 'Aprende cedo que aqui nada cai do céu.' }, // ⚠️ CONFIRMAR
-    { ano: '2018', titulo: 'A virada', texto: 'Entra na vida pública para resolver o que ninguém resolvia.' }, // ⚠️ CONFIRMAR
-    { ano: '2026', titulo: 'Brasília', texto: 'Candidata a Deputada Federal pelo PL. Número 2233.' },
+    { id: 'tempo-01', ano: '1998', titulo: 'A infância no interior', texto: 'A vida começa em Rondônia, longe do asfalto.' }, // ⚠️ CONFIRMAR
+    { id: 'tempo-02', ano: '2010', titulo: 'O primeiro trabalho', texto: 'Aprende cedo que aqui nada cai do céu.' }, // ⚠️ CONFIRMAR
+    { id: 'tempo-03', ano: '2018', titulo: 'A virada', texto: 'Entra na vida pública para resolver o que ninguém resolvia.' }, // ⚠️ CONFIRMAR
+    { id: 'tempo-04', ano: '2026', titulo: 'Brasília', texto: 'Candidata a Deputada Federal pelo PL. Número 2233.' },
   ],
 } as const
 
@@ -116,6 +127,7 @@ export const problema = {
     'Em troca recebe estrada esburacada, hospital cheio e imposto novo.',
   itens: [
     {
+      id: 'item-01',
       numero: '01',
       titulo: 'O produtor vira réu',
       texto:
@@ -123,6 +135,7 @@ export const problema = {
         'Multa ambiental de gabinete não recupera nada. Só quebra família.',
     },
     {
+      id: 'item-02',
       numero: '02',
       titulo: 'A saúde vira fila',
       texto:
@@ -130,6 +143,7 @@ export const problema = {
         'Gente de Rondônia morre esperando vaga em outro estado.',
     },
     {
+      id: 'item-03',
       numero: '03',
       titulo: 'A segurança vira sorte',
       texto:
@@ -137,6 +151,7 @@ export const problema = {
         'Quem defende a própria família ainda corre risco de virar processo.',
     },
     {
+      id: 'item-04',
       numero: '04',
       titulo: 'O imposto vira hábito',
       texto:
@@ -157,31 +172,37 @@ export const valores = {
     'Este é o meu, escrito antes da eleição para você poder cobrar depois dela.',
   itens: [
     {
+      id: 'item-05',
       chave: 'familia',
       titulo: 'Família',
       texto: 'Pai e mãe decidem a educação dos próprios filhos. Não o Estado, não a moda, não Brasília.',
     },
     {
+      id: 'item-06',
       chave: 'liberdade',
       titulo: 'Liberdade',
       texto: 'Trabalhar, empreender, falar e crer sem pedir autorização para funcionário público nenhum.',
     },
     {
+      id: 'item-07',
       chave: 'segurança',
       titulo: 'Segurança',
       texto: 'Lei dura com quem faz o mal e respaldo total para quem defende a própria vida e a dos seus.',
     },
     {
+      id: 'item-08',
       chave: 'producao',
       titulo: 'Produção',
       texto: 'Quem produz é herói, não vilão. Regularização fundiária e fim da perseguição ao homem do campo.',
     },
     {
+      id: 'item-09',
       chave: 'imposto',
       titulo: 'Menos imposto',
       texto: 'Cada real que sai do seu bolso tem que voltar em serviço. Se não volta, é confisco.',
     },
     {
+      id: 'item-10',
       chave: 'fe',
       titulo: 'Fé',
       texto: 'Respeito e defesa da liberdade religiosa de cada família de Rondônia.',
@@ -200,25 +221,28 @@ export const provas = {
   intro:
     'Promessa qualquer um faz na véspera. O que separa candidato de gente séria é o que já está pronto e pode ser conferido.',
   numeros: [
-    { valor: '52', unidade: 'municípios', texto: 'percorridos ouvindo quem mora e trabalha em cada um' }, // ⚠️ CONFIRMAR
-    { valor: '00', unidade: 'milhões', texto: 'em recursos destinados a Rondônia' }, // ⚠️ CONFIRMAR
-    { valor: '00', unidade: 'entidades', texto: 'sociais atendidas com apoio direto' }, // ⚠️ CONFIRMAR
-    { valor: '00', unidade: 'famílias', texto: 'beneficiadas pelos programas apoiados' }, // ⚠️ CONFIRMAR
+    { id: 'num-01', valor: '52', unidade: 'municípios', texto: 'percorridos ouvindo quem mora e trabalha em cada um' }, // ⚠️ CONFIRMAR
+    { id: 'num-02', valor: '00', unidade: 'milhões', texto: 'em recursos destinados a Rondônia' }, // ⚠️ CONFIRMAR
+    { id: 'num-03', valor: '00', unidade: 'entidades', texto: 'sociais atendidas com apoio direto' }, // ⚠️ CONFIRMAR
+    { id: 'num-04', valor: '00', unidade: 'famílias', texto: 'beneficiadas pelos programas apoiados' }, // ⚠️ CONFIRMAR
   ],
   entregas: [
     {
+      id: 'entrega-01',
       titulo: 'Título de entrega 1', // ⚠️ CONFIRMAR
       municipio: 'Município', // ⚠️ CONFIRMAR
       texto: 'Descrição curta e verificável do que foi entregue, com valor e data.',
       valor: 'R$ 0,0 mi', // ⚠️ CONFIRMAR
     },
     {
+      id: 'entrega-02',
       titulo: 'Título de entrega 2', // ⚠️ CONFIRMAR
       municipio: 'Município', // ⚠️ CONFIRMAR
       texto: 'Descrição curta e verificável do que foi entregue, com valor e data.',
       valor: 'R$ 0,0 mi', // ⚠️ CONFIRMAR
     },
     {
+      id: 'entrega-03',
       titulo: 'Título de entrega 3', // ⚠️ CONFIRMAR
       municipio: 'Município', // ⚠️ CONFIRMAR
       texto: 'Descrição curta e verificável do que foi entregue, com valor e data.',
@@ -239,6 +263,7 @@ export const futuro = {
     'Não são vinte bandeiras para não caber nenhuma. São cinco, escritas de um jeito que dá para cobrar em quatro anos.',
   itens: [
     {
+      id: 'item-11',
       numero: '01',
       titulo: 'Regularização fundiária de verdade',
       texto:
@@ -246,6 +271,7 @@ export const futuro = {
         'sendo tratado como invasor da própria vida.',
     },
     {
+      id: 'item-12',
       numero: '02',
       titulo: 'Saúde que não faz esperar',
       texto:
@@ -253,18 +279,21 @@ export const futuro = {
         'Ninguém deveria precisar sair do estado para ser atendido.',
     },
     {
+      id: 'item-13',
       numero: '03',
       titulo: 'Segurança com respaldo',
       texto:
         'Apoio à polícia, endurecimento de pena para crime violento e defesa de quem protege a própria família.',
     },
     {
+      id: 'item-14',
       numero: '04',
       titulo: 'Menos imposto para quem produz',
       texto:
         'Voto contra qualquer aumento de carga tributária sobre o pequeno produtor, o comerciante e o autônomo.',
     },
     {
+      id: 'item-15',
       numero: '05',
       titulo: 'Estrada e energia',
       texto:
@@ -309,10 +338,10 @@ export const filtro = {
     'Sua foto não sai do seu aparelho. Nada é enviado, nada é guardado, não precisa cadastro. ' +
     'É tudo feito aqui dentro do seu celular.',
   passos: [
-    { numero: '1', titulo: 'Escolha a moldura', texto: 'Story para postar ou quadrado para foto de perfil.' },
-    { numero: '2', titulo: 'Escolha sua foto', texto: 'Do rolo da câmera mesmo. Ela não sai daqui.' },
-    { numero: '3', titulo: 'Ajuste', texto: 'Arraste e dê zoom até o rosto ficar bem enquadrado.' },
-    { numero: '4', titulo: 'Salve e poste', texto: 'Baixe, compartilhe ou segure na foto para salvar.' },
+    { id: 'passo-01', numero: '1', titulo: 'Escolha a moldura', texto: 'Story para postar ou quadrado para foto de perfil.' },
+    { id: 'passo-02', numero: '2', titulo: 'Escolha sua foto', texto: 'Do rolo da câmera mesmo. Ela não sai daqui.' },
+    { id: 'passo-03', numero: '3', titulo: 'Ajuste', texto: 'Arraste e dê zoom até o rosto ficar bem enquadrado.' },
+    { id: 'passo-04', numero: '4', titulo: 'Salve e poste', texto: 'Baixe, compartilhe ou segure na foto para salvar.' },
   ],
   formatos: {
     story: { rotulo: 'Story', descricao: '1080 × 1920 — para postar no Instagram e no status' },
@@ -370,9 +399,9 @@ export const ctaFinal = {
 export const rodape = {
   assinatura: 'Feito em Rondônia.',
   links: [
-    { rotulo: 'Grupos de WhatsApp', href: '/grupos' },
-    { rotulo: 'Coloque o 2233 na sua foto', href: '/filtro' },
-    { rotulo: 'Política de privacidade', href: '/politica-de-privacidade' },
+    { id: 'link-01', rotulo: 'Grupos de WhatsApp', href: '/grupos' },
+    { id: 'link-02', rotulo: 'Coloque o 2233 na sua foto', href: '/filtro' },
+    { id: 'link-03', rotulo: 'Política de privacidade', href: '/politica-de-privacidade' },
   ],
   legalRotulo: 'Propaganda eleitoral',
   aviso:
@@ -386,3 +415,37 @@ export const privacidade = {
     'Resumo em uma frase: esta página não pede seu nome, não pede seu telefone, ' +
     'não guarda sua foto e não guarda sua localização.',
 } as const
+
+// ═══════════════════════════════════════════════════════════════
+// PADRÃO DE FÁBRICA
+//
+// Este objeto é a VERDADE PADRÃO do site. O banco guarda apenas o
+// que a campanha editou, e `lib/conteudo` mescla um sobre o outro.
+//
+// Consequência que vale dizer em voz alta: com o banco vazio, ou com
+// a linha de uma seção apagada, o site volta exatamente para o que
+// está escrito aqui. É por isso que nada disto é semeado por
+// migration — semear congelaria a copy no dia do deploy.
+// ═══════════════════════════════════════════════════════════════
+
+export const PADRAO = {
+  candidata,
+  meta,
+  navegacao,
+  ctas,
+  hero,
+  origem,
+  problema,
+  valores,
+  provas,
+  futuro,
+  grupos,
+  filtro,
+  compartilhar,
+  ctaFinal,
+  rodape,
+  privacidade,
+} as const
+
+/** As chaves de seção que o banco aceita. */
+export const SECOES = Object.keys(PADRAO) as (keyof typeof PADRAO)[]

@@ -1,4 +1,4 @@
-import { provas } from '@/content/copy'
+import { lerConteudo } from '@/lib/conteudo/ler'
 import { Secao, CabecalhoSecao } from '@/components/ui/Secao'
 import { QuadroImagem } from '@/components/ui/QuadroImagem'
 import { Aviso } from '@/components/ui/Aviso'
@@ -7,7 +7,9 @@ import { Aviso } from '@/components/ui/Aviso'
  * ⚠️ Todos os números desta seção são placeholder até a campanha
  *    entregar os dados auditáveis. Ver content/copy.ts e PENDENCIAS.md.
  */
-export function Provas() {
+export async function Provas() {
+  const { provas } = await lerConteudo()
+
   return (
     <Secao id="provas" fundo="azul-profundo" espaco="solto" className="overflow-hidden">
 
@@ -23,7 +25,7 @@ export function Provas() {
         <ul className="mt-14 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
           {provas.numeros.map((n, i) => (
             <li
-              key={n.texto}
+              key={n.id}
               data-revelar
               style={{ ['--atraso' as string]: `${i * 80}ms` }}
               className="rounded-2xl border border-white/10 bg-white/[0.06] p-7"
@@ -41,7 +43,7 @@ export function Provas() {
         <ul className="mt-6 grid gap-5 md:grid-cols-3">
           {provas.entregas.map((e, i) => (
             <li
-              key={i}
+              key={e.id}
               data-revelar
               style={{ ['--atraso' as string]: `${i * 80}ms` }}
               className="flex flex-col overflow-hidden rounded-2xl border border-white/10 bg-white/[0.06]"

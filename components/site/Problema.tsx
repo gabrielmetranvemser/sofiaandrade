@@ -1,7 +1,9 @@
-import { problema } from '@/content/copy'
+import { lerConteudo } from '@/lib/conteudo/ler'
 import { Secao, CabecalhoSecao } from '@/components/ui/Secao'
 
-export function Problema() {
+export async function Problema() {
+  const { problema } = await lerConteudo()
+
   return (
     <Secao id="problema" fundo="areia" espaco="solto">
       <CabecalhoSecao
@@ -18,7 +20,7 @@ export function Problema() {
       <ul className="mt-14 grid gap-5 md:grid-cols-2">
         {problema.itens.map((item, i) => (
           <li
-            key={item.numero}
+            key={item.id}
             data-revelar
             style={{ ['--atraso' as string]: `${i * 80}ms` }}
             className="cartao group p-7 transition-all duration-300 hover:-translate-y-1 hover:shadow-media md:p-8"
