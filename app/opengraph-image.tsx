@@ -12,7 +12,6 @@ import { candidata, meta } from '@/content/copy'
  * arquivo chegar. Quando a arte oficial chegar, trocar por um PNG
  * estático em app/opengraph-image.png (o Next prioriza o arquivo).
  */
-export const runtime = 'edge'
 export const alt = `${candidata.nome} — ${candidata.numero}`
 export const size = { width: 1200, height: 630 }
 export const contentType = 'image/png'
