@@ -27,11 +27,7 @@ export async function Valores() {
     <Secao id="valores" fundo="verde" espaco="solto">
       <CabecalhoSecao
         etiqueta={valores.etiqueta}
-        titulo={
-          <>
-            Tem coisa que <span className="text-amarelo">não entra em acordo.</span>
-          </>
-        }
+        titulo={valores.titulo}
         intro={valores.intro}
         tom="escuro"
       />

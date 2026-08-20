@@ -8,12 +8,7 @@ export async function Problema() {
     <Secao id="problema" fundo="areia" espaco="solto">
       <CabecalhoSecao
         etiqueta={problema.etiqueta}
-        titulo={
-          <>
-            Rondônia produz.{' '}
-            <span className="text-azul">Brasília consome.</span>
-          </>
-        }
+        titulo={problema.titulo}
         intro={problema.intro}
       />
 

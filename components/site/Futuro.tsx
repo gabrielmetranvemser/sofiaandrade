@@ -8,11 +8,8 @@ export async function Futuro() {
     <Secao id="futuro" fundo="branco" espaco="solto">
       <CabecalhoSecao
         etiqueta={futuro.etiqueta}
-        titulo={
-          <>
-            Cinco compromissos. <span className="grifo">Assinados.</span>
-          </>
-        }
+        titulo={futuro.titulo}
+        destaque="grifo"
         intro={futuro.intro}
       />
 

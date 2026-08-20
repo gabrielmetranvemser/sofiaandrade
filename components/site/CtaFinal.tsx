@@ -1,5 +1,6 @@
 import { lerConteudo } from '@/lib/conteudo/ler'
 import { BotaoLink } from '@/components/ui/Botao'
+import { TextoComDestaque } from '@/components/ui/TextoComDestaque'
 import { Numero } from '@/components/ui/Marca'
 import { CliqueGrupo } from './CliqueGrupo'
 
@@ -13,7 +14,7 @@ export async function CtaFinal({ silencio = false }: { silencio?: boolean }) {
         <h2 data-revelar className="titulo-cartaz text-white">
           {ctaFinal.titulo.map((linha, i) => (
             <span key={i} className="block">
-              {i === 1 ? <span className="text-amarelo">{linha}</span> : linha}
+              <TextoComDestaque texto={linha} tom="amarelo" />
             </span>
           ))}
         </h2>
