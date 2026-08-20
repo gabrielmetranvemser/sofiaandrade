@@ -13,7 +13,14 @@ import { evento } from '@/lib/eventos'
  * A origem 'flutuante' no evento é o que responde, em duas semanas,
  * se ele trabalha ou é enfeite.
  */
-export function BotaoFlutuante({ silencio = false }: { silencio?: boolean }) {
+export function BotaoFlutuante({
+  silencio = false,
+  destino = '/#grupos',
+}: {
+  silencio?: boolean
+  /** Muda para /grupos quando a seção de grupos está desligada. */
+  destino?: string
+}) {
   const { ctas } = useConteudo()
   const [visivel, setVisivel] = useState(false)
 
@@ -56,7 +63,7 @@ export function BotaoFlutuante({ silencio = false }: { silencio?: boolean }) {
       }`}
     >
       <Link
-        href="/#grupos"
+        href={destino}
         onClick={() => evento('clicou_cta', { origem: 'flutuante' })}
         className="toque flex min-h-14 w-full items-center justify-center gap-3 rounded-full bg-verde px-7 font-semibold text-white shadow-alta transition-all duration-300 hover:brightness-110 md:w-auto"
       >

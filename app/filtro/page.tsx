@@ -26,6 +26,7 @@ export async function generateMetadata(): Promise<Metadata> {
 }
 
 export default async function PaginaFiltro() {
+  const simboloDaMarca = (await lerSlots())['marca.simbolo']?.url ?? null
   const [{ filtro: copy }, slots, apoios] = await Promise.all([
     lerConteudo(),
     lerSlots(),
@@ -41,7 +42,7 @@ export default async function PaginaFiltro() {
 
   return (
     <>
-      <Header silencio={silencio} />
+      <Header silencio={silencio} simbolo={simboloDaMarca} />
 
       <main id="conteudo" className="pt-[4.5rem]">
         {/* A faixa do webview do Instagram fica no TOPO da página,

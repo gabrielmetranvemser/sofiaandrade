@@ -6,7 +6,16 @@
  */
 
 interface Props {
-  proporcao?: '1/1' | '4/5' | '3/4' | '16/9' | '9/16' | '3/2' | '5/4'
+  /**
+   * A proporção reservada. Uma string livre porque nem todo espaço
+   * tem proporção fixa: os prints de comentário aceitam qualquer uma,
+   * e ali o placeholder usa a razão do TAMANHO MÍNIMO do espaço. Sem
+   * isso, um print largo e baixo aparecia como um retângulo em pé de
+   * 4:5 — o placeholder mentia sobre o que ia entrar no lugar dele.
+   */
+  proporcao?: string
+  /** Mostra "proporção livre" em vez da razão. */
+  livre?: boolean
   rotulo?: string
   nota?: string
   tom?: 'claro' | 'escuro' | 'azul'
@@ -30,6 +39,7 @@ const RAIOS = {
 
 export function QuadroImagem({
   proporcao = '4/5',
+  livre = false,
   rotulo = 'Imagem',
   nota,
   tom = 'claro',
@@ -57,7 +67,9 @@ export function QuadroImagem({
           <path d="M5 4h14a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2Zm0 2v9.6l3.7-3.4a1 1 0 0 1 1.36 0L13 15l2.4-2.2a1 1 0 0 1 1.35 0L19 14.8V6H5Zm4.5 1.5a1.75 1.75 0 1 1 0 3.5 1.75 1.75 0 0 1 0-3.5Z" />
         </svg>
         <span className="text-sm font-semibold tracking-[-0.01em]">{rotulo}</span>
-        <span className="text-xs opacity-70">{proporcao.replace('/', ' : ')}</span>
+        <span className="text-xs opacity-70">
+          {livre ? 'proporção livre' : proporcao.replace('/', ' : ')}
+        </span>
         {nota ? <span className="mt-1 max-w-[24ch] text-xs leading-relaxed opacity-70">{nota}</span> : null}
       </div>
     </div>

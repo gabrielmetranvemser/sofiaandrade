@@ -1,5 +1,7 @@
 import { lerConteudo } from '@/lib/conteudo/ler'
+import { lerSlots } from '@/lib/midia/ler'
 import { Secao, CabecalhoSecao } from '@/components/ui/Secao'
+import { Imagem } from '@/components/ui/Imagem'
 
 const ICONES: Record<string, React.ReactNode> = {
   familia: (
@@ -32,7 +34,7 @@ const ICONES: Record<string, React.ReactNode> = {
 }
 
 export async function Valores() {
-  const { valores } = await lerConteudo()
+  const [{ valores }, slots] = await Promise.all([lerConteudo(), lerSlots()])
 
   return (
     <Secao id="valores" fundo="verde" espaco="solto">
@@ -64,6 +66,80 @@ export async function Valores() {
           </li>
         ))}
       </ul>
+
+      {/* A foto de apoio, com a frase que fecha a seção.
+          Os ícones dizem o que ela defende; a foto diz que ela vive
+          disso. Fica no fim e não no começo de propósito — quem chegou
+          até aqui já leu as seis bandeiras, e a imagem fecha em vez de
+          anunciar.
+
+          ⚠️ ISTO JÁ FOI UMA LINHA DE TEXTO AO LADO DE UMA FOTO PEQUENA,
+          e ficou ruim por um motivo estrutural, não de gosto: a frase
+          são quatro palavras, então uma coluna de 1,2fr recebia meia
+          linha de texto e mais de meia tela de verde vazio. Uma palavra
+          por linha resolve — o texto passa a ter altura, encosta na
+          altura da foto, e as quatro afirmações ganham o peso de
+          manifesto em vez de virarem uma legenda.
+
+          ⚠️ O ícone desta seção evita desenhar arma por causa de
+          classificador de rede social (ver ICONES, acima). Uma FOTO
+          pesa mais nesse classificador que um ícone. A escolha do que
+          sobe neste espaço é da campanha, e está registrada no card do
+          espaço `valores.imagem` no painel. */}
+      <figure
+        data-revelar
+        className="mt-14 grid overflow-hidden rounded-3xl bg-verde-escuro/35 ring-1 ring-white/15 md:mt-16 md:grid-cols-[0.9fr_1.1fr]"
+      >
+        {/* `object-cover` com altura mínima: a foto preenche a coluna
+            inteira em vez de flutuar dentro de um cartão acolchoado. */}
+        <div className="relative min-h-[19rem] md:min-h-[26rem]">
+          <Imagem
+            slot="valores.imagem"
+            slots={slots}
+            sizes="(max-width: 768px) 100vw, 42vw"
+            /* No celular a caixa é quase quadrada e o recorte centrado
+               come a cabeça: uma foto 3:4 perde topo e base por igual.
+               Puxar para 35% preserva o rosto. No desktop a coluna é
+               alta e o centro já enquadra certo. */
+            className="absolute inset-0 size-full object-cover object-[50%_35%] md:object-center"
+          />
+          {/* Emenda entre a foto e o verde. Sem ela a foto termina num
+              corte reto no meio do cartão e lê como imagem colada. */}
+          <div
+            aria-hidden
+            className="absolute inset-0 bg-gradient-to-t from-verde-escuro/70 via-transparent to-transparent md:bg-gradient-to-r md:from-transparent md:via-transparent md:to-verde-escuro/60"
+          />
+        </div>
+
+        <figcaption className="flex flex-col justify-center gap-1 p-7 md:p-12">
+          {palavras(valores.frase).map((palavra, i) => (
+            <span
+              key={palavra}
+              data-revelar
+              style={{ ['--atraso' as string]: `${i * 90}ms` }}
+              className="font-[family-name:var(--font-titulo)] text-3xl leading-[1.06] font-bold tracking-[-0.03em] text-white md:text-5xl"
+            >
+              {palavra}
+              <span className="text-amarelo">.</span>
+            </span>
+          ))}
+        </figcaption>
+      </figure>
     </Secao>
   )
+}
+
+/**
+ * "Cristã. Patriota. Armamentista." → uma palavra por linha.
+ *
+ * O ponto final é devolvido pelo componente, em amarelo. Se o admin
+ * escrever uma frase corrida em vez das quatro palavras, isto devolve
+ * as orações dela — que continua legível, só não fica igual.
+ */
+function palavras(frase: string): string[] {
+  const partes = frase
+    .split('.')
+    .map((p) => p.trim())
+    .filter(Boolean)
+  return partes.length > 0 ? partes : [frase]
 }

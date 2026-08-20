@@ -40,9 +40,16 @@ export function Imagem({
         />
       )
     }
+    // Espaço sem proporção fixa reserva a razão do próprio mínimo. É
+    // a melhor aproximação disponível do que vai entrar ali: um print
+    // de comentário (600×160) reserva uma faixa larga e baixa, não um
+    // retrato em pé.
     return (
       <QuadroImagem
-        proporcao={(def?.proporcao ?? '4/5') as '4/5'}
+        proporcao={
+          def?.proporcao ?? (def ? `${def.larguraMin}/${def.alturaMin}` : '4/5')
+        }
+        livre={def ? def.proporcao === null : false}
         rotulo={def?.rotulo ?? 'Imagem'}
         nota={def ? `mínimo ${def.larguraMin}×${def.alturaMin}` : undefined}
         className={className}

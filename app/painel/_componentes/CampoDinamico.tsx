@@ -69,6 +69,46 @@ export function CampoDinamico({ campo, valor, caminho, erros, onMudar }: Props) 
 
   if (campo.tipo === 'oculto') return null
 
+  // ── interruptor ──────────────────────────────────────────────
+  // Rótulo à esquerda e chave à direita, no padrão de uma tela de
+  // ajustes — e não caixinha de marcar. É uma escolha de leitura: numa
+  // lista de treze seções, o que a pessoa precisa varrer com o olho é
+  // O QUE ESTÁ LIGADO, e chave alinhada à direita forma uma coluna que
+  // se lê de cima a baixo. Caixinha antes do texto não forma coluna.
+  if (campo.tipo === 'booleano') {
+    const ligado = valor === true || valor === 'true'
+    return (
+      <div className="flex items-start justify-between gap-4 border-b border-linha py-3 last:border-b-0">
+        <span className="min-w-0">
+          <label htmlFor={id} className="block text-sm font-medium">
+            {campo.rotulo}
+          </label>
+          {campo.ajuda ? (
+            <span className="mt-0.5 block text-xs text-grafite">{campo.ajuda}</span>
+          ) : null}
+        </span>
+
+        <button
+          type="button"
+          id={id}
+          role="switch"
+          aria-checked={ligado}
+          aria-label={campo.rotulo}
+          onClick={() => onMudar(caminho, !ligado)}
+          className={`relative mt-0.5 inline-flex h-7 w-12 shrink-0 items-center rounded-full transition-colors duration-200 ${
+            ligado ? 'bg-verde' : 'bg-linha'
+          }`}
+        >
+          <span
+            className={`inline-block size-5 rounded-full bg-white shadow-suave transition-transform duration-200 ${
+              ligado ? 'translate-x-6' : 'translate-x-1'
+            }`}
+          />
+        </button>
+      </div>
+    )
+  }
+
   // ── texto e parágrafo ────────────────────────────────────────
   if (campo.tipo === 'texto' || campo.tipo === 'longo') {
     const v = typeof valor === 'string' ? valor : ''
@@ -363,6 +403,7 @@ function itemVazio(campos: Record<string, Campo>): Record<string, unknown> {
   const saida: Record<string, unknown> = {}
   for (const [chave, campo] of Object.entries(campos)) {
     if (campo.tipo === 'oculto') saida[chave] = crypto.randomUUID().slice(0, 8)
+    else if (campo.tipo === 'booleano') saida[chave] = true
     else if (campo.tipo === 'lista') saida[chave] = []
     else if (campo.tipo === 'listaTexto') saida[chave] = ['']
     else if (campo.tipo === 'grupo') saida[chave] = itemVazio(campo.campos)

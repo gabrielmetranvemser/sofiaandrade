@@ -40,6 +40,13 @@ function validarCampo(
     case 'oculto':
       return typeof valor === 'string' ? valor : ''
 
+    // O formulário manda 'true'/'false' como texto (é o que cabe num
+    // JSON de campo). Normalizar AQUI é o que garante que o banco nunca
+    // receba a string 'false', que em JavaScript é verdadeira e faria a
+    // seção desligada continuar no ar.
+    case 'booleano':
+      return valor === true || valor === 'true'
+
     case 'texto':
     case 'longo': {
       const t = limpo(valor)

@@ -1,4 +1,5 @@
 import type { Metadata } from 'next'
+import { lerSlots } from '@/lib/midia/ler'
 import Link from 'next/link'
 import { headers } from 'next/headers'
 import { lerConteudo } from '@/lib/conteudo/ler'
@@ -39,6 +40,7 @@ export default async function PaginaGrupos({
     silencio?: string
   }>
 }) {
+  const simboloDaMarca = (await lerSlots())['marca.simbolo']?.url ?? null
   const [municipios, cabecalhos, params, conteudo] = await Promise.all([
     listarMunicipiosComStatus(),
     headers(),
@@ -65,7 +67,7 @@ export default async function PaginaGrupos({
   return (
     <>
       <RegistroDePagina />
-      <Header silencio={emSilencioEleitoral()} />
+      <Header silencio={emSilencioEleitoral()} simbolo={simboloDaMarca} />
 
       <main id="conteudo" className="pt-24 md:pt-28">
         <section className="relative isolate overflow-hidden bg-white pb-12 pt-8 md:pb-16">

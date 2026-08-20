@@ -150,6 +150,31 @@
   @media (min-width: 768px) { padding-inline: 2rem; }
 }
 
+/* A trilha do álbum. Sangra até a borda da tela no celular e volta a
+   ser grade comum a partir de 768px — onde existe trackpad, barra
+   rolável horizontal rouba o scroll vertical da página.
+
+   A calha é reposta em padding para o primeiro cartão nascer alinhado
+   ao título, em vez de colado na borda. `scroll-padding` repete a
+   conta porque o encaixe do snap ignora o padding do contêiner. */
+@utility album-trilha {
+  margin-inline: -1.25rem;
+  padding-inline: 1.25rem;
+  scroll-padding-inline: 1.25rem;
+  /* Sem isto, chegar ao fim da trilha continua o gesto no histórico do
+     navegador — no iOS, deslizar a última foto volta a página. */
+  overscroll-behavior-x: contain;
+  scrollbar-width: none;
+
+  &::-webkit-scrollbar { display: none; }
+
+  @media (min-width: 768px) {
+    margin-inline: 0;
+    padding-inline: 0;
+    overscroll-behavior-x: auto;
+  }
+}
+
 @utility titulo-cartaz {
   font-family: var(--font-titulo);
   font-weight: 700;

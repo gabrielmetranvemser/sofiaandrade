@@ -6,8 +6,30 @@ import { useConteudo } from '@/lib/conteudo/contexto'
 import { evento } from '@/lib/eventos'
 import { Simbolo } from '@/components/ui/Marca'
 
-export function Header({ silencio = false }: { silencio?: boolean }) {
+export function Header({
+  silencio = false,
+  simbolo = null,
+  ocultas = [],
+}: {
+  silencio?: boolean
+  /** URL do espaço `marca.simbolo`. Vem do servidor: o Header é cliente. */
+  simbolo?: string | null
+  /** Ids de seção desligadas no painel. Somem do menu. */
+  ocultas?: string[]
+}) {
   const { candidata, ctas, navegacao } = useConteudo()
+  // Item de menu apontando para âncora que não existe mais não dá
+  // erro: ele só não faz nada. Fora do menu é mais honesto.
+  // O botão do próprio cabeçalho seguia com destino fixo. Com a seção
+  // de grupos desligada ele virava clique morto — o pior tipo de bug,
+  // porque não dá erro nenhum.
+  const paraOsGrupos = ocultas.includes('grupos') ? '/grupos' : '/#grupos'
+
+  const itens = navegacao.itens.filter((item) => {
+    const ancora = item.href.match(/#([\w-]+)/)
+    return !ancora || !ocultas.includes(ancora[1])
+  })
+
   const [rolou, setRolou] = useState(false)
   const [aberto, setAberto] = useState(false)
 
@@ -37,7 +59,7 @@ export function Header({ silencio = false }: { silencio?: boolean }) {
           }`}
         >
           <Link href="/" className="flex items-center gap-3" aria-label={`${candidata.nome} — início`}>
-            <Simbolo prioridade className="h-8 w-auto shrink-0" />
+            <Simbolo prioridade url={simbolo} className="h-8 w-auto shrink-0" />
             <span className="leading-tight">
               <span className="block font-[family-name:var(--font-titulo)] text-[1.0625rem] font-bold tracking-[-0.025em]">
                 {candidata.nome}
@@ -53,7 +75,7 @@ export function Header({ silencio = false }: { silencio?: boolean }) {
           </Link>
 
           <nav className="hidden items-center gap-1 lg:flex" aria-label="Principal">
-            {navegacao.itens.map((item) => (
+            {itens.map((item) => (
               <Link
                 key={item.href}
                 href={item.href}
@@ -71,7 +93,7 @@ export function Header({ silencio = false }: { silencio?: boolean }) {
           <div className="flex items-center gap-2">
             {!silencio ? (
               <Link
-                href="/#grupos"
+                href={paraOsGrupos}
                 onClick={() => evento('clicou_cta', { origem: 'topo' })}
                 className="toque hidden min-h-11 items-center rounded-full bg-amarelo px-5 text-[0.9375rem] font-semibold text-azul-escuro shadow-suave transition-all hover:brightness-105 sm:inline-flex"
               >
@@ -128,7 +150,7 @@ export function Header({ silencio = false }: { silencio?: boolean }) {
             className="mt-2 rounded-2xl border border-linha bg-white p-2 shadow-media lg:hidden"
             aria-label="Menu mobile"
           >
-            {navegacao.itens.map((item) => (
+            {itens.map((item) => (
               <Link
                 key={item.href}
                 href={item.href}
@@ -140,7 +162,7 @@ export function Header({ silencio = false }: { silencio?: boolean }) {
             ))}
             {!silencio ? (
               <Link
-                href="/#grupos"
+                href={paraOsGrupos}
                 onClick={() => {
                   setAberto(false)
                   evento('clicou_cta', { origem: 'topo' })

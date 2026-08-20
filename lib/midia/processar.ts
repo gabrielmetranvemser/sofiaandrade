@@ -102,10 +102,35 @@ export async function processarImagem(arquivo: File, slot: Slot): Promise<Proces
     }
   }
 
-  if (slot.alpha && !meta.hasAlpha) {
-    throw new ErroImagem(
-      'Esta imagem precisa ter fundo transparente. Envie um PNG recortado, não JPEG.',
-    )
+  if (slot.alpha) {
+    if (!meta.hasAlpha) {
+      throw new ErroImagem(
+        'Esta imagem precisa ter fundo transparente. Envie um PNG recortado, não JPEG.',
+      )
+    }
+
+    // ⚠️ `hasAlpha` NÃO BASTA, e essa diferença já custou caro.
+    //
+    // Todo PNG tem canal alfa, mesmo quando nenhum pixel é
+    // transparente. Uma FOTO exportada como PNG passa nesta conferência
+    // sem problema — e foi o que aconteceu: subiram um retrato no
+    // espaço da moldura, o arquivo foi aceito, e o gerador de filtro
+    // passou a cobrir a foto de quem usa com um retângulo opaco. Não
+    // dava erro em lugar nenhum. A pessoa escolhia a foto, apertava
+    // salvar e recebia uma imagem que não era a dela.
+    //
+    // `isOpaque` responde a pergunta certa: existe pixel vazado aqui?
+    const { isOpaque } = await sharp(bruto, { limitInputPixels: MAX_PIXELS }).stats()
+    if (isOpaque) {
+      throw new ErroImagem(
+        slot.exata
+          ? 'Esta é uma MOLDURA e o miolo dela precisa ser vazado — é por ali que aparece a foto de quem usa. ' +
+            'A imagem enviada é opaca do começo ao fim (parece uma foto, não uma moldura). ' +
+            'Exporte a arte em PNG com o centro transparente.'
+          : 'Esta imagem tem canal de transparência, mas nenhum pixel transparente de fato — ' +
+            'ou seja, o fundo continua lá. Recorte o fundo num editor e exporte o PNG de novo.',
+      )
+    }
   }
 
   // ── conversão ──────────────────────────────────────────────────
