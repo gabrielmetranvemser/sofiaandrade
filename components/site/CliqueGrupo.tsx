@@ -6,8 +6,12 @@ import { evento } from '@/lib/eventos'
 import type { OrigemClique } from '@/lib/tipos'
 
 /**
- * Envelope fino em volta de um CTA de grupo, só para registrar de
- * onde partiu o clique. Mantém o resto do hero como Server Component.
+ * Envelope fino em volta de um CTA que leva à lista de grupos.
+ *
+ * Grava `clicou_cta`, NÃO `clicou_grupo`: este botão só rola a tela
+ * até a lista. Quem grava a entrada de verdade é a rota /g/[slug],
+ * quando a pessoa sai para o WhatsApp. Sem essa separação o painel
+ * diria que o hero converte quando ele só rolou a página.
  */
 export function CliqueGrupo({
   origem,
@@ -24,7 +28,7 @@ export function CliqueGrupo({
     <Link
       href={href}
       className={className}
-      onClick={() => evento('clicou_grupo', { origem })}
+      onClick={() => evento('clicou_cta', { origem })}
     >
       {children}
     </Link>

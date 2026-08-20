@@ -40,6 +40,9 @@ export type TipoEvento =
   | 'rolou_90'
   | 'buscou_cidade'
   | 'usou_localizacao'
+  /** apertou um botão que leva à lista de grupos — NÃO é entrada em grupo */
+  | 'clicou_cta'
+  /** saiu de fato para o WhatsApp. Só a rota /g/[slug] grava este. */
   | 'clicou_grupo'
   | 'entrou_grupo_indisponivel'
   | 'abriu_filtro'

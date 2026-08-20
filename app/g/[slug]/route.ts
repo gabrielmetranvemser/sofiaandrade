@@ -94,6 +94,13 @@ async function gravarEvento({
   origem: OrigemClique
   req: NextRequest
 }) {
+  // Id de sessão que o navegador passou em `?s=`. É o mesmo aleatório
+  // dos outros eventos, sem nome, sem telefone, sem IP — serve só para
+  // o painel conseguir dizer PESSOAS, e não só cliques. Clique de QR
+  // impresso não tem sessão, e aí fica null mesmo: é a verdade.
+  const s = req.nextUrl.searchParams.get('s')
+  const sessao = s && /^[0-9a-f-]{16,40}$/i.test(s) ? s : null
+
   if (!config.supabaseAtivo) return
   const sb = criarClienteAdmin()
   if (!sb) return
@@ -111,9 +118,7 @@ async function gravarEvento({
       grupo_id,
       origem,
       utm: utm || null,
-      // Sem sessão aqui: o clique de QR não passa pelo navegador da
-      // página, então não existe id de sessão para associar.
-      sessao: null,
+      sessao,
       dispositivo: /Mobile|Android|iPhone/i.test(ua) ? 'celular' : 'desktop',
     })
   } catch {

@@ -64,7 +64,7 @@ export function Header({ silencio = false }: { silencio?: boolean }) {
             {!silencio ? (
               <Link
                 href="/#grupos"
-                onClick={() => evento('clicou_grupo', { origem: 'topo' })}
+                onClick={() => evento('clicou_cta', { origem: 'topo' })}
                 className="hidden min-h-11 items-center rounded-full bg-azul px-5 text-[0.9375rem] font-semibold text-white shadow-suave transition-colors hover:bg-marinho sm:inline-flex"
               >
                 {ctas.grupoCurto}
@@ -122,7 +122,7 @@ export function Header({ silencio = false }: { silencio?: boolean }) {
                 href="/#grupos"
                 onClick={() => {
                   setAberto(false)
-                  evento('clicou_grupo', { origem: 'topo' })
+                  evento('clicou_cta', { origem: 'topo' })
                 }}
                 className="mt-2 flex min-h-14 items-center justify-center rounded-full bg-azul px-6 font-semibold text-white"
               >

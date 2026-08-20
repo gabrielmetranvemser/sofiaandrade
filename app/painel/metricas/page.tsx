@@ -1,4 +1,4 @@
-import { carregarMetricas, somarFunil } from '@/lib/metricas'
+import { carregarMetricas, somarFunil, type LinhaOrigem } from '@/lib/metricas'
 import { Aviso } from '@/components/ui/Aviso'
 
 export const dynamic = 'force-dynamic'
@@ -22,6 +22,40 @@ function Barra({ rotulo, valor, maximo, secundario }: { rotulo: string; valor: n
   )
 }
 
+/**
+ * Duas barras por origem: a clara é quem apertou o botão, a cheia é
+ * quem entrou no grupo. A distância entre as duas é o que interessa —
+ * botão muito clicado com pouca entrada é botão que promete e não entrega.
+ */
+function LinhaDeOrigem({ origem, maximo }: { origem: LinhaOrigem; maximo: number }) {
+  const pctBotao = maximo > 0 ? Math.round((origem.cliquesNoBotao / maximo) * 100) : 0
+  const pctEntrada = maximo > 0 ? Math.round((origem.entradas / maximo) * 100) : 0
+  const conversao =
+    origem.cliquesNoBotao > 0
+      ? Math.round((origem.entradas / origem.cliquesNoBotao) * 100)
+      : null
+
+  return (
+    <li className="py-3">
+      <div className="flex items-baseline justify-between gap-4 text-sm">
+        <span className="truncate font-medium">{origem.rotulo}</span>
+        <span className="shrink-0 text-grafite tabular-nums">
+          {origem.cliquesNoBotao} → {origem.entradas}
+          {conversao !== null ? ` · ${conversao}%` : ''}
+        </span>
+      </div>
+      <div className="mt-1.5 space-y-1">
+        <div className="h-1.5 overflow-hidden rounded-full bg-areia">
+          <div className="h-full rounded-full bg-azul/30" style={{ width: `${pctBotao}%` }} />
+        </div>
+        <div className="h-1.5 overflow-hidden rounded-full bg-areia">
+          <div className="h-full rounded-full bg-azul" style={{ width: `${pctEntrada}%` }} />
+        </div>
+      </div>
+    </li>
+  )
+}
+
 function Painel({ titulo, nota, children }: { titulo: string; nota?: string; children: React.ReactNode }) {
   return (
     <section className="rounded-2xl border border-linha bg-white p-6">
@@ -38,7 +72,7 @@ export default async function PainelMetricas() {
   const mes = somarFunil(m.funil, 30)
 
   const maxMunicipio = Math.max(1, ...m.porMunicipio.map((x) => x.cliques))
-  const maxOrigem = Math.max(1, ...m.porOrigem.map((x) => x.valor))
+  const maxOrigem = Math.max(1, ...m.porOrigem.map((x) => Math.max(x.cliquesNoBotao, x.entradas)))
   const maxUtm = Math.max(1, ...m.porUtm.map((x) => x.valor))
   const maxDisp = Math.max(1, ...m.porDispositivo.map((x) => x.valor))
 
@@ -46,7 +80,8 @@ export default async function PainelMetricas() {
     { r: 'Abriram a página', v: mes.viram },
     { r: 'Rolaram metade', v: mes.rolaramMetade },
     { r: 'Buscaram a cidade', v: mes.buscaram },
-    { r: 'Clicaram no grupo', v: mes.clicaram },
+    { r: 'Apertaram um botão de grupo', v: mes.clicaramCta },
+    { r: 'Entraram no grupo', v: mes.clicaram },
     { r: 'Abriram o filtro', v: mes.abriramFiltro },
     { r: 'Geraram a foto', v: mes.geraram },
     { r: 'Salvaram ou compartilharam', v: mes.salvaram },
@@ -97,12 +132,12 @@ export default async function PainelMetricas() {
 
         <Painel
           titulo="Qual botão trabalha"
-          nota="Origem do clique no grupo. Em duas semanas isto diz qual CTA é enfeite."
+          nota="Quantos apertaram o botão × quantos entraram no grupo de fato. Em duas semanas isto diz qual CTA é enfeite."
         >
           {m.porOrigem.length ? (
             <ul>
               {m.porOrigem.map((o) => (
-                <Barra key={o.rotulo} rotulo={o.rotulo} valor={o.valor} maximo={maxOrigem} secundario={o.secundario} />
+                <LinhaDeOrigem key={o.rotulo} origem={o} maximo={maxOrigem} />
               ))}
             </ul>
           ) : (

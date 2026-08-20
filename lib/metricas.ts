@@ -18,6 +18,7 @@ export interface FunilDia {
   rolaram_fim: number
   buscaram_cidade: number
   usaram_gps: number
+  clicaram_cta: number
   clicaram_grupo: number
   abriram_filtro: number
   geraram_filtro: number
@@ -40,11 +41,19 @@ export interface LinhaSimples {
   secundario?: number
 }
 
+/** Uma origem de clique: quantos apertaram × quantos entraram de fato. */
+export interface LinhaOrigem {
+  rotulo: string
+  cliquesNoBotao: number
+  entradas: number
+  pessoas: number
+}
+
 export interface Metricas {
   ativo: boolean
   funil: FunilDia[]
   porMunicipio: LinhaMunicipioMetrica[]
-  porOrigem: LinhaSimples[]
+  porOrigem: LinhaOrigem[]
   porUtm: LinhaSimples[]
   porDispositivo: LinhaSimples[]
 }
@@ -77,8 +86,9 @@ export async function carregarMetricas(): Promise<Metricas> {
     porMunicipio: (municipios.data ?? []) as LinhaMunicipioMetrica[],
     porOrigem: (origens.data ?? []).map((r: Record<string, unknown>) => ({
       rotulo: String(r.origem),
-      valor: Number(r.cliques ?? 0),
-      secundario: Number(r.pessoas ?? 0),
+      cliquesNoBotao: Number(r.cliques_no_botao ?? 0),
+      entradas: Number(r.entradas_em_grupo ?? 0),
+      pessoas: Number(r.pessoas ?? 0),
     })),
     porUtm: (utms.data ?? []).map((r: Record<string, unknown>) => ({
       rotulo: String(r.utm),
@@ -107,6 +117,7 @@ export function somarFunil(funil: FunilDia[], dias: number) {
     viram,
     rolaramMetade: soma('rolaram_metade'),
     buscaram: soma('buscaram_cidade'),
+    clicaramCta: soma('clicaram_cta'),
     clicaram,
     abriramFiltro: soma('abriram_filtro'),
     geraram,
