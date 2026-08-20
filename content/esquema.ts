@@ -29,6 +29,8 @@ export type Campo =
   | (Base & { tipo: 'ancora' })
   /** Existe no dado, não aparece na tela (ids, chaves técnicas). */
   | { tipo: 'oculto' }
+  /** Interruptor. Sempre grava true ou false — nunca string vazia. */
+  | (Base & { tipo: 'booleano' })
   /** Lista de strings simples — uma por linha do formulário. */
   | (Base & {
       tipo: 'listaTexto'
@@ -131,6 +133,57 @@ export const ESQUEMA: Record<string, SecaoEsquema> = {
     },
   },
 
+  album: {
+    rotulo: 'O álbum',
+    grupo: 'Página',
+    nota: 'Oito fotos do acervo de família. A legenda é o que dá contexto — sem ela é só foto antiga.',
+    campos: {
+      etiqueta: { tipo: 'texto', rotulo: 'Etiqueta', max: 40 },
+      titulo: { tipo: 'texto', rotulo: 'Título', max: 70, destaque: true },
+      intro: { tipo: 'longo', rotulo: 'Introdução', max: 300, linhas: 3 },
+      fotos: {
+        tipo: 'lista',
+        rotulo: 'Legendas das fotos',
+        rotuloItem: 'Foto',
+        titulo: 'legenda',
+        min: 3,
+        max: 8,
+        ajuda: 'A ordem aqui é a ordem na galeria, e casa com os espaços Foto 1 a Foto 8 na aba Imagens.',
+        item: {
+          id: ID,
+          legenda: { tipo: 'texto', rotulo: 'Legenda', max: 60 },
+          ano: { tipo: 'texto', rotulo: 'Lugar ou ano', max: 24, ajuda: 'Ex.: Iata · 1995' },
+        },
+      },
+      rodape: { tipo: 'texto', rotulo: 'Crédito', max: 80 },
+    },
+  },
+
+  rua: {
+    rotulo: 'A rua',
+    grupo: 'Página',
+    nota: '⚠️ As fotos desta seção são de terceiros. Sem autorização de uso, não publique.',
+    campos: {
+      etiqueta: { tipo: 'texto', rotulo: 'Etiqueta', max: 40, ajuda: 'Costuma ser o ano. Ex.: 2020' },
+      titulo: { tipo: 'texto', rotulo: 'Título', max: 70, destaque: true },
+      texto: { tipo: 'longo', rotulo: 'Texto', max: 300, linhas: 3 },
+      fotos: {
+        tipo: 'lista',
+        rotulo: 'Legendas das fotos',
+        rotuloItem: 'Foto',
+        titulo: 'legenda',
+        min: 3,
+        max: 3,
+        item: {
+          id: ID,
+          legenda: { tipo: 'texto', rotulo: 'Legenda', max: 50 },
+          local: { tipo: 'texto', rotulo: 'Local', max: 30 },
+        },
+      },
+      credito: { tipo: 'texto', rotulo: 'Crédito das fotos', max: 80 },
+    },
+  },
+
   problema: {
     rotulo: 'O que está errado',
     grupo: 'Página',
@@ -176,6 +229,12 @@ export const ESQUEMA: Record<string, SecaoEsquema> = {
           titulo: { tipo: 'texto', rotulo: 'Título', max: 30 },
           texto: { tipo: 'longo', rotulo: 'Descrição', max: 180, linhas: 3 },
         },
+      },
+      frase: {
+        tipo: 'texto',
+        rotulo: 'Frase de fecho',
+        max: 60,
+        ajuda: 'Fica ao lado da foto de apoio, no fim da seção.',
       },
     },
   },
@@ -256,6 +315,67 @@ export const ESQUEMA: Record<string, SecaoEsquema> = {
         },
       },
       aviso: { tipo: 'longo', rotulo: 'Aviso de seção incompleta', max: 220, linhas: 2 },
+      documento: {
+        tipo: 'grupo',
+        rotulo: 'Registro público',
+        ajuda: 'O bloco do print do SAPL. É a prova documental — o leitor pode conferir sozinho.',
+        campos: {
+          titulo: { tipo: 'texto', rotulo: 'Título', max: 60 },
+          texto: { tipo: 'longo', rotulo: 'Texto', max: 220, linhas: 3 },
+          rotuloLink: { tipo: 'texto', rotulo: 'Texto do link', max: 40 },
+          link: { tipo: 'url', rotulo: 'Endereço do registro' },
+        },
+      },
+    },
+  },
+
+  social: {
+    rotulo: 'Prova social',
+    grupo: 'Página',
+    nota: '⚠️ Prints de comentário exigem cuidado com imagem de terceiros. Nos ataques, borre nome E foto. Ver PLANO-FOTOS.md.',
+    campos: {
+      etiqueta: { tipo: 'texto', rotulo: 'Etiqueta', max: 40 },
+      titulo: { tipo: 'texto', rotulo: 'Título', max: 70, destaque: true },
+      intro: { tipo: 'longo', rotulo: 'Introdução', max: 300, linhas: 3 },
+      legendas: {
+        tipo: 'lista',
+        rotulo: 'Legenda de cada comentário',
+        rotuloItem: 'Comentário',
+        titulo: 'texto',
+        min: 6,
+        max: 6,
+        ajuda: 'Opcional. Deixe em branco para o print falar sozinho. Casa com Comentário 1 a 6 na aba Imagens.',
+        item: {
+          id: ID,
+          texto: { tipo: 'texto', rotulo: 'Legenda', max: 40 },
+        },
+      },
+      ataques: {
+        tipo: 'grupo',
+        rotulo: 'O outro lado',
+        campos: {
+          etiqueta: { tipo: 'texto', rotulo: 'Etiqueta', max: 40 },
+          titulo: { tipo: 'texto', rotulo: 'Título', max: 70, destaque: true },
+          intro: { tipo: 'longo', rotulo: 'Introdução', max: 300, linhas: 3 },
+          fecho: { tipo: 'longo', rotulo: 'Frase de fecho', max: 260, linhas: 3 },
+        },
+      },
+      processos: {
+        tipo: 'lista',
+        rotulo: 'Processos vencidos',
+        rotuloItem: 'Processo',
+        titulo: 'titulo',
+        min: 0,
+        max: 4,
+        ajuda: '⚠️ Confirme com o jurídico antes de citar processo e nome de autoridade.',
+        item: {
+          id: ID,
+          titulo: { tipo: 'texto', rotulo: 'Título', max: 60 },
+          texto: { tipo: 'longo', rotulo: 'O que aconteceu', max: 260, linhas: 3 },
+          resultado: { tipo: 'texto', rotulo: 'Resultado', max: 60, ajuda: 'A frase curta que fecha. Ex.: A Justiça rejeitou a ação.' },
+        },
+      },
+      nota: { tipo: 'longo', rotulo: 'Nota de rodapé da seção', max: 200, linhas: 2 },
     },
   },
 
@@ -458,6 +578,31 @@ export const ESQUEMA: Record<string, SecaoEsquema> = {
           texto: { tipo: 'texto', rotulo: 'Texto', max: 40 },
         },
       },
+    },
+  },
+
+  exibir: {
+    rotulo: 'Seções no ar',
+    grupo: 'Página',
+    nota: '⚠️ Desligar uma seção tira ela da página inteira, inclusive do menu do topo. A primeira dobra, a chamada final e o rodapé não podem ser desligados — o rodapé carrega a identificação exigida pela lei eleitoral.',
+    campos: {
+      faixa: { tipo: 'booleano', rotulo: 'Faixa corrida', ajuda: 'A tarja amarela logo abaixo da primeira dobra.' },
+      origem: { tipo: 'booleano', rotulo: 'Quem é Sofia', ajuda: 'A história de origem e a linha do tempo.' },
+      album: { tipo: 'booleano', rotulo: 'O álbum', ajuda: 'As fotos do acervo de família.' },
+      rua: { tipo: 'booleano', rotulo: 'A rua', ajuda: 'As três fotos de 2020. Desligue enquanto não houver autorização de uso.' },
+      problema: { tipo: 'booleano', rotulo: 'O que está errado' },
+      valores: { tipo: 'booleano', rotulo: 'Minhas bandeiras' },
+      cena: { tipo: 'booleano', rotulo: 'Cena da bandeira', ajuda: 'A animação de rolagem entre bandeiras e provas.' },
+      provas: { tipo: 'booleano', rotulo: 'O que já foi feito' },
+      social: { tipo: 'booleano', rotulo: 'Prova social', ajuda: 'Comentários e processos. Desligue enquanto o jurídico não liberar os prints.' },
+      futuro: { tipo: 'booleano', rotulo: 'Compromissos' },
+      grupos: {
+        tipo: 'booleano',
+        rotulo: 'Grupos de WhatsApp',
+        ajuda: '⚠️ Pense duas vezes: é para cá que apontam os botões principais da página. Desligada, os botões de grupo somem junto.',
+      },
+      filtro: { tipo: 'booleano', rotulo: 'Gerador de filtro' },
+      compartilhar: { tipo: 'booleano', rotulo: 'Compartilhar' },
     },
   },
 

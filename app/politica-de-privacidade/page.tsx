@@ -1,4 +1,5 @@
 import type { Metadata } from 'next'
+import { lerSlots } from '@/lib/midia/ler'
 import Link from 'next/link'
 import { lerConteudo } from '@/lib/conteudo/ler'
 import { resolverTokens } from '@/lib/conteudo/tokens'
@@ -23,12 +24,13 @@ export async function generateMetadata(): Promise<Metadata> {
 
 
 export default async function PaginaPrivacidade() {
+  const simboloDaMarca = (await lerSlots())['marca.simbolo']?.url ?? null
   const conteudo = await lerConteudo()
   const { privacidade } = conteudo
 
   return (
     <>
-      <Header silencio={emSilencioEleitoral()} />
+      <Header silencio={emSilencioEleitoral()} simbolo={simboloDaMarca} />
 
       <main id="conteudo" className="pt-24 md:pt-28">
         <section className="relative isolate overflow-hidden bg-white pb-12 pt-8">

@@ -13,3 +13,9 @@ tsconfig.tsbuildinfo
 
 # lixo do Finder
 .DS_Store
+
+# O acervo bruto de fotos. Fica fora do repositório de propósito: são
+# 8 MB de originais de família, e o caminho delas para o site é o
+# painel → Supabase Storage, não o git. Versionar aqui engordaria todo
+# clone para sempre sem servir a nada.
+FOTOS/

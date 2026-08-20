@@ -30,12 +30,38 @@ import { useConteudo } from '@/lib/conteudo/contexto'
  */
 export function Simbolo({
   className = '',
-  prioridade: _prioridade = false,
+  url = null,
+  prioridade = false,
 }: {
   className?: string
-  /** Mantido pela compatibilidade das chamadas; vetor embutido não precarrega. */
+  /**
+   * Imagem enviada pelo painel (espaço `marca.simbolo`). Quando existe,
+   * ela manda; quando não, cai no vetor embutido abaixo.
+   *
+   * ⚠️ O vetor NÃO é um placeholder à espera de arte: ele é a arte que
+   *    funciona. O PNG que existia cortava a bandeira no cabeçalho, e o
+   *    original não tem recorte limpo (o "O" de SOFIA é o próprio
+   *    símbolo, com as letras vizinhas encostadas). Por isso o padrão é
+   *    o desenho em código, e a imagem do painel é a exceção.
+   */
+  url?: string | null
   prioridade?: boolean
 }) {
+  if (url) {
+    return (
+      <Image
+        src={url}
+        alt=""
+        width={512}
+        height={379}
+        priority={prioridade}
+        sizes="64px"
+        className={className}
+        aria-hidden
+      />
+    )
+  }
+
   return (
     <svg viewBox="0 0 1352 1000" className={className} role="img" aria-hidden focusable="false">
       <defs>

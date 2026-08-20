@@ -1,4 +1,5 @@
 import { lerConteudo } from '@/lib/conteudo/ler'
+import { lerSlots } from '@/lib/midia/ler'
 import { Simbolo } from '@/components/ui/Marca'
 
 /**
@@ -19,14 +20,16 @@ import { Simbolo } from '@/components/ui/Marca'
  * duas vezes, sem nenhum motivo.
  */
 export async function FaixaCorrida() {
-  const { faixa } = await lerConteudo()
+  const [{ faixa }, slots] = await Promise.all([lerConteudo(), lerSlots()])
   if (faixa.itens.length === 0) return null
+
+  const simbolo = slots['marca.simbolo']?.url ?? null
 
   const fila = (oculta: boolean) =>
     faixa.itens.map((item) => (
       <li key={`${oculta ? 'b' : 'a'}-${item.id}`} className="flex shrink-0 items-center gap-8 px-8">
         <span className="voz-marca text-lg whitespace-nowrap md:text-xl">{item.texto}</span>
-        <Simbolo className="h-5 w-auto shrink-0 opacity-90" />
+        <Simbolo url={simbolo} className="h-5 w-auto shrink-0 opacity-90" />
       </li>
     ))
 

@@ -22,7 +22,7 @@ quase todo visual: animação, o filtro refeito e o mapa.
 
 | | |
 |---|---|
-| Landing page | 10 seções, copy completa, identidade visual da campanha aplicada |
+| Landing page | 13 seções, copy completa, identidade visual da campanha aplicada |
 | Buscador de grupo | sugestão silenciosa por IP, GPS calculado no aparelho, busca tolerante a acento e erro de digitação, lista dos 52 |
 | Redirecionador `/g/[slug]` | conta o clique, aplica a virada por limite, respeita o silêncio eleitoral |
 | Gerador de filtro | EXIF, teto de 2000px, zona segura, e todo o tratamento do webview do Instagram |
@@ -35,9 +35,9 @@ quase todo visual: animação, o filtro refeito e o mapa.
 | | |
 |---|---|
 | **Início** | o que bloqueia a publicação, funil do dia, quais seções ainda estão no texto de fábrica |
-| **Textos** | 17 seções editáveis, formulário gerado por descritor, repetidores com adicionar/remover/reordenar |
+| **Textos** | 22 seções editáveis, formulário gerado por descritor, repetidores com adicionar/remover/reordenar |
 | **Histórico** | por seção, com quais campos mudaram, quem salvou e quando. Restaurar não é destrutivo |
-| **Imagens** | 9 espaços com instruções na tela, upload com conversão para WebP preservando transparência |
+| **Imagens** | 30 espaços com instruções na tela, **recorte e zoom na própria página**, conversão para WebP preservando transparência |
 | **Grupos** | link, situação, fixar, limite de cliques, exportar CSV, gerar QR por município |
 | **Métricas** | funil, qual botão trabalha, cliques por município, UTM, celular vs desktop |
 
@@ -47,6 +47,56 @@ quase todo visual: animação, o filtro refeito e o mapa.
 `grupos`, `eventos`, `administradores`, `conteudo`, `conteudo_versoes`,
 `midia`, `midia_slots`. Dois baldes de Storage. Advisors de segurança e
 desempenho: **zero alertas**.
+
+### O recortador do painel
+
+Escolher → recortar → enviar. O espaço já sabe a proporção e o tamanho,
+então quem edita só arrasta, dá zoom e corta. A saída nasce válida:
+proporção exata, nunca abaixo do mínimo, teto de 2400.
+
+Existe porque o caminho antigo — mandar o arquivo cru — produzia a
+recusa *"este espaço é 4:5, recorte antes de enviar"*, que é um pedido
+impossível de atender para quem está no celular com a foto na mão.
+
+Três detalhes que não são enfeite:
+
+- **Girar 90°.** Metade do acervo de família são fotos de papel
+  fotografadas de celular, deitadas. Sem isso esse material não entra.
+- **Proporção escolhida** nos espaços livres. Em print de comentário o
+  corte útil é MUDAR a proporção, para aparar o "Responder" do rodapé.
+- **Aviso de ampliação** quando a área é menor que o mínimo. Ampliar é
+  ruim e a tela diz — em vez de barrar a única foto que existe.
+
+O envio não usa `action={acao}` no formulário: o arquivo é um Blob em
+memória e não há como pôr um Blob num input de arquivo de forma
+confiável em todo navegador. O FormData é montado à mão e a ação é
+chamada direto, dentro de `startTransition`.
+
+### Marca e visibilidade pelo painel
+
+**Símbolo e ícone do navegador** viraram espaços de imagem
+(`marca.simbolo`, `marca.favicon`). O `layout.tsx` deixou de exportar
+metadata estática e passou a `generateMetadata`, porque metadata
+estática é avaliada no build e o ícone agora muda sem deploy. Sem
+imagem, o símbolo cai no vetor embutido e o ícone na convenção do Next
+— nenhum dos dois é placeholder à espera de arte.
+
+**Seções ligáveis e desligáveis** (`exibir`, em `content/copy.ts`).
+Treze interruptores; hero, chamada final e rodapé ficaram de fora — o
+rodapé carrega a identificação exigida pela lei eleitoral.
+
+Desligar uma seção não é só deixar de renderizar. Quem aponta para ela
+precisa saber:
+
+- item de menu com âncora morta some do menu
+- com a seção de grupos desligada, os **seis** botões de grupo passam a
+  apontar para `/grupos`, a página que já existia — em vez de virarem
+  clique morto, que é o pior tipo de defeito porque não dá erro nenhum
+
+Entrou também um tipo de campo novo no descritor — `booleano` — de
+ponta a ponta: `Campo`, `validar.ts` e `CampoDinamico`. A validação
+normaliza `'false'` para `false`: a string `'false'` é verdadeira em
+JavaScript, e a seção desligada continuaria no ar.
 
 ### Segurança fechada no caminho
 

@@ -2,6 +2,7 @@ import type { Metadata, Viewport } from 'next'
 import { Archivo, Inter } from 'next/font/google'
 import { candidata, meta } from '@/content/copy'
 import { config } from '@/lib/config'
+import { lerSlots } from '@/lib/midia/ler'
 import { Revelar } from '@/components/ui/Revelar'
 import { ConteudoProvider } from '@/lib/conteudo/contexto'
 import { lerConteudoCliente } from '@/lib/conteudo/subconjunto'
@@ -36,7 +37,21 @@ const corpo = Inter({
   display: 'swap',
 })
 
-export const metadata: Metadata = {
+/**
+ * Virou `generateMetadata` por causa do ÍCONE.
+ *
+ * Metadata estática é avaliada no build; o ícone agora vem do painel e
+ * pode mudar sem deploy. Tudo o mais aqui continua idêntico — só o
+ * bloco `icons` é dinâmico.
+ *
+ * Sem imagem no espaço, o Next continua servindo o `icon.png` da pasta
+ * `app/`, que é a convenção dele. Por isso não há fallback escrito
+ * aqui: omitir `icons` é justamente deixar a convenção agir.
+ */
+export async function generateMetadata(): Promise<Metadata> {
+  const icone = (await lerSlots())['marca.favicon']?.url ?? null
+
+  return {
   metadataBase: new URL(config.siteUrl),
   title: {
     default: meta.titulo,
@@ -69,6 +84,16 @@ export const metadata: Metadata = {
     googleBot: { index: true, follow: true, 'max-image-preview': 'large' },
   },
   formatDetection: { telephone: false, address: false, email: false },
+    ...(icone
+      ? {
+          icons: {
+            icon: [{ url: icone, type: 'image/webp' }],
+            shortcut: [{ url: icone }],
+            apple: [{ url: icone }],
+          },
+        }
+      : {}),
+  }
 }
 
 export const viewport: Viewport = {

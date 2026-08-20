@@ -128,3 +128,23 @@ descobre medindo.
 - [ ] Filtro testado **dentro do Instagram**, iPhone e Android
 - [ ] `PAINEL_SENHA` trocada
 - [ ] Data do silêncio eleitoral conferida
+
+---
+
+## Fotos — o que trava a publicação
+
+Detalhe completo em [PLANO-FOTOS.md](./PLANO-FOTOS.md). Aqui só o que
+depende de alguém de fora do código.
+
+| # | O quê | Quem resolve |
+|---|---|---|
+| F0 | 🔴 **As molduras no ar não são molduras — são fotos opacas.** Conferido: 0% de pixels transparentes, alpha 255 no centro. O gerador de filtro está tapando a foto de quem usa com um retângulo sólido. Precisa da arte real: PNG 1080×1920 e 1080×1080 com o miolo vazado e o CNPJ legível. Enquanto não houver, é melhor remover as duas do painel — o site volta às molduras padrão, que funcionam | Design da campanha |
+| F2 | **Recorte PNG do hero.** Nenhuma das 38 fotos é recorte, e as candidatas estão abaixo de 1200×1500. Sessão de foto com fundo liso | Fotógrafo |
+| F3 | **Retrato de fechamento.** Não existe no acervo. Mesma sessão do F2 | Fotógrafo |
+| F4 | **Zero fotos de Sofia como vereadora** — Câmara, tribuna, Comissão de Segurança. É o único bloco em que a página afirma sem mostrar. Enquanto não houver, o print do SAPL cobre | Equipe de campo |
+| F5 | **Print do SAPL** com as leis sancionadas, e a URL exata da busca por autoria (hoje há um link genérico marcado com ⚠️ em `content/copy.ts`) | Assessoria |
+| F6 | **Autorização de uso de imagem** dos 6 comentaristas. Nos 2 prints de ataque, borrar nome E foto | Jurídico |
+| F7 | **Conferir a citação dos dois processos** (TRE-RO e Governador Marcos Rocha) antes de publicar a Prova social | Jurídico |
+| F8 | **Marca d'água** em 3 fotos: *COALA produções* nas duas melhores da rua, *Rondoniaovivo* na Pro Armas. Pedir versão limpa ou autorização | Produção |
+| F9 | **7 fotos do acervo estão giradas 90°.** O recortador do painel já gira — mas vale endireitar e recortar na borda do papel antes | Produção |
+| F10 | **Decisão de campanha: a foto do estande de tiro.** É a única que prova um pilar sozinha, mas foto com arma pesa em classificador de rede social e o custo cai no alcance orgânico. A alternativa (camiseta PRO ARMAS, sem arma no quadro) entrega o mesmo posicionamento | Campanha |

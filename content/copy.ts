@@ -261,6 +261,10 @@ export const valores = {
         'contratações, nos gastos e nas decisões de quem governa.',
     },
   ],
+  // A frase que fecha a seção, ao lado da foto de apoio. É a linha do
+  // documento de campanha, inteira — as quatro palavras que o público
+  // já repete sozinho.
+  frase: 'Cristã. Patriota. Armamentista. Anticomunista.',
 } as const
 
 // ─────────────────────────────────────────────────────────────
@@ -340,6 +344,17 @@ export const provas = {
   aviso:
     'E tem mais: combate à ludopatia, proteção à infância, furto de fios e cabos, incentivo aos ' +
     'eSports, cidade limpa e o programa De Volta à Minha Terra.',
+  // O print do registro público. É o que separa "eu fiz" de "eu digo
+  // que fiz" — e é a única coisa nesta seção que o leitor pode ir
+  // conferir sozinho, agora, sem confiar em nós.
+  documento: {
+    titulo: 'Pesquisa o que eu fiz.',
+    texto:
+      'O histórico está no registro público da Câmara Municipal de Porto Velho. Não precisa ' +
+      'acreditar em mim: confere.',
+    rotuloLink: 'Abrir o registro da Câmara',
+    link: 'https://sapl.portovelho.ro.leg.br/', // ⚠️ CONFIRMAR a URL exata da busca por autoria
+  },
 } as const
 
 // ─────────────────────────────────────────────────────────────
@@ -689,6 +704,138 @@ export const privacidade = {
 // migration — semear congelaria a copy no dia do deploy.
 // ═══════════════════════════════════════════════════════════════
 
+// ─────────────────────────────────────────────────────────────
+// 2.5 ÁLBUM
+// O acervo de família é analógico: fotos de papel fotografadas de
+// celular. É o material mais difícil de forjar que existe numa
+// campanha, e por isso ele aparece COMO papel — com a borda, o
+// amarelado e a data impressa quando ela existe.
+// ─────────────────────────────────────────────────────────────
+export const album = {
+  etiqueta: 'O álbum',
+  titulo: 'Não dá pra [[inventar isso.]]',
+  intro:
+    'Não tenho foto de campanha da infância. Tenho o que a minha família guardou numa caixa: ' +
+    'papel amarelado, borda gasta, data escrita no canto.',
+  fotos: [
+    { id: 'album-01', legenda: 'No colo do pai, com a vó do lado', ano: 'Cacoal' },
+    { id: 'album-02', legenda: 'Com a minha mãe, no terreiro de casa', ano: 'Iata' },
+    { id: 'album-03', legenda: 'Fanfarra da escola. Chão de terra e uniforme lavado', ano: 'Iata' },
+    { id: 'album-04', legenda: 'Quadrilha de festa junina', ano: 'Iata' },
+    { id: 'album-05', legenda: 'Enchei-vos do Espírito — Efésios 5.18', ano: 'A igreja' },
+    { id: 'album-06', legenda: 'Vó Chiquinha', ano: 'Retrato de estúdio' },
+    { id: 'album-07', legenda: 'A bicicleta era de todo mundo', ano: 'Anos 90' },
+    { id: 'album-08', legenda: 'Festa de aniversário, parede descascada', ano: 'Anos 90' },
+  ],
+  rodape: 'Fotos do arquivo da família Andrade.',
+} as const
+
+// ─────────────────────────────────────────────────────────────
+// 2.6 A RUA
+// A manchete da página é "Mandaram fechar. Eu fui pra rua." Esta
+// seção é a prova de que a frase é literal. Sem ela a página afirma
+// e não mostra — que é exatamente o que a página acusa os outros de
+// fazer duas seções abaixo.
+// ─────────────────────────────────────────────────────────────
+export const rua = {
+  etiqueta: '2020',
+  titulo: 'A rua não era [[figura de linguagem.]]',
+  texto:
+    'Peguei o celular na calçada e falei o que milhares de pessoas estavam sentindo e não tinham ' +
+    'onde dizer. Depois saí de casa. Essas fotos são de quem estava junto.',
+  fotos: [
+    { id: 'rua-01', legenda: 'Carreata em Porto Velho', local: 'Av. Rio Madeira' },
+    { id: 'rua-02', legenda: 'Ainda no tempo da máscara', local: 'Porto Velho' },
+    { id: 'rua-03', legenda: 'Manifestação', local: 'Rondônia' },
+  ],
+  // ⚠️ As melhores fotos da rua são de fotógrafo e de veículo de
+  //    imprensa. Este crédito não é enfeite: é a condição de uso.
+  credito: 'Fotos cedidas. Crédito no rodapé da página.',
+} as const
+
+// ─────────────────────────────────────────────────────────────
+// 5.5 PROVA SOCIAL
+// Vem DEPOIS de Provas de propósito: primeiro eu provo com lei,
+// depois outro fala por mim. Invertido, os elogios chegam antes de
+// haver motivo para eles.
+// ─────────────────────────────────────────────────────────────
+export const social = {
+  etiqueta: 'O que dizem',
+  titulo: 'Aqui não sou eu [[falando de mim.]]',
+  intro:
+    'São comentários que as pessoas escreveram por conta própria, nos posts, sem eu pedir. ' +
+    'Deixei do jeito que chegaram.',
+  legendas: [
+    { id: 'leg-01', texto: 'Eleitor de Porto Velho' },
+    { id: 'leg-02', texto: '' },
+    { id: 'leg-03', texto: 'Médico, sobre a pandemia' },
+    { id: 'leg-04', texto: '' },
+    { id: 'leg-05', texto: '' },
+    { id: 'leg-06', texto: '' },
+  ],
+  ataques: {
+    etiqueta: 'O outro lado',
+    titulo: 'E o que a esquerda [[diz de mim?]]',
+    intro:
+      'Atacam. Xingam. Denunciam. Criam portal falso. Entram na Justiça. Deixo aqui do mesmo ' +
+      'jeito que deixei os elogios — sem editar.',
+    fecho:
+      'Se me atacam com processo e perdem, é porque o que eu falo incomoda quem precisa ser ' +
+      'incomodado. Quem tenta me calar só confirma uma coisa: estou no caminho certo.',
+  },
+  processos: [
+    {
+      id: 'proc-01',
+      titulo: 'Me processaram por dizer o que penso',
+      texto:
+        'Levaram ao TRE-RO um vídeo em que eu disse o que penso sobre quem vota na esquerda. ' +
+        'Queriam me calar.',
+      resultado: 'A Justiça rejeitou a ação.',
+    },
+    {
+      id: 'proc-02',
+      titulo: 'O Governador se sentiu ofendido',
+      texto:
+        'Durante a luta contra o aumento de impostos em Rondônia, me posicionei publicamente ' +
+        'contra o Governador Marcos Rocha. Ele não gostou e me processou.',
+      resultado: 'A Justiça decidiu a meu favor.',
+    },
+  ],
+  // ⚠️ Sem validação do jurídico este bloco não sobe. Ver PLANO-FOTOS.md.
+  nota: 'Comentários públicos, reproduzidos com identificação preservada apenas onde houve autorização.',
+} as const
+
+
+
+// ─────────────────────────────────────────────────────────────
+// EXIBIR — quais seções vão ao ar
+//
+// Um interruptor por seção. Serve para duas coisas reais de campanha:
+// tirar do ar um bloco cuja prova ainda não chegou (a Prova social sem
+// autorização de imagem, por exemplo), e encurtar a página quando o
+// tráfego pago pedir caminho mais curto até o grupo.
+//
+// ⚠️ Hero, chamada final e rodapé NÃO estão aqui de propósito. O rodapé
+//    carrega a identificação exigida pela lei eleitoral, e uma página
+//    de campanha sem primeira dobra nem pedido de voto não é uma página
+//    mais curta: é outra coisa.
+// ─────────────────────────────────────────────────────────────
+export const exibir = {
+  faixa: true,
+  origem: true,
+  album: true,
+  rua: true,
+  problema: true,
+  valores: true,
+  cena: true,
+  provas: true,
+  social: true,
+  futuro: true,
+  grupos: true,
+  filtro: true,
+  compartilhar: true,
+} as const
+
 export const PADRAO = {
   candidata,
   meta,
@@ -697,11 +844,14 @@ export const PADRAO = {
   ctas,
   hero,
   origem,
+  album,
+  rua,
   problema,
   valores,
   faixa,
   cena,
   provas,
+  social,
   futuro,
   grupos,
   filtro,
@@ -709,6 +859,7 @@ export const PADRAO = {
   ctaFinal,
   rodape,
   privacidade,
+  exibir,
 } as const
 
 /** As chaves de seção que o banco aceita. */

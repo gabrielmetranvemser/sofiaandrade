@@ -51,29 +51,29 @@ export async function Provas() {
             São três cartões. Não vale um mecanismo, e muito menos vale
             prender a tela como nas duas seções que usam palco: aqui a
             pessoa está a duas seções dos grupos de WhatsApp e cada
-            tela a mais é gente que não chega lá. */}
+            tela a mais é gente que não chega lá.
+
+            ⚠️ TINHAM FOTO E NÃO TÊM MAIS. Cada cartão é uma LEI, e não
+            existe foto de uma lei. O que existia era espaço reservado
+            para foto ilustrativa ao lado de "Lei 3.285/2025" — e foto
+            ilustrativa enfraquece o único bloco DOCUMENTAL da página,
+            que é o bloco que separa candidata de vendedor de promessa.
+            O número da lei virou o elemento visual, e a prova de
+            verdade desceu para o registro público, logo abaixo. */}
         <ul className="mt-6 grid gap-5 md:grid-cols-3">
           {provas.entregas.map((e, i) => (
             <li
               key={e.id}
               data-revelar
               style={{ ['--atraso' as string]: `${i * 80}ms` }}
-              className="flex flex-col overflow-hidden rounded-2xl border border-white/10 bg-white/[0.06]"
+              className="flex flex-col rounded-2xl border border-white/10 bg-white/[0.06] p-6"
             >
-              <Imagem
-                slot={`provas.entrega.${i + 1}`}
-                slots={slots}
-                sizes="(max-width: 768px) 100vw, 33vw"
-                className="w-full border-b border-white/10 object-cover"
-              />
-              <div className="flex flex-1 flex-col p-6">
-                <span className="text-sm font-medium text-amarelo">{e.municipio}</span>
-                <h3 className="mt-2 text-xl text-white">{e.titulo}</h3>
-                <p className="mt-2 flex-1 text-base text-white/65">{e.texto}</p>
-                <span className="mt-5 inline-flex self-start rounded-full bg-white/10 px-4 py-1.5 font-[family-name:var(--font-titulo)] text-lg font-bold text-white tabular-nums">
-                  {e.valor}
-                </span>
-              </div>
+              <span className="text-sm font-medium text-amarelo">{e.municipio}</span>
+              <h3 className="mt-2 text-xl text-white">{e.titulo}</h3>
+              <p className="mt-2 flex-1 text-base text-white/65">{e.texto}</p>
+              <span className="mt-5 inline-flex self-start rounded-full bg-white/10 px-4 py-1.5 font-[family-name:var(--font-titulo)] text-lg font-bold text-white tabular-nums">
+                {e.valor}
+              </span>
             </li>
           ))}
         </ul>
@@ -88,6 +88,44 @@ export async function Provas() {
             <path d="M4 6h2v2H4V6Zm4 0h12v2H8V6ZM4 11h2v2H4v-2Zm4 0h12v2H8v-2Zm-4 5h2v2H4v-2Zm4 0h12v2H8v-2Z" />
           </svg>
           <p>{provas.aviso}</p>
+        </div>
+
+        {/* O registro público.
+            É a única coisa desta seção que o leitor pode conferir
+            sozinho, agora, sem confiar em nós — e por isso é a peça
+            mais valiosa dela. O print entra clicável: quem duvida
+            clica, e quem clica já não duvidava do mesmo jeito. */}
+        <div className="mt-8 grid items-center gap-8 rounded-2xl border border-white/10 bg-white/[0.06] p-7 md:grid-cols-[1fr_1.1fr] md:p-9">
+          <div>
+            <h3 className="titulo-secao text-white">{provas.documento.titulo}</h3>
+            <p className="mt-4 text-base text-white/70">{provas.documento.texto}</p>
+            <a
+              href={provas.documento.link}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="toque mt-6 inline-flex min-h-12 items-center gap-2 rounded-full bg-amarelo px-6 font-semibold text-azul-escuro transition-all duration-300 hover:brightness-105"
+            >
+              {provas.documento.rotuloLink}
+              <svg viewBox="0 0 24 24" className="size-4" fill="currentColor" aria-hidden>
+                <path d="M14 3h7v7h-2V6.4l-9.3 9.3-1.4-1.4L17.6 5H14V3ZM5 5h4v2H6v11h11v-3h2v5H5V5Z" />
+              </svg>
+            </a>
+          </div>
+
+          <a
+            href={provas.documento.link}
+            target="_blank"
+            rel="noopener noreferrer"
+            data-revelar
+            className="block overflow-hidden rounded-xl ring-1 ring-white/15 transition-transform duration-300 hover:scale-[1.01]"
+          >
+            <Imagem
+              slot="provas.documento"
+              slots={slots}
+              sizes="(max-width: 768px) 100vw, 45vw"
+              className="w-full object-cover"
+            />
+          </a>
         </div>
       </div>
     </Secao>
