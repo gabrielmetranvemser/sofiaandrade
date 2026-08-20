@@ -34,7 +34,7 @@ export default function PaginaFiltro() {
         <AvisoWebview />
 
         <section className="relative isolate overflow-hidden bg-white pt-12 pb-14 md:pt-16 md:pb-20">
-          <div aria-hidden className="pointer-events-none absolute inset-0 -z-10 brilho-suave" />
+          <div aria-hidden className="pointer-events-none absolute inset-0 -z-10 brilho-claro" />
 
           <div className="container-lp">
             <Link

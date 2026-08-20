@@ -18,12 +18,25 @@ import { cookies } from 'next/headers'
 const NOME_COOKIE = 'sofia_painel'
 const DURACAO = 60 * 60 * 12 // 12 horas
 
+/**
+ * O segredo que assina o cookie.
+ *
+ * ⚠️ FALHA FECHADO. Antes isto caía num literal escrito neste arquivo
+ *    quando as duas variáveis faltavam — ou seja, em produção sem
+ *    ambiente configurado, a aplicação aceitaria em silêncio cookies
+ *    assinados com um segredo publicado no repositório. Agora quebra.
+ */
 function segredo(): string {
-  return (
-    process.env.PAINEL_SESSION_SECRET ||
-    process.env.PAINEL_SENHA ||
-    'segredo-de-desenvolvimento-trocar'
-  )
+  const s = process.env.PAINEL_SESSION_SECRET || process.env.PAINEL_SENHA
+  if (s) return s
+
+  if (process.env.NODE_ENV === 'production') {
+    throw new Error(
+      'PAINEL_SESSION_SECRET (ou PAINEL_SENHA) não está definida. ' +
+        'O painel não sobe sem segredo próprio.',
+    )
+  }
+  return 'segredo-apenas-de-desenvolvimento'
 }
 
 function assinar(valor: string): string {
@@ -46,6 +59,10 @@ export async function abrirSessao(): Promise<void> {
     httpOnly: true,
     sameSite: 'lax',
     secure: process.env.NODE_ENV === 'production',
+    // ⚠️ NÃO TROQUE para '/'. Com o caminho restrito a /painel, o cookie
+    //    não é enviado num POST para '/', e é isso que faz uma Server
+    //    Action invocada de outra rota falhar em exigirSessao(). É
+    //    defesa em profundidade, não organização.
     path: '/painel',
     maxAge: DURACAO,
   })
@@ -64,6 +81,24 @@ export async function estaLogado(): Promise<boolean> {
   if (!expira || !assinatura) return false
   if (assinar(expira) !== assinatura) return false
   return Number(expira) > Date.now()
+}
+
+/**
+ * Guarda de toda Server Action do painel.
+ *
+ * LANÇA em vez de devolver `{ erro }` de propósito: um objeto de erro
+ * faz chamada não autorizada parecer falha de validação, e é fácil de
+ * ignorar sem querer numa ação nova.
+ *
+ * Existe porque o `middleware` NÃO é suficiente. Server Action é um
+ * POST endereçado por action ID, não por rota: um POST para '/' com o
+ * cabeçalho `Next-Action` não passa pelo matcher `/painel/:path*` e
+ * executa a ação assim mesmo.
+ */
+export async function exigirSessao(): Promise<void> {
+  if (!(await estaLogado())) {
+    throw new Error('nao-autorizado')
+  }
 }
 
 export const COOKIE_PAINEL = NOME_COOKIE

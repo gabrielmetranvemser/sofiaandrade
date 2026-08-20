@@ -98,7 +98,7 @@ export default function PaginaPrivacidade() {
 
       <main id="conteudo" className="pt-24 md:pt-28">
         <section className="relative isolate overflow-hidden bg-white pb-12 pt-8">
-          <div aria-hidden className="pointer-events-none absolute inset-0 -z-10 brilho-suave" />
+          <div aria-hidden className="pointer-events-none absolute inset-0 -z-10 brilho-claro" />
 
           <div className="container-lp">
             <Link

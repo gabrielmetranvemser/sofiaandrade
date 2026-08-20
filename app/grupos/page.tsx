@@ -1,7 +1,7 @@
 import type { Metadata } from 'next'
 import Link from 'next/link'
 import { headers } from 'next/headers'
-import { grupos as copy } from '@/content/copy'
+import { ctas, grupos as copy } from '@/content/copy'
 import { listarMunicipiosComStatus, municipioPorSlug } from '@/lib/dados'
 import { casarCidadePorHeader } from '@/lib/geo'
 import { config, emSilencioEleitoral } from '@/lib/config'
@@ -29,7 +29,12 @@ export const metadata: Metadata = {
 export default async function PaginaGrupos({
   searchParams,
 }: {
-  searchParams: Promise<{ cidade?: string; situacao?: string; 'nao-encontrado'?: string }>
+  searchParams: Promise<{
+    cidade?: string
+    situacao?: string
+    'nao-encontrado'?: string
+    silencio?: string
+  }>
 }) {
   const [municipios, cabecalhos, params] = await Promise.all([
     listarMunicipiosComStatus(),
@@ -48,6 +53,9 @@ export default async function PaginaGrupos({
   const cidadeVinda = params.cidade ? municipioPorSlug(params.cidade) : undefined
   const situacao = params.situacao
   const naoEncontrado = params['nao-encontrado'] === '1'
+  // Chegou aqui vindo de /g/ durante o silêncio eleitoral: o
+  // redirecionador recusou de propósito.
+  const emSilencio = params.silencio === '1'
 
   return (
     <>
@@ -56,7 +64,7 @@ export default async function PaginaGrupos({
 
       <main id="conteudo" className="pt-24 md:pt-28">
         <section className="relative isolate overflow-hidden bg-white pb-12 pt-8 md:pb-16">
-          <div aria-hidden className="pointer-events-none absolute inset-0 -z-10 brilho-suave" />
+          <div aria-hidden className="pointer-events-none absolute inset-0 -z-10 brilho-claro" />
 
           <div className="container-lp">
             <Link
@@ -78,7 +86,13 @@ export default async function PaginaGrupos({
 
         <section className="bg-areia pb-20 pt-2 md:pb-28">
           <div className="container-lp">
-            {cidadeVinda ? (
+            {emSilencio ? (
+              <Aviso tom="info" className="mb-2">
+                <strong className="font-semibold">{ctas.silencio}</strong>
+              </Aviso>
+            ) : null}
+
+            {cidadeVinda && !emSilencio ? (
               <Aviso tom={situacao === 'cheio' ? 'info' : 'alerta'} className="mb-2">
                 {situacao === 'cheio' ? (
                   <>

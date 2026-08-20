@@ -2,13 +2,37 @@
 
 import { revalidatePath } from 'next/cache'
 import { redirect } from 'next/navigation'
-import { abrirSessao, fecharSessao, senhaConfere } from '@/lib/painel/sessao'
+import { abrirSessao, exigirSessao, fecharSessao, senhaConfere } from '@/lib/painel/sessao'
+import { registrarTentativa, tentativasDemais } from '@/lib/painel/limite'
 import { criarClienteAdmin } from '@/lib/supabase/admin'
 import { config } from '@/lib/config'
 import type { StatusGrupo } from '@/lib/tipos'
 
 /** Retorno de toda Server Action do painel. Serializável, sempre. */
 export type EstadoAcao = { erro?: string; ok?: boolean } | null
+
+/**
+ * PONTO ÚNICO DE ESTRANGULAMENTO.
+ *
+ * Toda ação de escrita passa por aqui. Server Action é um POST
+ * endereçado por action ID, não por rota — o `middleware`, cujo
+ * matcher é `/painel/:path*`, NÃO cobre um POST para '/' com o
+ * cabeçalho `Next-Action`. Sem esta guarda, `salvarGrupo` aceitaria
+ * `id` e `link` arbitrários de qualquer pessoa na internet, e o
+ * botão de qualquer uma das 52 cidades poderia apontar para o
+ * grupo de outro.
+ *
+ * Ação nova que esquecer o invólucro salta à vista na revisão:
+ * é a ausência de `acaoDoPainel(` na declaração.
+ */
+function acaoDoPainel<T extends unknown[]>(
+  fn: (...args: T) => Promise<EstadoAcao>,
+): (...args: T) => Promise<EstadoAcao> {
+  return async (...args: T) => {
+    await exigirSessao()
+    return fn(...args)
+  }
+}
 
 /**
  * Server Actions do painel.
@@ -27,7 +51,17 @@ export async function entrar(_estado: EstadoAcao, dados: FormData): Promise<Esta
   if (!process.env.PAINEL_SENHA) {
     return { erro: 'PAINEL_SENHA não está configurada no ambiente.' }
   }
+
+  // Esta é a única ação não autenticada por desenho, e ela compara uma
+  // senha única. Sem limite, dá para moer a senha na velocidade que a
+  // plataforma permitir.
+  const espera = await tentativasDemais()
+  if (espera > 0) {
+    return { erro: `Muitas tentativas. Tente de novo em ${espera} segundo${espera === 1 ? '' : 's'}.` }
+  }
+
   if (!senhaConfere(senha)) {
+    await registrarTentativa()
     return { erro: 'Senha incorreta.' }
   }
 
@@ -61,7 +95,7 @@ export async function validarLink(link: string): Promise<string | null> {
   return null
 }
 
-export async function salvarGrupo(_estado: EstadoAcao, dados: FormData): Promise<EstadoAcao> {
+export const salvarGrupo = acaoDoPainel(async (_estado: EstadoAcao, dados: FormData): Promise<EstadoAcao> => {
   const ctx = exigirSupabase()
   if ('erro' in ctx) return ctx
 
@@ -95,10 +129,10 @@ export async function salvarGrupo(_estado: EstadoAcao, dados: FormData): Promise
   revalidatePath('/')
   revalidatePath('/grupos')
   return { ok: true }
-}
+})
 
 /** Vira o grupo na mão, ignorando o limite. Conveniência, não algema. */
-export async function fixarGrupo(_estado: EstadoAcao, dados: FormData): Promise<EstadoAcao> {
+export const fixarGrupo = acaoDoPainel(async (_estado: EstadoAcao, dados: FormData): Promise<EstadoAcao> => {
   const ctx = exigirSupabase()
   if ('erro' in ctx) return ctx
 
@@ -112,9 +146,9 @@ export async function fixarGrupo(_estado: EstadoAcao, dados: FormData): Promise<
   revalidatePath('/painel')
   revalidatePath('/')
   return { ok: true }
-}
+})
 
-export async function adicionarGrupo(_estado: EstadoAcao, dados: FormData): Promise<EstadoAcao> {
+export const adicionarGrupo = acaoDoPainel(async (_estado: EstadoAcao, dados: FormData): Promise<EstadoAcao> => {
   const ctx = exigirSupabase()
   if ('erro' in ctx) return ctx
 
@@ -141,4 +175,4 @@ export async function adicionarGrupo(_estado: EstadoAcao, dados: FormData): Prom
 
   revalidatePath('/painel')
   return { ok: true }
-}
+})
