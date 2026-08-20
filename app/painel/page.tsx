@@ -1,46 +1,94 @@
-import { listarGrupos, MUNICIPIOS } from '@/lib/dados'
+import Link from 'next/link'
+import { PADRAO } from '@/content/copy'
+import { ESQUEMA } from '@/content/esquema'
 import { config } from '@/lib/config'
-import { LinhaGrupo } from './LinhaGrupo'
-import { ExportarCsv } from './ExportarCsv'
+import { listarGrupos, MUNICIPIOS } from '@/lib/dados'
+import { lerConteudoFresco } from '@/lib/conteudo/ler'
+import { carregarMetricas, somarFunil } from '@/lib/metricas'
+import { criarClienteAdmin } from '@/lib/supabase/admin'
 
 export const dynamic = 'force-dynamic'
+export const metadata = { title: 'Início', robots: { index: false } }
 
-export const metadata = { title: 'Grupos', robots: { index: false } }
+/**
+ * O que a campanha precisa ver ao abrir, em ordem de urgência:
+ * o que bloqueia a publicação, o que falta preencher, e como foi ontem.
+ */
+export default async function PainelInicio() {
+  const [grupos, metricas, conteudo] = await Promise.all([
+    listarGrupos(),
+    carregarMetricas(),
+    lerConteudoFresco(),
+  ])
 
-export default async function PainelGrupos() {
-  const grupos = await listarGrupos()
-
-  const porMunicipio = MUNICIPIOS.map((m) => ({
-    municipio: m,
-    grupos: grupos
-      .filter((g) => g.municipio_slug === m.slug)
-      .sort((a, b) => a.ordem - b.ordem),
-  }))
-
+  const semLink = grupos.filter((g) => !g.link).length
   const abertos = grupos.filter((g) => g.status === 'aberto').length
-  const cheios = grupos.filter((g) => g.status === 'cheio').length
-  const cliquesTotais = grupos.reduce((soma, g) => soma + g.cliques, 0)
+  const hoje = somarFunil(metricas.funil, 1)
+  const mes = somarFunil(metricas.funil, 30)
+
+  // Campos ainda idênticos ao texto de fábrica — aposenta a lista
+  // manual do PENDENCIAS.md.
+  const naoTocadas = await secoesNaoTocadas()
+
+  const pendencias: { texto: string; onde?: string }[] = []
+  if (config.legal.responsavel === 'A confirmar')
+    pendencias.push({ texto: 'Responsável pela campanha não preenchido (variável de ambiente)' })
+  if (config.legal.endereco === 'A confirmar')
+    pendencias.push({ texto: 'Endereço do comitê não preenchido (variável de ambiente)' })
+  if (config.legal.cnpj === '00.000.000/0001-00')
+    pendencias.push({ texto: 'CNPJ da campanha não confirmado (variável de ambiente)' })
+  if (semLink > 0)
+    pendencias.push({ texto: `${semLink} município${semLink === 1 ? '' : 's'} sem link de grupo`, onde: '/painel/grupos' })
+  if (conteudo.provas.numeros.some((n) => n.valor === '00'))
+    pendencias.push({ texto: 'Seção "O que já foi feito" ainda com números de exemplo', onde: '/painel/textos/provas' })
 
   return (
     <>
-      <header className="flex flex-wrap items-end justify-between gap-4">
-        <div>
-          <h1 className="titulo-secao">Grupos</h1>
-          <p className="mt-2 text-grafite">
-            Um por município, com a ordem de virada. Trocar o link aqui muda o destino de{' '}
-            <code className="rounded bg-white px-1.5 py-0.5 text-sm">/g/nome-da-cidade</code> sem
-            republicar o site.
-          </p>
-        </div>
-        <ExportarCsv />
+      <header>
+        <h1 className="titulo-secao">Início</h1>
+        <p className="mt-2 text-grafite">
+          {new Date().toLocaleDateString('pt-BR', {
+            weekday: 'long',
+            day: 'numeric',
+            month: 'long',
+          })}
+        </p>
       </header>
 
-      <dl className="mt-8 grid gap-4 sm:grid-cols-4">
+      {pendencias.length > 0 ? (
+        <section className="mt-8 rounded-2xl border border-amarelo/40 bg-amarelo-suave p-6">
+          <h2 className="text-lg">O que falta</h2>
+          <ul className="mt-3 space-y-2">
+            {pendencias.map((p) => (
+              <li key={p.texto} className="flex items-start gap-2.5 text-[0.9375rem]">
+                <span className="mt-2 size-1.5 shrink-0 rounded-full bg-amarelo" aria-hidden />
+                <span>
+                  {p.texto}
+                  {p.onde ? (
+                    <>
+                      {' — '}
+                      <Link href={p.onde} className="font-medium text-azul underline decoration-1 underline-offset-2">
+                        resolver
+                      </Link>
+                    </>
+                  ) : null}
+                </span>
+              </li>
+            ))}
+          </ul>
+        </section>
+      ) : (
+        <p className="mt-8 rounded-2xl border border-verde/30 bg-verde-suave p-6 text-[0.9375rem]">
+          Nada bloqueando a publicação.
+        </p>
+      )}
+
+      <dl className="mt-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
         {[
-          { r: 'Municípios', v: MUNICIPIOS.length },
-          { r: 'Grupos abertos', v: abertos },
-          { r: 'Grupos cheios', v: cheios },
-          { r: 'Cliques contados', v: cliquesTotais },
+          { r: 'Grupos abertos', v: `${abertos} de ${MUNICIPIOS.length}` },
+          { r: 'Visitas hoje', v: hoje.viram },
+          { r: 'Entraram em grupo hoje', v: hoje.clicaram },
+          { r: 'Fizeram o filtro (30d)', v: mes.geraram },
         ].map((c) => (
           <div key={c.r} className="rounded-2xl border border-linha bg-white p-5">
             <dt className="text-sm text-grafite">{c.r}</dt>
@@ -51,48 +99,50 @@ export default async function PainelGrupos() {
         ))}
       </dl>
 
-      <div className="mt-8 space-y-3">
-        {porMunicipio.map(({ municipio, grupos: doMunicipio }) => (
-          <section
-            key={municipio.slug}
-            className="rounded-2xl border border-linha bg-white p-5 md:p-6"
-          >
-            <div className="flex flex-wrap items-center justify-between gap-3">
-              <div>
-                <h2 className="text-lg">{municipio.nome}</h2>
-                <p className="text-sm text-grafite">
-                  <code className="rounded bg-areia px-1.5 py-0.5">/g/{municipio.slug}</code>
-                </p>
-              </div>
-              <a
-                href={`/g/${municipio.slug}?de=direto`}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="inline-flex min-h-11 items-center rounded-full border border-linha px-5 text-sm font-medium transition-colors hover:border-azul/30 hover:text-azul"
-              >
-                Testar
-              </a>
-            </div>
+      <section className="mt-6 rounded-2xl border border-linha bg-white p-6">
+        <div className="flex flex-wrap items-baseline justify-between gap-2">
+          <h2 className="text-lg">Textos</h2>
+          <p className="text-sm text-grafite">
+            {Object.keys(ESQUEMA).length - naoTocadas.size} de {Object.keys(ESQUEMA).length} seções
+            editadas
+          </p>
+        </div>
+        <p className="mt-1 text-sm text-grafite">
+          Seções ainda com o texto original de fábrica aparecem sem marca.
+        </p>
 
-            <div className="mt-4 space-y-3">
-              {doMunicipio.length === 0 ? (
-                <p className="rounded-xl border border-dashed border-linha px-4 py-5 text-sm text-grafite">
-                  Nenhum grupo cadastrado para este município.
-                </p>
-              ) : (
-                doMunicipio.map((g) => (
-                  <LinhaGrupo
-                    key={g.id}
-                    grupo={g}
-                    editavel={config.supabaseAtivo}
-                    municipioNome={municipio.nome}
-                  />
-                ))
-              )}
-            </div>
-          </section>
-        ))}
-      </div>
+        <ul className="mt-4 grid gap-1 sm:grid-cols-2">
+          {Object.entries(ESQUEMA).map(([chave, s]) => (
+            <li key={chave}>
+              <Link
+                href={`/painel/textos/${chave}`}
+                className="flex min-h-11 items-center justify-between gap-3 rounded-xl px-3 text-[0.9375rem] transition-colors hover:bg-areia"
+              >
+                <span className="truncate">{s.rotulo}</span>
+                {!naoTocadas.has(chave) ? (
+                  <span className="shrink-0 rounded-full bg-verde-suave px-2.5 py-0.5 text-xs font-medium text-verde">
+                    editada
+                  </span>
+                ) : null}
+              </Link>
+            </li>
+          ))}
+        </ul>
+      </section>
     </>
   )
+}
+
+/** Seções que ainda não têm override no banco. */
+async function secoesNaoTocadas(): Promise<Set<string>> {
+  const todas = new Set(Object.keys(PADRAO))
+  if (!config.supabaseAtivo) return todas
+  const sb = criarClienteAdmin()
+  if (!sb) return todas
+
+  const { data } = await sb.from('conteudo').select('secao, dados')
+  for (const linha of (data ?? []) as { secao: string; dados: unknown }[]) {
+    if (linha.dados && Object.keys(linha.dados).length > 0) todas.delete(linha.secao)
+  }
+  return todas
 }

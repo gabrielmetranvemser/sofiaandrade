@@ -1,0 +1,169 @@
+import type { Campo } from '@/content/esquema'
+
+/**
+ * Valida o que veio do formulário contra o descritor.
+ *
+ * Percorre o DESCRITOR, não o dado recebido. É a diferença que importa:
+ * chave que o descritor não conhece simplesmente não é copiada, então
+ * payload adulterado não tem por onde entrar. É o modelo de segurança
+ * inteiro, no lugar de uma biblioteca de schema.
+ *
+ * `max` REJEITA com mensagem, nunca trunca em silêncio — truncar perde
+ * o trabalho de quem escreveu e ninguém entende por quê.
+ */
+
+export type Erros = Record<string, string>
+
+interface Resultado<T> {
+  ok?: T
+  erros?: Erros
+}
+
+const MARCACAO_DESTAQUE = /\[\[(.*?)\]\]/g
+
+function limpo(v: unknown): string {
+  return typeof v === 'string' ? v.trim() : ''
+}
+
+/** Conta caracteres como a pessoa vê: sem os colchetes da marcação. */
+function tamanhoVisivel(texto: string): number {
+  return texto.replace(MARCACAO_DESTAQUE, '$1').length
+}
+
+function validarCampo(
+  campo: Campo,
+  valor: unknown,
+  caminho: string,
+  erros: Erros,
+): unknown {
+  switch (campo.tipo) {
+    case 'oculto':
+      return typeof valor === 'string' ? valor : ''
+
+    case 'texto':
+    case 'longo': {
+      const t = limpo(valor)
+      if (campo.max && tamanhoVisivel(t) > campo.max) {
+        erros[caminho] = `Máximo de ${campo.max} caracteres (tem ${tamanhoVisivel(t)}).`
+      }
+      if ('destaque' in campo && !campo.destaque && t.includes('[[')) {
+        erros[caminho] = 'Este campo não aceita [[destaque]].'
+      }
+      // Marcação aberta sem fechar deixaria [[ visível na página.
+      const abre = (t.match(/\[\[/g) ?? []).length
+      const fecha = (t.match(/\]\]/g) ?? []).length
+      if (abre !== fecha) {
+        erros[caminho] = 'Há um [[ sem o ]] correspondente.'
+      }
+      return t
+    }
+
+    case 'url': {
+      const t = limpo(valor)
+      if (t && !/^https?:\/\/.+\..+/.test(t)) {
+        erros[caminho] = 'Precisa ser um endereço completo, começando com https://'
+      }
+      return t
+    }
+
+    case 'ancora': {
+      const t = limpo(valor)
+      // Endereço interno só. Sem isto, um link do menu poderia apontar
+      // para fora e virar redirecionamento aberto dentro do site.
+      if (t && !t.startsWith('/') && !t.startsWith('#')) {
+        erros[caminho] = 'Precisa começar com / ou # (endereço dentro do site).'
+      }
+      return t
+    }
+
+    case 'listaTexto': {
+      const bruto = Array.isArray(valor) ? valor : []
+      const lista = bruto.map((v) => limpo(v)).filter((v) => v.length > 0)
+      if (campo.min !== undefined && lista.length < campo.min) {
+        erros[caminho] = `Precisa de pelo menos ${campo.min} ${campo.min === 1 ? 'item' : 'itens'}.`
+      }
+      if (campo.max !== undefined && lista.length > campo.max) {
+        erros[caminho] = `No máximo ${campo.max} itens.`
+      }
+      lista.forEach((v, i) => {
+        if (campo.maxItem && tamanhoVisivel(v) > campo.maxItem) {
+          erros[`${caminho}.${i}`] = `Máximo de ${campo.maxItem} caracteres.`
+        }
+        if (!campo.destaque && v.includes('[[')) {
+          erros[`${caminho}.${i}`] = 'Este campo não aceita [[destaque]].'
+        }
+      })
+      return lista
+    }
+
+    case 'lista': {
+      const bruto = Array.isArray(valor) ? valor : []
+      if (campo.min !== undefined && bruto.length < campo.min) {
+        erros[caminho] = `Precisa de pelo menos ${campo.min} ${campo.min === 1 ? 'item' : 'itens'}.`
+      }
+      if (campo.max !== undefined && bruto.length > campo.max) {
+        erros[caminho] = `No máximo ${campo.max} itens.`
+      }
+      return bruto.map((item, i) =>
+        validarObjeto(campo.item, item, `${caminho}.${i}`, erros),
+      )
+    }
+
+    case 'grupo':
+      return validarObjeto(campo.campos, valor, caminho, erros)
+
+    default:
+      return undefined
+  }
+}
+
+function validarObjeto(
+  campos: Record<string, Campo>,
+  valor: unknown,
+  caminho: string,
+  erros: Erros,
+): Record<string, unknown> {
+  const entrada = (valor ?? {}) as Record<string, unknown>
+  const saida: Record<string, unknown> = {}
+  for (const [chave, campo] of Object.entries(campos)) {
+    saida[chave] = validarCampo(campo, entrada[chave], caminho ? `${caminho}.${chave}` : chave, erros)
+  }
+  return saida
+}
+
+export function validarSecao(
+  campos: Record<string, Campo>,
+  bruto: unknown,
+): Resultado<Record<string, unknown>> {
+  const erros: Erros = {}
+  const ok = validarObjeto(campos, bruto, '', erros)
+  return Object.keys(erros).length > 0 ? { erros } : { ok }
+}
+
+/**
+ * Guarda só o que difere do padrão.
+ *
+ * Três ganhos concretos: o copy.ts continua vivo para os campos não
+ * tocados; "voltar ao original" por campo é apagar a chave; e o
+ * histórico fica legível ("mudou 2 campos") em vez de "reescreveu tudo".
+ */
+export function diferenca(padrao: unknown, novo: unknown): unknown {
+  if (Array.isArray(padrao) || Array.isArray(novo)) {
+    return JSON.stringify(padrao) === JSON.stringify(novo) ? undefined : novo
+  }
+  if (
+    typeof padrao === 'object' && padrao !== null &&
+    typeof novo === 'object' && novo !== null
+  ) {
+    const saida: Record<string, unknown> = {}
+    for (const chave of Object.keys(novo as Record<string, unknown>)) {
+      const d = diferenca(
+        (padrao as Record<string, unknown>)[chave],
+        (novo as Record<string, unknown>)[chave],
+      )
+      if (d !== undefined) saida[chave] = d
+    }
+    return Object.keys(saida).length > 0 ? saida : undefined
+  }
+  return padrao === novo ? undefined : novo
+}
