@@ -53,7 +53,7 @@ export function Header({ silencio = false }: { silencio?: boolean }) {
           </Link>
 
           <nav className="hidden items-center gap-1 lg:flex" aria-label="Principal">
-            {navegacao.map((item) => (
+            {navegacao.itens.map((item) => (
               <Link
                 key={item.href}
                 href={item.href}
@@ -117,7 +117,7 @@ export function Header({ silencio = false }: { silencio?: boolean }) {
             className="mt-2 rounded-2xl border border-linha bg-white p-2 shadow-media lg:hidden"
             aria-label="Menu mobile"
           >
-            {navegacao.map((item) => (
+            {navegacao.itens.map((item) => (
               <Link
                 key={item.href}
                 href={item.href}

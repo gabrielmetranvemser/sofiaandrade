@@ -2,7 +2,7 @@
 
 import { useActionState, useState } from 'react'
 import type { Grupo, StatusGrupo } from '@/lib/tipos'
-import { fixarGrupo, salvarGrupo, type EstadoAcao } from './acoes'
+import { fixarGrupo, salvarGrupo, type EstadoAcao } from '../acoes'
 
 const STATUS: { valor: StatusGrupo; rotulo: string }[] = [
   { valor: 'em_breve', rotulo: 'Em breve' },

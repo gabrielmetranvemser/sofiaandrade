@@ -74,5 +74,33 @@ conferir(
   { itens: [{ id: 'i2', t: 'b' }, { id: 'i3', t: 'c' }] },
 )
 
+// ─────────────────────────────────────────────────────────────
+import { diferenca } from '../lib/conteudo/validar.ts'
+
+console.log('\ndiferenca()')
+
+conferir('campo igual ao padrão não é guardado', diferenca({ a: 'x' }, { a: 'x' }), undefined)
+conferir('campo alterado é guardado', diferenca({ a: 'x' }, { a: 'y' }), { a: 'y' })
+conferir(
+  'só o campo alterado entra',
+  diferenca({ a: 'x', b: 'y' }, { a: 'x', b: 'z' }),
+  { b: 'z' },
+)
+conferir(
+  'array igual não é guardado',
+  diferenca({ p: ['1', '2'] }, { p: ['1', '2'] }),
+  undefined,
+)
+conferir(
+  'array com item removido é guardado inteiro',
+  diferenca({ p: ['1', '2', '3'] }, { p: ['1', '2'] }),
+  { p: ['1', '2'] },
+)
+conferir(
+  'aninhado: só o ramo que mudou',
+  diferenca({ a: { b: 'x', c: 'y' } }, { a: { b: 'x', c: 'z' } }),
+  { a: { c: 'z' } },
+)
+
 console.log(falhas === 0 ? '\ntudo certo.' : `\n${falhas} falha(s).`)
 process.exit(falhas === 0 ? 0 : 1)

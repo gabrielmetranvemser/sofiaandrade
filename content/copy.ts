@@ -88,12 +88,17 @@ export const paginas = {
   },
 } as const
 
-export const navegacao = [
-  { id: 'nav-01', rotulo: 'Quem é Sofia', href: '/#origem' },
-  { id: 'nav-02', rotulo: 'Compromissos', href: '/#futuro' },
-  { id: 'nav-03', rotulo: 'Grupos de WhatsApp', href: '/#grupos' },
-  { id: 'nav-04', rotulo: 'Coloque o 2233', href: '/filtro' },
-] as const
+// Objeto, e não array solto: toda seção do CMS precisa ser objeto
+// (a constraint `jsonb_typeof(dados) = 'object'` existe para impedir
+// que uma ação forjada grave um tipo inesperado).
+export const navegacao = {
+  itens: [
+    { id: 'nav-01', rotulo: 'Quem é Sofia', href: '/#origem' },
+    { id: 'nav-02', rotulo: 'Compromissos', href: '/#futuro' },
+    { id: 'nav-03', rotulo: 'Grupos de WhatsApp', href: '/#grupos' },
+    { id: 'nav-04', rotulo: 'Coloque o 2233', href: '/filtro' },
+  ],
+} as const
 
 export const ctas = {
   grupo: 'Entrar no grupo da minha cidade',
