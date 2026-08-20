@@ -40,7 +40,17 @@ export async function Provas() {
           ))}
         </ul>
 
-        {/* Entregas */}
+        {/* Entregas — grade simples, sem barra rolável.
+            Já foi trilho horizontal e voltou atrás: barra rolável
+            dentro de página que rola é sempre uma briga entre dois
+            alvos de rolagem. No trackpad vai um pouco de X junto com o
+            Y, o navegador tranca o gesto na horizontal e a página
+            inteira para de descer.
+
+            São três cartões. Não vale um mecanismo, e muito menos vale
+            prender a tela como nas duas seções que usam palco: aqui a
+            pessoa está a duas seções dos grupos de WhatsApp e cada
+            tela a mais é gente que não chega lá. */}
         <ul className="mt-6 grid gap-5 md:grid-cols-3">
           {provas.entregas.map((e, i) => (
             <li

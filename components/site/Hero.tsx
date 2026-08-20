@@ -4,6 +4,7 @@ import { Imagem } from '@/components/ui/Imagem'
 import { TextoComDestaque } from '@/components/ui/TextoComDestaque'
 import { Numero } from '@/components/ui/Marca'
 import { BotaoLink } from '@/components/ui/Botao'
+import { BrilhoCursor } from '@/components/animacao/BrilhoCursor'
 import { CliqueGrupo } from './CliqueGrupo'
 
 /**
@@ -18,7 +19,11 @@ export async function Hero({ silencio = false }: { silencio?: boolean }) {
   const [{ ctas, hero }, slots] = await Promise.all([lerConteudo(), lerSlots()])
 
   return (
-    <section className="relative isolate overflow-hidden fundo-azul pt-28 text-white md:pt-32">
+    <section className="brilho-cursor relative isolate overflow-hidden fundo-azul pt-28 text-white md:pt-32">
+      {/* Só monta listener onde existe ponteiro de verdade. No celular
+          este componente devolve sem registrar nada. */}
+      <BrilhoCursor />
+
       <div className="container-lp">
         <div className="grid items-center gap-12 lg:grid-cols-[1.05fr_0.95fr] lg:gap-16">
           {/* ── Texto ── */}
@@ -53,7 +58,7 @@ export async function Hero({ silencio = false }: { silencio?: boolean }) {
                 style={{ animationDelay: '520ms' }}
               >
                 <CliqueGrupo origem="hero" className="contents">
-                  <span className="inline-flex min-h-14 items-center justify-center gap-2.5 rounded-full bg-amarelo px-8 text-lg font-semibold text-azul-escuro shadow-alta transition-all duration-300 hover:brightness-105 sm:whitespace-nowrap">
+                  <span className="toque inline-flex min-h-14 items-center justify-center gap-2.5 rounded-full bg-amarelo px-8 text-lg font-semibold text-azul-escuro shadow-alta transition-all duration-300 hover:brightness-105 sm:whitespace-nowrap">
                     {ctas.grupo}
                     <svg viewBox="0 0 24 24" className="hidden size-5 shrink-0 sm:block" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" aria-hidden>
                       <path d="M5 12h14M13 6l6 6-6 6" />

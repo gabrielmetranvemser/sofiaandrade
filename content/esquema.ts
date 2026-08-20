@@ -180,6 +180,44 @@ export const ESQUEMA: Record<string, SecaoEsquema> = {
     },
   },
 
+  cena: {
+    rotulo: 'Cena da bandeira',
+    grupo: 'Página',
+    nota:
+      'Três telas pintadas conforme a pessoa rola: verde, amarelo, azul. ' +
+      'A ordem das cores é a da bandeira e não muda. Frase curta — o texto ' +
+      'aparece grande e fica pouco tempo na tela.',
+    campos: {
+      verde: {
+        tipo: 'grupo',
+        rotulo: 'Tela 1 — verde',
+        campos: {
+          etiqueta: { tipo: 'texto', rotulo: 'Etiqueta', max: 30 },
+          titulo: { tipo: 'texto', rotulo: 'Título', max: 45, destaque: true },
+          texto: { tipo: 'longo', rotulo: 'Texto', max: 140, linhas: 2 },
+        },
+      },
+      amarelo: {
+        tipo: 'grupo',
+        rotulo: 'Tela 2 — amarelo',
+        campos: {
+          etiqueta: { tipo: 'texto', rotulo: 'Etiqueta', max: 30 },
+          titulo: { tipo: 'texto', rotulo: 'Título', max: 45, destaque: true },
+          texto: { tipo: 'longo', rotulo: 'Texto', max: 140, linhas: 2 },
+        },
+      },
+      azul: {
+        tipo: 'grupo',
+        rotulo: 'Tela 3 — azul',
+        campos: {
+          etiqueta: { tipo: 'texto', rotulo: 'Etiqueta', max: 30 },
+          titulo: { tipo: 'texto', rotulo: 'Título', max: 45, destaque: true },
+          texto: { tipo: 'longo', rotulo: 'Texto', max: 140, linhas: 2 },
+        },
+      },
+    },
+  },
+
   provas: {
     rotulo: 'O que já foi feito',
     grupo: 'Página',

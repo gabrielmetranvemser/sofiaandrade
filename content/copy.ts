@@ -246,6 +246,34 @@ export const valores = {
 } as const
 
 // ─────────────────────────────────────────────────────────────
+// 4b. CENA DA BANDEIRA
+//     Três telas pintadas pela rolagem, na ordem da bandeira.
+//     A ordem das cores é fixa — verde, amarelo, azul — porque é a
+//     bandeira. Por isso são três campos fixos e não uma lista: não
+//     existe uma quarta cor para acrescentar.
+//     Fica entre Valores (verde) e Provas (azul): a cena começa na
+//     cor em que a seção anterior termina e acaba na cor em que a
+//     seguinte começa. A emenda some.
+// ─────────────────────────────────────────────────────────────
+export const cena = {
+  verde: {
+    etiqueta: 'Rondônia',
+    titulo: 'Aqui a terra [[trabalha.]]',
+    texto: 'Soja, boi, café, peixe, madeira legal. O que sai deste estado alimenta o Brasil inteiro.',
+  },
+  amarelo: {
+    etiqueta: 'E o que volta',
+    titulo: 'O que volta [[é conta.]]',
+    texto: 'O imposto sobe todo ano. A estrada não vem, o hospital não abre, a energia é a mais cara do país.',
+  },
+  azul: {
+    etiqueta: 'Por isso o 2233',
+    titulo: 'Brasília precisa [[ouvir daqui.]]',
+    texto: 'Não adianta mandar recado. Tem que ter gente de Rondônia sentada lá dentro, com voto na mão.',
+  },
+} as const
+
+// ─────────────────────────────────────────────────────────────
 // 5. PROVAS
 // ⚠️ TODOS OS NÚMEROS DESTA SEÇÃO SÃO PLACEHOLDER.
 //    Substituir por dados auditáveis antes de publicar.
@@ -561,6 +589,7 @@ export const PADRAO = {
   origem,
   problema,
   valores,
+  cena,
   provas,
   futuro,
   grupos,

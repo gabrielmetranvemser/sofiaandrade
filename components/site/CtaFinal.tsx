@@ -33,7 +33,12 @@ export async function CtaFinal({ silencio = false }: { silencio?: boolean }) {
           style={{ ['--atraso' as string]: '200ms' }}
           className="mx-auto mt-12 w-64 sm:w-80 md:w-[26rem]"
         >
-          <Numero versao="amarelo" className="w-full drop-shadow-[0_16px_40px_rgba(0,0,0,0.35)]" />
+          {/* O parallax vai num invólucro, não no bloco revelado: as
+              duas coisas escrevem em transform e a última a falar
+              apagaria a outra. */}
+          <div className="parallax-suave">
+            <Numero versao="amarelo" className="w-full drop-shadow-[0_16px_40px_rgba(0,0,0,0.35)]" />
+          </div>
         </div>
 
         {!silencio ? (
@@ -43,7 +48,7 @@ export async function CtaFinal({ silencio = false }: { silencio?: boolean }) {
             className="mt-12 flex flex-col items-center justify-center gap-3 sm:flex-row"
           >
             <CliqueGrupo origem="cta_final" className="contents">
-              <span className="inline-flex min-h-14 items-center justify-center gap-2.5 rounded-full bg-amarelo px-8 text-lg font-semibold text-azul-escuro shadow-alta transition-all duration-300 hover:brightness-105">
+              <span className="toque inline-flex min-h-14 items-center justify-center gap-2.5 rounded-full bg-amarelo px-8 text-lg font-semibold text-azul-escuro shadow-alta transition-all duration-300 hover:brightness-105">
                 {ctaFinal.ctaPrimario}
               </span>
             </CliqueGrupo>

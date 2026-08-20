@@ -39,8 +39,10 @@ const TAMANHOS: Record<Tamanho, string> = {
   lg: 'min-h-14 px-8 text-lg',
 }
 
+// `toque` afunda 3% enquanto o dedo está em cima. É o feedback que
+// faltava: hoje a pessoa aperta e nada acontece até a página trocar.
 const BASE =
-  'inline-flex items-center justify-center gap-2.5 rounded-full font-semibold ' +
+  'toque inline-flex items-center justify-center gap-2.5 rounded-full font-semibold ' +
   'leading-none tracking-[-0.01em] text-center transition-all duration-300 ease-out ' +
   'disabled:pointer-events-none disabled:opacity-45'
 
