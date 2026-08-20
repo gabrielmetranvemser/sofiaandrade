@@ -10,20 +10,22 @@ import { RodapeLegal } from '@/components/site/RodapeLegal'
 import { RegistroDePagina } from '@/components/site/RegistroDePagina'
 import { BuscadorDeGrupo } from '@/components/grupos/BuscadorDeGrupo'
 import { Aviso } from '@/components/ui/Aviso'
+import { TextoComDestaque } from '@/components/ui/TextoComDestaque'
 
 export const revalidate = 3600
 
-export const metadata: Metadata = {
-  title: 'Grupos de WhatsApp por município',
-  description:
-    'Encontre o grupo de WhatsApp da campanha na sua cidade. ' +
-    '52 municípios de Rondônia, um grupo para cada.',
-  alternates: { canonical: '/grupos' },
-  openGraph: {
-    title: 'Grupos de WhatsApp · Sofia Andrade 2233',
-    description: 'Um grupo para cada um dos 52 municípios de Rondônia.',
-    url: `${config.siteUrl}/grupos`,
-  },
+export async function generateMetadata(): Promise<Metadata> {
+  const { paginas } = await lerConteudo()
+  return {
+    title: paginas.grupos.tituloAba,
+    description: paginas.grupos.descricao,
+    alternates: { canonical: '/grupos' },
+    openGraph: {
+      title: paginas.grupos.ogTitulo,
+      description: paginas.grupos.ogDescricao,
+      url: `${config.siteUrl}/grupos`,
+    },
+  }
 }
 
 export default async function PaginaGrupos({
@@ -80,7 +82,7 @@ export default async function PaginaGrupos({
             </Link>
 
             <h1 className="mt-6 titulo-cartaz">
-              Tem um grupo da Sofia <span className="text-azul">na sua cidade.</span>
+              <TextoComDestaque texto={copy.titulo} tom="azul" />
             </h1>
             <p className="mt-6 max-w-2xl text-lg text-grafite md:text-xl">{copy.intro}</p>
           </div>

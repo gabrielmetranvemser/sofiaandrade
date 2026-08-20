@@ -1,5 +1,6 @@
 import { lerConteudo } from '@/lib/conteudo/ler'
 import { Silhueta } from '@/components/ui/Silhueta'
+import { TextoComDestaque } from '@/components/ui/TextoComDestaque'
 import { Numero } from '@/components/ui/Marca'
 import { BotaoLink } from '@/components/ui/Botao'
 import { CliqueGrupo } from './CliqueGrupo'
@@ -33,7 +34,7 @@ export async function Hero({ silencio = false }: { silencio?: boolean }) {
                   className="anima-hero block"
                   style={{ animationDelay: `${100 + i * 80}ms` }}
                 >
-                  {i === hero.destaque ? <span className="text-amarelo">{linha}</span> : linha}
+                  <TextoComDestaque texto={linha} tom="amarelo" />
                 </span>
               ))}
             </h1>

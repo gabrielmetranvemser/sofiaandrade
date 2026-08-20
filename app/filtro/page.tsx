@@ -4,21 +4,23 @@ import { lerConteudo } from '@/lib/conteudo/ler'
 import { config } from '@/lib/config'
 import { Header } from '@/components/site/Header'
 import { RodapeLegal } from '@/components/site/RodapeLegal'
+import { TextoComDestaque } from '@/components/ui/TextoComDestaque'
 import { AvisoWebview } from '@/components/filtro/AvisoWebview'
 import { GeradorDeFiltro } from '@/components/filtro/GeradorDeFiltro'
 import { emSilencioEleitoral } from '@/lib/config'
 
-export const metadata: Metadata = {
-  title: 'Coloque o 2233 na sua foto',
-  description:
-    'Gere sua foto de perfil e seu story com a moldura da campanha. ' +
-    'Sem cadastro. Sua foto não sai do seu aparelho.',
-  alternates: { canonical: '/filtro' },
-  openGraph: {
-    title: 'Coloque o 2233 na sua foto · Sofia Andrade',
-    description: 'Sem cadastro. Sua foto não sai do seu aparelho.',
-    url: `${config.siteUrl}/filtro`,
-  },
+export async function generateMetadata(): Promise<Metadata> {
+  const { paginas } = await lerConteudo()
+  return {
+    title: paginas.filtro.tituloAba,
+    description: paginas.filtro.descricao,
+    alternates: { canonical: '/filtro' },
+    openGraph: {
+      title: paginas.filtro.ogTitulo,
+      description: paginas.filtro.ogDescricao,
+      url: `${config.siteUrl}/filtro`,
+    },
+  }
 }
 
 export default async function PaginaFiltro() {
@@ -54,7 +56,7 @@ export default async function PaginaFiltro() {
             </p>
 
             <h1 className="mt-6 titulo-cartaz">
-              Coloque o <span className="text-azul">2233</span> na sua foto.
+              <TextoComDestaque texto={copy.titulo} tom="azul" />
             </h1>
             <p className="mt-6 max-w-2xl text-lg text-grafite md:text-xl">{copy.intro}</p>
           </div>

@@ -57,6 +57,37 @@ export const meta = {
   },
 } as const
 
+/**
+ * Metadata por página. Antes estava hardcoded em cada `export const
+ * metadata`, então mudar o título da aba exigia deploy.
+ */
+export const paginas = {
+  filtro: {
+    tituloAba: 'Coloque o 2233 na sua foto',
+    descricao:
+      'Gere sua foto de perfil e seu story com a moldura da campanha. ' +
+      'Sem cadastro. Sua foto não sai do seu aparelho.',
+    ogTitulo: 'Coloque o 2233 na sua foto · Sofia Andrade',
+    ogDescricao: 'Sem cadastro. Sua foto não sai do seu aparelho.',
+  },
+  grupos: {
+    tituloAba: 'Grupos de WhatsApp por município',
+    descricao:
+      'Encontre o grupo de WhatsApp da campanha na sua cidade. ' +
+      '52 municípios de Rondônia, um grupo para cada.',
+    ogTitulo: 'Grupos de WhatsApp · Sofia Andrade 2233',
+    ogDescricao: 'Um grupo para cada um dos 52 municípios de Rondônia.',
+  },
+  privacidade: {
+    tituloAba: 'Política de Privacidade',
+    descricao:
+      'Como esta página trata (e não trata) seus dados: a foto do filtro não sai do seu aparelho ' +
+      'e a localização é usada no aparelho e descartada.',
+    ogTitulo: 'Política de Privacidade · Sofia Andrade 2233',
+    ogDescricao: 'A foto do filtro não sai do seu aparelho.',
+  },
+} as const
+
 export const navegacao = [
   { id: 'nav-01', rotulo: 'Quem é Sofia', href: '/#origem' },
   { id: 'nav-02', rotulo: 'Compromissos', href: '/#futuro' },
@@ -81,8 +112,7 @@ export const ctas = {
 // ─────────────────────────────────────────────────────────────
 export const hero = {
   etiqueta: 'Deputada Federal · Rondônia',
-  titulo: ['Eu sou Sofia Andrade.', 'E eu não peço licença.'],
-  destaque: 1, // índice da linha que recebe a cor de marca
+  titulo: ['Eu sou Sofia Andrade.', '[[E eu não peço licença.]]'],
   subtitulo:
     'Nasci em Rondônia, cresci vendo o povo daqui trabalhar dobrado para receber metade. ' +
     'Não vim a Brasília aprender a falar bonito. Vim brigar.',
@@ -121,7 +151,7 @@ export const origem = {
 // ─────────────────────────────────────────────────────────────
 export const problema = {
   etiqueta: 'O que está errado',
-  titulo: 'Rondônia produz. Brasília consome.',
+  titulo: 'Rondônia produz. [[Brasília consome.]]',
   intro:
     'Nosso estado alimenta o Brasil e sustenta a balança comercial do país. ' +
     'Em troca recebe estrada esburacada, hospital cheio e imposto novo.',
@@ -166,7 +196,7 @@ export const problema = {
 // ─────────────────────────────────────────────────────────────
 export const valores = {
   etiqueta: 'No que eu não negocio',
-  titulo: 'Tem coisa que não entra em acordo.',
+  titulo: 'Tem coisa que [[não entra em acordo.]]',
   intro:
     'Política é negociação em quase tudo. Mas existe um chão que não se vende. ' +
     'Este é o meu, escrito antes da eleição para você poder cobrar depois dela.',
@@ -217,7 +247,7 @@ export const valores = {
 // ─────────────────────────────────────────────────────────────
 export const provas = {
   etiqueta: 'O que já foi feito',
-  titulo: 'Eu não faço promessa. Eu presto conta.',
+  titulo: 'Eu não faço promessa. [[Eu presto conta.]]',
   intro:
     'Promessa qualquer um faz na véspera. O que separa candidato de gente séria é o que já está pronto e pode ser conferido.',
   numeros: [
@@ -258,7 +288,7 @@ export const provas = {
 // ─────────────────────────────────────────────────────────────
 export const futuro = {
   etiqueta: 'O que eu vou fazer',
-  titulo: 'Cinco compromissos. Assinados.',
+  titulo: 'Cinco compromissos. [[Assinados.]]',
   intro:
     'Não são vinte bandeiras para não caber nenhuma. São cinco, escritas de um jeito que dá para cobrar em quatro anos.',
   itens: [
@@ -307,7 +337,7 @@ export const futuro = {
 // ─────────────────────────────────────────────────────────────
 export const grupos = {
   etiqueta: 'Entre no grupo',
-  titulo: 'Tem um grupo da Sofia na sua cidade.',
+  titulo: 'Tem um grupo da Sofia [[na sua cidade.]]',
   intro:
     'São 52 grupos de WhatsApp, um para cada município de Rondônia. ' +
     'É por ali que a campanha avisa de carreata, agenda e o que estiver acontecendo perto de você.',
@@ -333,7 +363,7 @@ export const grupos = {
 // ─────────────────────────────────────────────────────────────
 export const filtro = {
   etiqueta: 'Mostre seu apoio',
-  titulo: 'Coloque o 2233 na sua foto.',
+  titulo: 'Coloque o [[2233]] na sua foto.',
   intro:
     'Sua foto não sai do seu aparelho. Nada é enviado, nada é guardado, não precisa cadastro. ' +
     'É tudo feito aqui dentro do seu celular.',
@@ -371,7 +401,7 @@ export const filtro = {
 // ─────────────────────────────────────────────────────────────
 export const compartilhar = {
   etiqueta: 'Espalhe',
-  titulo: 'Campanha boa é a que anda sozinha.',
+  titulo: 'Campanha boa é a que [[anda sozinha.]]',
   intro:
     'Não tem verba que compre o que a sua indicação faz. Mande esta página para três pessoas que confiam em você.',
   textoWhatsapp:
@@ -386,7 +416,7 @@ export const compartilhar = {
 // 10. CTA FINAL
 // ─────────────────────────────────────────────────────────────
 export const ctaFinal = {
-  titulo: ['No dia da eleição,', 'escreva 2233.'],
+  titulo: ['No dia da eleição,', '[[escreva 2233.]]'],
   texto:
     'Se você chegou até aqui, já sabe o que eu penso. Agora falta a parte que só você pode fazer.',
   ctaPrimario: ctas.grupo,
@@ -414,6 +444,94 @@ export const privacidade = {
   resumo:
     'Resumo em uma frase: esta página não pede seu nome, não pede seu telefone, ' +
     'não guarda sua foto e não guarda sua localização.',
+
+  // Os textos aceitam {{candidata.nome}} e afins. A lista de tokens
+  // permitidos está em lib/conteudo/tokens.ts — é uma whitelist, não
+  // um acesso livre ao objeto: sem ela, um token conseguiria
+  // desreferenciar conteúdo arbitrário ou entrar em recursão.
+  secoes:  [
+    {
+      id: 'priv-01',
+      titulo: '1. Quem é o responsável',
+      conteudo: [
+        'Esta página é mantida pela campanha de {{candidata.nome}}, candidata a {{candidata.cargo}} ' +
+          'por {{candidata.estado}} pelo {{candidata.partidoExtenso}}, número {{candidata.numero}}. ' +
+          'Os dados de identificação da campanha, incluindo CNPJ e endereço do comitê, estão no rodapé de todas as páginas.',
+      ],
+    },
+    {
+      id: 'priv-02',
+      titulo: '2. A sua foto no gerador de moldura',
+      conteudo: [
+        'O gerador de moldura funciona inteiramente dentro do seu aparelho. A foto que você escolhe ' +
+          'é lida pelo próprio navegador, desenhada numa tela interna junto com a moldura e salva por você.',
+        'Em nenhum momento a foto é enviada para um servidor, para a campanha ou para terceiros. ' +
+          'Não guardamos, não vemos e não temos como recuperar nenhuma imagem gerada aqui. ' +
+          'Por isso o gerador não pede cadastro nem login.',
+      ],
+    },
+    {
+      id: 'priv-03',
+      titulo: '3. A sua localização',
+      conteudo: [
+        'Ao tocar em "Usar minha localização", o navegador pede a sua permissão e informa a coordenada ' +
+          'apenas para o código que roda no seu próprio aparelho. Essa coordenada é usada para calcular ' +
+          'qual das 52 sedes municipais está mais perto e é descartada em seguida.',
+        'A coordenada não é enviada para nenhum servidor nem armazenada. Se você recusar a permissão, ' +
+          'a página continua funcionando normalmente: basta buscar sua cidade pelo nome.',
+        'Independentemente disso, a hospedagem pode inferir a cidade aproximada a partir do endereço de rede, ' +
+          'como qualquer site faz. Usamos essa informação apenas para sugerir uma cidade na tela, ' +
+          'no momento em que a página carrega. Ela não é gravada.',
+      ],
+    },
+    {
+      id: 'priv-04',
+      titulo: '4. O que medimos',
+      conteudo: [
+        'Registramos eventos de uso sem identificar pessoas: página vista, rolagem, busca por cidade, ' +
+          'clique no botão do grupo, uso do gerador de moldura e compartilhamento.',
+        'A cada visita é gerado um identificador aleatório, guardado apenas enquanto a aba estiver aberta, ' +
+          'cuja única função é evitar que a mesma visita seja contada várias vezes. ' +
+          'Ele não contém nome, telefone, e-mail nem endereço de rede, e desaparece quando você fecha a aba.',
+        'Não usamos cookies de rastreamento e não montamos perfil de navegação.',
+      ],
+    },
+    {
+      id: 'priv-05',
+      titulo: '5. Grupos de WhatsApp',
+      conteudo: [
+        'Ao entrar num grupo de WhatsApp da campanha, o tratamento dos seus dados dentro do aplicativo ' +
+          'passa a seguir a política de privacidade do próprio WhatsApp e as regras do grupo. ' +
+          'Você pode sair do grupo a qualquer momento pelo próprio aplicativo.',
+      ],
+    },
+    {
+      id: 'priv-06',
+      titulo: '6. Compartilhamento com terceiros',
+      conteudo: [
+        'Não vendemos, alugamos nem cedemos dados de visitantes. ' +
+          'Os serviços de hospedagem e de banco de dados utilizados pelo site processam dados ' +
+          'exclusivamente para manter a página no ar e gerar as métricas agregadas descritas acima.',
+      ],
+    },
+    {
+      id: 'priv-07',
+      titulo: '7. Seus direitos',
+      conteudo: [
+        'Como não coletamos dados que identifiquem você, não há cadastro para consultar, corrigir ou apagar. ' +
+          'Ainda assim, se tiver qualquer dúvida sobre esta política ou sobre o tratamento de dados, ' +
+          'a campanha responde pelos canais indicados no rodapé.',
+      ],
+    },
+    {
+      id: 'priv-08',
+      titulo: '8. Mudanças nesta política',
+      conteudo: [
+        'Se esta política mudar, a data de atualização no topo desta página muda junto. ' +
+          'Recomendamos conferir esta página caso tenha alguma dúvida.',
+      ],
+    },
+  ],
 } as const
 
 // ═══════════════════════════════════════════════════════════════
@@ -431,6 +549,7 @@ export const privacidade = {
 export const PADRAO = {
   candidata,
   meta,
+  paginas,
   navegacao,
   ctas,
   hero,

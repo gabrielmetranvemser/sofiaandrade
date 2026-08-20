@@ -19,11 +19,7 @@ export async function SecaoFiltro() {
         <div>
           <CabecalhoSecao
             etiqueta={filtro.etiqueta}
-            titulo={
-              <>
-                Coloque o <span className="underline decoration-azul-escuro decoration-[0.14em] underline-offset-[0.12em]">2233</span> na sua foto.
-              </>
-            }
+            titulo={filtro.titulo}
             intro={filtro.intro}
           />
 

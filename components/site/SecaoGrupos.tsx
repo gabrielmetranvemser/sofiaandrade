@@ -16,11 +16,8 @@ export async function SecaoGrupos({
     <Secao id="grupos" fundo="branco" espaco="solto">
       <CabecalhoSecao
         etiqueta={copy.etiqueta}
-        titulo={
-          <>
-            Tem um grupo da Sofia <span className="grifo">na sua cidade.</span>
-          </>
-        }
+        titulo={copy.titulo}
+        destaque="grifo"
         intro={copy.intro}
       />
       <BuscadorDeGrupo municipios={municipios} sugerido={sugerido} />
