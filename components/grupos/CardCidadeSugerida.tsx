@@ -36,9 +36,15 @@ export function CardCidadeSugerida({
       </p>
 
       <p className="mt-2 text-base text-white/75">
-        {longe
-          ? `A sede mais próxima fica a cerca de ${Math.round(distanciaKm!)} km. Confira se é a sua cidade.`
-          : copy.sugestaoPergunta}
+        {longe ? copy.sugestaoLonge : copy.sugestaoPergunta}
+        {/* A distância vai num selo próprio, e não dentro da frase:
+            número no meio de texto editável obrigaria um token, e a
+            lista de tokens é fechada de propósito. */}
+        {typeof distanciaKm === 'number' ? (
+          <span className="ml-2 inline-flex items-center rounded-full bg-white/15 px-2.5 py-0.5 text-sm font-medium text-white tabular-nums">
+            {distanciaKm < 10 ? distanciaKm.toFixed(1) : Math.round(distanciaKm)} km
+          </span>
+        ) : null}
       </p>
 
       <div className="mt-6 flex flex-col gap-3 sm:flex-row sm:items-center">
@@ -47,7 +53,7 @@ export function CardCidadeSugerida({
             href={`/g/${municipio.slug}?de=${origem}&s=${idSessao()}`}
             className="inline-flex min-h-13 items-center justify-center gap-2 rounded-full bg-amarelo px-7 py-3.5 font-semibold text-azul-escuro shadow-media transition-all hover:brightness-105"
           >
-            Sim, entrar no grupo
+            {copy.sugestaoSim}
           </a>
         ) : (
           <span className="inline-flex min-h-13 items-center justify-center rounded-full bg-white/15 px-7 py-3.5 font-medium text-white/80 ring-1 ring-white/25">

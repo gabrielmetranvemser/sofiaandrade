@@ -90,12 +90,31 @@ export function municipioMaisProximo<T extends Municipio>(
   latitude: number,
   longitude: number,
 ): { municipio: T; km: number } | null {
-  let melhor: { municipio: T; km: number } | null = null
-  for (const m of lista) {
-    const km = distanciaKm(latitude, longitude, m.latitude, m.longitude)
-    if (!melhor || km < melhor.km) melhor = { municipio: m, km }
-  }
-  return melhor
+  return municipiosMaisProximos(lista, latitude, longitude, 1)[0] ?? null
+}
+
+/**
+ * As N sedes mais próximas de uma coordenada, da mais perto para a
+ * mais longe.
+ *
+ * Roda inteiro no aparelho: a lista dos 52 já está no bundle e a
+ * coordenada nunca sai daqui. Nenhuma requisição, nenhum dado de
+ * localização trafegando — que é o que permite pedir a permissão sem
+ * precisar de banner de consentimento.
+ */
+export function municipiosMaisProximos<T extends Municipio>(
+  lista: T[],
+  latitude: number,
+  longitude: number,
+  quantos = 6,
+): { municipio: T; km: number }[] {
+  return lista
+    .map((municipio) => ({
+      municipio,
+      km: distanciaKm(latitude, longitude, municipio.latitude, municipio.longitude),
+    }))
+    .sort((a, b) => a.km - b.km)
+    .slice(0, quantos)
 }
 
 /**
