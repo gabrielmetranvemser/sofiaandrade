@@ -9,8 +9,7 @@ import { Aviso } from '@/components/ui/Aviso'
  */
 export function Provas() {
   return (
-    <Secao id="provas" fundo="marinho" espaco="solto" className="overflow-hidden">
-      <div aria-hidden className="pointer-events-none absolute inset-0 -z-0 brilho-escuro opacity-70" />
+    <Secao id="provas" fundo="azul-profundo" espaco="solto" className="overflow-hidden">
 
       <div className="relative">
         <CabecalhoSecao
@@ -27,12 +26,12 @@ export function Provas() {
               key={n.texto}
               data-revelar
               style={{ ['--atraso' as string]: `${i * 80}ms` }}
-              className="rounded-2xl border border-white/10 bg-white/[0.06] p-7 backdrop-blur-sm"
+              className="rounded-2xl border border-white/10 bg-white/[0.06] p-7"
             >
-              <span className="block font-[family-name:var(--font-titulo)] text-5xl font-bold tracking-[-0.04em] text-white tabular-nums">
+              <span className="block font-[family-name:var(--font-titulo)] text-5xl font-bold tracking-[-0.04em] text-amarelo tabular-nums">
                 {n.valor}
               </span>
-              <span className="mt-1 block text-sm font-medium text-amarelo">{n.unidade}</span>
+              <span className="mt-1 block text-sm font-medium text-white/70">{n.unidade}</span>
               <p className="mt-3 text-base leading-relaxed text-white/65">{n.texto}</p>
             </li>
           ))}

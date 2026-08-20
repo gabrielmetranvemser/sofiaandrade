@@ -1,45 +1,61 @@
 @import 'tailwindcss';
 
 /* ═══════════════════════════════════════════════════════════════
-   SISTEMA VISUAL — institucional, claro, arredondado.
+   SISTEMA VISUAL — paleta oficial da campanha.
 
-   Direção: leveza e organização. Nada de bloco chapado, caixa alta
-   corrida ou contraste duro. A força vem do espaço em branco, da
-   hierarquia tipográfica e de um azul institucional bem usado.
+   As cinco cores vêm da marca. O símbolo é a bandeira do Brasil
+   estilizada, então a página usa as três cores do jeito que a
+   bandeira usa: verde e azul carregam superfície, amarelo NUNCA
+   carrega superfície grande — ele é o que aponta para a ação.
+
+   Divisão por seção:
+     hero e CTA final .... azul, com força
+     valores e futuro .... verde em ênfase
+     botões e detalhes ... amarelo
 
    Regras não-negociáveis (plano, seção 9):
    · corpo de texto ≥ 18px
    · alvo de toque ≥ 48px
-   · contraste real de texto (amarelo só como detalhe, nunca como texto)
-   · animação discreta e respeitando prefers-reduced-motion
+   · amarelo nunca é cor de texto sobre claro (contraste 1.4:1)
+   · animação discreta, respeitando prefers-reduced-motion
    ═══════════════════════════════════════════════════════════════ */
 
 @theme {
-  /* ── Paleta ─────────────────────────────────────────────────
-     Azul, verde e amarelo do PL, rebaixados para tom institucional. */
-  --color-marinho: #0d2440;       /* texto forte e seções escuras   */
-  --color-marinho-2: #16385d;     /* superfície escura secundária    */
-  --color-azul: #12539e;          /* cor de marca, botões e links    */
-  --color-azul-claro: #3c7fd0;
-  --color-azul-suave: #eaf1fa;    /* fundo de destaque               */
-  --color-verde: #10884f;
-  --color-verde-suave: #e8f4ee;
-  --color-amarelo: #f2b134;       /* detalhe, nunca texto sobre claro*/
-  --color-amarelo-suave: #fdf3e0;
+  /* ── Paleta oficial ────────────────────────────────────────── */
+  --color-azul-escuro: #01518f;   /* superfície escura, texto forte  */
+  --color-azul: #066db9;          /* cor de marca                     */
+  --color-verde-escuro: #16603b;  /* superfície escura alternativa    */
+  --color-verde: #509c47;         /* ênfase                           */
+  --color-amarelo: #fbd83f;       /* ação: botões e detalhes          */
+
+  /* ── Derivadas (fundos e neutros) ──────────────────────────── */
+  --color-azul-noite: #013a67;    /* fim do gradiente do hero         */
+  /* Tintas funcionais — só para estado de interface (hover, aviso,
+     seleção). NUNCA como fundo de seção: fundo lavado tira a força
+     da paleta e deixa a página com cara de apresentação corporativa. */
+  --color-azul-suave: #e8f1f9;
+  --color-verde-suave: #ebf3e9;
+  --color-amarelo-suave: #fef8e0;
 
   --color-branco: #ffffff;
-  --color-areia: #faf8f5;         /* fundo alternado, quase branco   */
-  --color-grafite: #4a5563;       /* texto secundário                */
-  --color-linha: #e7e3dc;         /* bordas sobre claro              */
-  --color-linha-escura: #24405f;  /* bordas sobre escuro             */
+  --color-areia: #f7f7f4;
+  --color-tinta: #10243a;         /* texto principal                  */
+  --color-grafite: #4c5866;       /* texto secundário                 */
+  --color-linha: #e3e6ea;
+  --color-linha-escura: #0a4477;
 
-  /* ── Tipografia ── */
-  --font-titulo: var(--fonte-titulo), ui-sans-serif, system-ui, sans-serif;
+  /* ── Tipografia ─────────────────────────────────────────────
+     O logotipo é uma grotesca condensada, pesada e itálica. Repetir
+     esse peso nos títulos da página deixa tudo pesado demais — foi o
+     problema da Tusker. A Archivo tem o mesmo esqueleto industrial,
+     mas com peso graduável: 700 nos títulos dá autoridade sem virar
+     bloco. O itálico dela ecoa a marca quando precisa. */
+  --font-titulo: var(--fonte-titulo), 'Archivo', ui-sans-serif, system-ui, sans-serif;
   --font-corpo: var(--fonte-corpo), ui-sans-serif, system-ui, sans-serif;
 
   --text-base: 1.0625rem;
   --text-base--line-height: 1.7;
-  --text-lg: 1.125rem;            /* 18px — mínimo do corpo de leitura */
+  --text-lg: 1.125rem;
   --text-lg--line-height: 1.7;
   --text-xl: 1.3125rem;
   --text-xl--line-height: 1.6;
@@ -51,10 +67,10 @@
   --radius-xl: 1.75rem;
   --radius-2xl: 2.25rem;
 
-  /* ── Sombra: difusa e discreta, nunca deslocada ── */
-  --shadow-suave: 0 1px 2px rgb(13 36 64 / 0.04), 0 8px 24px -8px rgb(13 36 64 / 0.10);
-  --shadow-media: 0 2px 4px rgb(13 36 64 / 0.04), 0 16px 40px -12px rgb(13 36 64 / 0.14);
-  --shadow-alta: 0 4px 8px rgb(13 36 64 / 0.05), 0 28px 60px -18px rgb(13 36 64 / 0.20);
+  /* ── Sombra ── */
+  --shadow-suave: 0 1px 2px rgb(1 58 103 / 0.05), 0 8px 24px -8px rgb(1 58 103 / 0.12);
+  --shadow-media: 0 2px 4px rgb(1 58 103 / 0.05), 0 16px 40px -12px rgb(1 58 103 / 0.18);
+  --shadow-alta: 0 4px 8px rgb(1 58 103 / 0.06), 0 28px 60px -18px rgb(1 58 103 / 0.26);
 
   --ease-suave: cubic-bezier(0.22, 1, 0.36, 1);
 }
@@ -64,9 +80,7 @@
    ═══════════════════════════════════════════════════════════════ */
 
 @layer base {
-  * {
-    min-width: 0;
-  }
+  * { min-width: 0; }
 
   html {
     scroll-behavior: smooth;
@@ -76,7 +90,7 @@
 
   body {
     background-color: var(--color-branco);
-    color: var(--color-marinho);
+    color: var(--color-tinta);
     font-family: var(--font-corpo);
     font-size: var(--text-lg);
     line-height: 1.7;
@@ -88,16 +102,15 @@
   h1, h2, h3, h4 {
     font-family: var(--font-titulo);
     font-weight: 700;
-    line-height: 1.12;
-    letter-spacing: -0.022em;
+    line-height: 1.1;
+    letter-spacing: -0.025em;
     text-wrap: balance;
-    color: var(--color-marinho);
+    color: inherit;
   }
 
-  h1 { letter-spacing: -0.032em; line-height: 1.05; }
+  h1 { letter-spacing: -0.035em; line-height: 1.02; }
 
   p { text-wrap: pretty; }
-
   a { color: inherit; }
 
   :focus-visible {
@@ -107,20 +120,13 @@
   }
 
   ::selection {
-    background: var(--color-azul-suave);
-    color: var(--color-marinho);
+    background: var(--color-amarelo);
+    color: var(--color-tinta);
   }
 
-  a, button, [role='button'] {
-    touch-action: manipulation;
-  }
+  a, button, [role='button'] { touch-action: manipulation; }
+  img, svg, video, canvas { display: block; max-width: 100%; }
 
-  img, svg, video, canvas {
-    display: block;
-    max-width: 100%;
-  }
-
-  /* Barra de rolagem discreta no editor e nas listas longas */
   @supports (scrollbar-width: thin) {
     * { scrollbar-width: thin; scrollbar-color: var(--color-linha) transparent; }
   }
@@ -136,29 +142,25 @@
   padding-inline: 1.25rem;
   max-width: 75rem;
 
-  @media (min-width: 768px) {
-    padding-inline: 2rem;
-  }
+  @media (min-width: 768px) { padding-inline: 2rem; }
 }
 
-/* Título de primeira dobra. Grande, mas sem gritar. */
 @utility titulo-cartaz {
   font-family: var(--font-titulo);
   font-weight: 700;
   font-size: clamp(2.4rem, 6.2vw, 4.5rem);
-  line-height: 1.04;
-  letter-spacing: -0.034em;
+  line-height: 1.02;
+  letter-spacing: -0.036em;
 }
 
 @utility titulo-secao {
   font-family: var(--font-titulo);
   font-weight: 700;
   font-size: clamp(1.85rem, 3.8vw, 2.9rem);
-  line-height: 1.12;
-  letter-spacing: -0.028em;
+  line-height: 1.1;
+  letter-spacing: -0.03em;
 }
 
-/* Etiqueta de seção: pequena, espaçada, discreta. */
 @utility etiqueta {
   display: inline-flex;
   align-items: center;
@@ -170,24 +172,27 @@
   text-transform: uppercase;
 }
 
-/* Grifo suave sob a palavra-chave. Substitui o bloco chapado. */
+/* Itálico da marca. Usado com moderação: número, selo, destaque curto. */
+@utility voz-marca {
+  font-family: var(--font-titulo);
+  font-weight: 800;
+  font-style: italic;
+  letter-spacing: -0.03em;
+  text-transform: uppercase;
+}
+
+/* Grifo amarelo sob a palavra-chave. */
 @utility grifo {
-  position: relative;
   display: inline;
   background-image: linear-gradient(
     to top,
-    color-mix(in srgb, var(--color-amarelo) 45%, transparent) 0 32%,
-    transparent 32%
+    color-mix(in srgb, var(--color-amarelo) 80%, transparent) 0 30%,
+    transparent 30%
   );
   background-repeat: no-repeat;
   padding-inline: 0.06em;
 }
 
-@utility grifo-azul {
-  color: var(--color-azul);
-}
-
-/* Superfície de cartão padrão do site. */
 @utility cartao {
   background-color: var(--color-branco);
   border: 1px solid var(--color-linha);
@@ -195,22 +200,40 @@
   box-shadow: var(--shadow-suave);
 }
 
-/* Brilho de fundo suave, usado atrás do hero e do CTA final. */
-@utility brilho-suave {
-  background-image:
-    radial-gradient(60% 55% at 15% 0%, color-mix(in srgb, var(--color-azul) 12%, transparent) 0%, transparent 70%),
-    radial-gradient(50% 50% at 95% 20%, color-mix(in srgb, var(--color-verde) 10%, transparent) 0%, transparent 70%);
+/* ── Fundos ────────────────────────────────────────────────────
+   Cada superfície escura é MONOCROMÁTICA: um matiz só, variando
+   apenas em claro/escuro.
+
+   Misturar verde com azul num gradiente passa por um verde-água que
+   não existe na marca — o meio do caminho entre dois matizes distantes
+   é sempre uma terceira cor, e nunca é a que se quer. Verde e azul
+   convivem, mas em seções diferentes, nunca dentro do mesmo gradiente. */
+
+@utility fundo-azul {
+  background-image: linear-gradient(168deg, #0a7ac9 0%, var(--color-azul) 30%, var(--color-azul-escuro) 78%, var(--color-azul-noite) 100%);
 }
 
-@utility brilho-escuro {
+@utility fundo-azul-profundo {
+  background-image: linear-gradient(168deg, var(--color-azul-escuro) 0%, var(--color-azul-noite) 100%);
+}
+
+@utility fundo-verde {
+  background-image: linear-gradient(168deg, #5aa851 0%, var(--color-verde) 30%, var(--color-verde-escuro) 100%);
+}
+
+@utility fundo-verde-profundo {
+  background-image: linear-gradient(168deg, var(--color-verde) 0%, var(--color-verde-escuro) 100%);
+}
+
+/* Brilho suave sobre fundo claro. */
+@utility brilho-claro {
   background-image:
-    radial-gradient(55% 50% at 10% 0%, color-mix(in srgb, var(--color-azul-claro) 22%, transparent) 0%, transparent 70%),
-    radial-gradient(45% 45% at 100% 30%, color-mix(in srgb, var(--color-verde) 16%, transparent) 0%, transparent 70%);
+    radial-gradient(55% 50% at 12% 0%, color-mix(in srgb, var(--color-azul) 9%, transparent) 0%, transparent 70%),
+    radial-gradient(45% 45% at 98% 15%, color-mix(in srgb, var(--color-verde) 9%, transparent) 0%, transparent 70%);
 }
 
 /* ═══════════════════════════════════════════════════════════════
-   ANIMAÇÃO — discreta. Dois momentos: entrada do hero e revelação
-   dos blocos ao rolar. Nada além disso.
+   ANIMAÇÃO
    ═══════════════════════════════════════════════════════════════ */
 
 @keyframes sobe-suave {
@@ -223,13 +246,8 @@
   to   { opacity: 1; transform: none; }
 }
 
-@utility anima-hero {
-  animation: sobe-suave 0.8s var(--ease-suave) both;
-}
-
-@utility anima-surge {
-  animation: surge 1s var(--ease-suave) both;
-}
+@utility anima-hero { animation: sobe-suave 0.8s var(--ease-suave) both; }
+@utility anima-surge { animation: surge 1s var(--ease-suave) both; }
 
 @layer components {
   [data-revelar] {
@@ -241,16 +259,9 @@
     transition-delay: var(--atraso, 0ms);
   }
 
-  [data-revelar][data-visivel='true'] {
-    opacity: 1;
-    transform: none;
-  }
+  [data-revelar][data-visivel='true'] { opacity: 1; transform: none; }
 
-  /* Sem JS o conteúdo aparece. Nunca esconder texto atrás de script. */
-  .sem-js [data-revelar] {
-    opacity: 1;
-    transform: none;
-  }
+  .sem-js [data-revelar] { opacity: 1; transform: none; }
 }
 
 @media (prefers-reduced-motion: reduce) {
@@ -262,8 +273,5 @@
     transition-duration: 0.01ms !important;
   }
 
-  [data-revelar] {
-    opacity: 1 !important;
-    transform: none !important;
-  }
+  [data-revelar] { opacity: 1 !important; transform: none !important; }
 }

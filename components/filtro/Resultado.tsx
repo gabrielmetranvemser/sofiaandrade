@@ -98,7 +98,7 @@ export function Resultado({
       {/* 2 e 3. Compartilhar nativo e download. */}
       <div className="mt-6 flex flex-col gap-3 sm:flex-row sm:flex-wrap">
         {podeShare ? (
-          <Botao variante="secundario" tamanho="lg" onClick={compartilhar}>
+          <Botao variante="verde" tamanho="lg" onClick={compartilhar}>
             <svg viewBox="0 0 24 24" className="size-6" fill="currentColor" aria-hidden>
               <path d="M18 16.1c-.8 0-1.5.3-2 .8l-7.1-4.1c0-.3.1-.5.1-.8s0-.5-.1-.8L16 7.2c.5.5 1.2.8 2 .8a3 3 0 1 0-3-3c0 .3 0 .5.1.8L8 9.8a3 3 0 1 0 0 4.4l7.1 4.1c0 .2-.1.5-.1.7a3 3 0 1 0 3-2.9Z" />
             </svg>
@@ -106,7 +106,7 @@ export function Resultado({
           </Botao>
         ) : null}
 
-        <Botao variante="primario" tamanho="lg" onClick={baixar}>
+        <Botao variante="acao" tamanho="lg" onClick={baixar}>
           <svg viewBox="0 0 24 24" className="size-6" fill="currentColor" aria-hidden>
             <path d="M12 3v10.2l3.6-3.6L17 11l-5 5-5-5 1.4-1.4L12 13.2V3h0ZM5 19h14v2H5v-2Z" />
           </svg>

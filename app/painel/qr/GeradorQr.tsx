@@ -110,7 +110,7 @@ export function GeradorQr({
         <button
           type="button"
           onClick={baixar}
-          className="mt-4 inline-flex min-h-12 w-full items-center justify-center rounded-full bg-azul px-6 font-semibold text-white transition-colors hover:bg-marinho"
+          className="mt-4 inline-flex min-h-12 w-full items-center justify-center rounded-full bg-azul px-6 font-semibold text-white transition-colors hover:bg-azul-escuro"
         >
           Baixar PNG
         </button>

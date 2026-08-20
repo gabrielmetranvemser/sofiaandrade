@@ -24,7 +24,7 @@ export function Problema() {
             className="cartao group p-7 transition-all duration-300 hover:-translate-y-1 hover:shadow-media md:p-8"
           >
             <span
-              className="inline-flex size-11 items-center justify-center rounded-full bg-azul-suave font-[family-name:var(--font-titulo)] text-base font-bold text-azul transition-colors duration-300 group-hover:bg-azul group-hover:text-white"
+              className="inline-flex size-11 items-center justify-center rounded-full bg-azul-escuro font-[family-name:var(--font-titulo)] text-base font-bold text-white transition-colors duration-300 group-hover:bg-amarelo group-hover:text-azul-escuro"
               aria-hidden
             >
               {item.numero}

@@ -47,7 +47,7 @@ export default function PaginaFiltro() {
               Voltar para a página
             </Link>
 
-            <p className="mt-6 flex w-fit items-center gap-2 rounded-full border border-azul/15 bg-white/70 px-4 py-2 text-[0.8125rem] font-semibold tracking-[0.04em] text-azul backdrop-blur">
+            <p className="mt-6 flex w-fit items-center gap-2 rounded-full border border-azul/15 bg-white/70 px-4 py-2 text-[0.8125rem] font-semibold tracking-[0.04em] text-azul">
               <span className="size-1.5 rounded-full bg-verde" aria-hidden />
               {copy.etiqueta}
             </p>

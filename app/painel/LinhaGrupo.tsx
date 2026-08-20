@@ -158,7 +158,7 @@ export function LinhaGrupo({
         <button
           type="submit"
           disabled={!editavel || pendente || linkInvalido}
-          className="inline-flex min-h-11 items-center rounded-full bg-azul px-6 text-sm font-semibold text-white transition-colors hover:bg-marinho disabled:opacity-40"
+          className="inline-flex min-h-11 items-center rounded-full bg-azul px-6 text-sm font-semibold text-white transition-colors hover:bg-azul-escuro disabled:opacity-40"
         >
           {pendente ? 'Salvando…' : 'Salvar'}
         </button>

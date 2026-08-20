@@ -31,10 +31,10 @@ export function LinhaMunicipio({
 
   const selo =
     status === 'aberto'
-      ? { texto: copy.aberto, classe: 'bg-verde-suave text-verde' }
+      ? { texto: copy.aberto, classe: 'bg-verde text-white' }
       : status === 'cheio'
-        ? { texto: copy.cheio, classe: 'bg-azul-suave text-azul' }
-        : { texto: copy.emBreve, classe: 'bg-areia text-grafite' }
+        ? { texto: copy.cheio, classe: 'bg-azul-escuro text-white' }
+        : { texto: copy.emBreve, classe: 'bg-areia text-grafite ring-1 ring-linha' }
 
   const conteudo = (
     <>
@@ -88,7 +88,7 @@ export function LinhaMunicipio({
     <li className={className}>
       <a
         href={`/g/${municipio.slug}?de=${origem}&s=${idSessao()}`}
-        className={`${base} hover:bg-azul-suave`}
+        className={`${base} hover:bg-areia`}
       >
         {conteudo}
       </a>

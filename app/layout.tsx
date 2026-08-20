@@ -1,26 +1,34 @@
 import type { Metadata, Viewport } from 'next'
-import { Instrument_Sans, Plus_Jakarta_Sans } from 'next/font/google'
+import { Archivo, Inter } from 'next/font/google'
 import { candidata, meta } from '@/content/copy'
 import { config } from '@/lib/config'
 import { Revelar } from '@/components/ui/Revelar'
 import './globals.css'
 
 /**
- * Título com uma grotesca de traço firme mas amigável, corpo numa
- * fonte de leitura confortável em 18px.
+ * TÍTULO — Archivo.
+ *
+ * O logotipo da campanha é uma grotesca condensada, pesada e itálica.
+ * Repetir esse peso nos títulos da página deixa tudo pesado demais:
+ * é o problema da Tusker. A Archivo tem o mesmo esqueleto industrial
+ * e o mesmo ar de campanha, mas com peso graduável — 700 dá autoridade
+ * sem virar bloco, e o itálico dela ecoa a marca nos destaques curtos.
+ *
+ * CORPO — Inter. Público de 35 a 64 anos lendo 18px no celular.
  *
  * `display: swap` porque o teto do plano é 3 segundos até o botão
  * principal ficar clicável — texto invisível esperando fonte é o
  * jeito mais barato de estourar esse teto.
  */
-const titulo = Plus_Jakarta_Sans({
+const titulo = Archivo({
   subsets: ['latin'],
-  weight: ['600', '700', '800'],
+  weight: ['500', '600', '700', '800'],
+  style: ['normal', 'italic'],
   variable: '--fonte-titulo',
   display: 'swap',
 })
 
-const corpo = Instrument_Sans({
+const corpo = Inter({
   subsets: ['latin'],
   variable: '--fonte-corpo',
   display: 'swap',
@@ -62,7 +70,7 @@ export const metadata: Metadata = {
 }
 
 export const viewport: Viewport = {
-  themeColor: '#12539e',
+  themeColor: '#01518f',
   colorScheme: 'light',
   width: 'device-width',
   initialScale: 1,
@@ -75,7 +83,7 @@ export default function LayoutRaiz({ children }: { children: React.ReactNode }) 
         {/* Pular para o conteúdo: leitor de tela e navegação por teclado */}
         <a
           href="#conteudo"
-          className="sr-only focus:not-sr-only focus:absolute focus:left-4 focus:top-4 focus:z-[100] focus:rounded-full focus:bg-azul focus:px-6 focus:py-3 focus:font-semibold focus:text-white"
+          className="sr-only focus:not-sr-only focus:absolute focus:left-4 focus:top-4 focus:z-[100] focus:rounded-full focus:bg-amarelo focus:px-6 focus:py-3 focus:font-semibold focus:text-azul-escuro"
         >
           Pular para o conteúdo
         </a>

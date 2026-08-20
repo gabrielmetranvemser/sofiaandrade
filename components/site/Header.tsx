@@ -4,6 +4,7 @@ import Link from 'next/link'
 import { useEffect, useState } from 'react'
 import { candidata, ctas, navegacao } from '@/content/copy'
 import { evento } from '@/lib/eventos'
+import { Simbolo } from '@/components/ui/Marca'
 
 export function Header({ silencio = false }: { silencio?: boolean }) {
   const [rolou, setRolou] = useState(false)
@@ -29,20 +30,22 @@ export function Header({ silencio = false }: { silencio?: boolean }) {
         <div
           className={`flex h-16 items-center justify-between gap-4 rounded-full px-3 pl-5 transition-all duration-300 ${
             rolou || aberto
-              ? 'border border-linha bg-white/90 shadow-suave backdrop-blur-xl'
-              : 'border border-transparent bg-white/0'
+              ? 'border border-linha bg-white/92 text-tinta shadow-suave backdrop-blur-xl'
+              : // sobre o azul do hero, a barra é vidro e o texto é branco
+                'border border-white/20 bg-white/10 text-white backdrop-blur-md'
           }`}
         >
           <Link href="/" className="flex items-center gap-3" aria-label={`${candidata.nome} — início`}>
-            {/* LOGO: trocar por <Image> quando a arte chegar */}
-            <span className="flex size-10 items-center justify-center rounded-xl bg-azul text-[0.8125rem] font-bold tracking-tight text-white">
-              2233
-            </span>
+            <Simbolo prioridade className="h-8 w-auto shrink-0" />
             <span className="leading-tight">
-              <span className="block font-[family-name:var(--font-titulo)] text-[1.0625rem] font-bold tracking-[-0.02em]">
+              <span className="block font-[family-name:var(--font-titulo)] text-[1.0625rem] font-bold tracking-[-0.025em]">
                 {candidata.nome}
               </span>
-              <span className="block text-[0.6875rem] font-medium tracking-[0.08em] text-grafite">
+              <span
+                className={`block text-[0.6875rem] font-medium tracking-[0.08em] ${
+                  rolou || aberto ? 'text-grafite' : 'text-white/75'
+                }`}
+              >
                 {candidata.cargo} · {candidata.estado}
               </span>
             </span>
@@ -53,7 +56,11 @@ export function Header({ silencio = false }: { silencio?: boolean }) {
               <Link
                 key={item.href}
                 href={item.href}
-                className="rounded-full px-4 py-2.5 text-[0.9375rem] font-medium text-grafite transition-colors hover:bg-azul-suave hover:text-azul"
+                className={`rounded-full px-4 py-2.5 text-[0.9375rem] font-medium transition-colors ${
+                  rolou || aberto
+                    ? 'text-grafite hover:bg-azul-suave hover:text-azul-escuro'
+                    : 'text-white/85 hover:bg-white/15 hover:text-white'
+                }`}
               >
                 {item.rotulo}
               </Link>
@@ -65,7 +72,7 @@ export function Header({ silencio = false }: { silencio?: boolean }) {
               <Link
                 href="/#grupos"
                 onClick={() => evento('clicou_cta', { origem: 'topo' })}
-                className="hidden min-h-11 items-center rounded-full bg-azul px-5 text-[0.9375rem] font-semibold text-white shadow-suave transition-colors hover:bg-marinho sm:inline-flex"
+                className="hidden min-h-11 items-center rounded-full bg-amarelo px-5 text-[0.9375rem] font-semibold text-azul-escuro shadow-suave transition-all hover:brightness-105 sm:inline-flex"
               >
                 {ctas.grupoCurto}
               </Link>
@@ -77,7 +84,9 @@ export function Header({ silencio = false }: { silencio?: boolean }) {
               aria-expanded={aberto}
               aria-controls="menu-mobile"
               aria-label={aberto ? 'Fechar menu' : 'Abrir menu'}
-              className="inline-flex size-12 items-center justify-center rounded-full text-marinho transition-colors hover:bg-azul-suave lg:hidden"
+              className={`inline-flex size-12 items-center justify-center rounded-full transition-colors lg:hidden ${
+                rolou || aberto ? 'text-azul-escuro hover:bg-azul-suave' : 'text-white hover:bg-white/15'
+              }`}
             >
               <span className="relative block h-3.5 w-5" aria-hidden>
                 <span
@@ -124,7 +133,7 @@ export function Header({ silencio = false }: { silencio?: boolean }) {
                   setAberto(false)
                   evento('clicou_cta', { origem: 'topo' })
                 }}
-                className="mt-2 flex min-h-14 items-center justify-center rounded-full bg-azul px-6 font-semibold text-white"
+                className="mt-2 flex min-h-14 items-center justify-center rounded-full bg-amarelo px-6 font-semibold text-azul-escuro"
               >
                 {ctas.grupo}
               </Link>
