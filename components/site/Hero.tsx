@@ -1,5 +1,6 @@
 import { lerConteudo } from '@/lib/conteudo/ler'
-import { Silhueta } from '@/components/ui/Silhueta'
+import { lerSlots } from '@/lib/midia/ler'
+import { Imagem } from '@/components/ui/Imagem'
 import { TextoComDestaque } from '@/components/ui/TextoComDestaque'
 import { Numero } from '@/components/ui/Marca'
 import { BotaoLink } from '@/components/ui/Botao'
@@ -14,7 +15,7 @@ import { CliqueGrupo } from './CliqueGrupo'
  * gradiente é CSS puro, num matiz só — do azul claro ao azul-noite.
  */
 export async function Hero({ silencio = false }: { silencio?: boolean }) {
-  const { ctas, hero } = await lerConteudo()
+  const [{ ctas, hero }, slots] = await Promise.all([lerConteudo(), lerSlots()])
 
   return (
     <section className="relative isolate overflow-hidden fundo-azul pt-28 text-white md:pt-32">
@@ -85,11 +86,13 @@ export async function Hero({ silencio = false }: { silencio?: boolean }) {
           <div className="anima-surge relative" style={{ animationDelay: '260ms' }}>
             <div className="relative overflow-hidden rounded-[2rem] bg-gradient-to-b from-white/18 to-white/4 ring-1 ring-white/20 md:rounded-[2.75rem]">
               {/* Sem foto, o gradiente e a silhueta já sustentam a composição. */}
-              <Silhueta
-                variante="meio-corpo"
-                tom="escuro"
-                rotulo="Foto PNG · recorte sem fundo"
-                className="h-[23rem] w-full sm:h-[29rem] lg:h-[33rem]"
+              <Imagem
+                slot="hero.retrato"
+                slots={slots}
+                vazio="silhueta"
+                prioridade
+                sizes="(max-width: 1024px) 100vw, 45vw"
+                className="h-[23rem] w-full object-contain object-bottom sm:h-[29rem] lg:h-[33rem]"
               />
             </div>
 

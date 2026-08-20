@@ -101,3 +101,47 @@ export async function restaurarPadrao(
   revalidatePath('/', 'layout')
   return { ok: true }
 }
+
+/**
+ * Volta uma seção para uma versão anterior.
+ *
+ * Escrever a versão N de volta gera a versão N+1 — nunca destrutivo,
+ * e desfazer o desfazer também funciona.
+ */
+export async function restaurarVersao(
+  _estado: EstadoConteudo,
+  dados: FormData,
+): Promise<EstadoConteudo> {
+  await exigirSessao()
+
+  const secao = String(dados.get('secao') ?? '')
+  const versao = Number(dados.get('versao') ?? 0)
+  if (!ESQUEMA[secao] || !Number.isInteger(versao) || versao < 1) {
+    return { erro: 'Versão inválida.' }
+  }
+
+  const sb = criarClienteAdmin()
+  if (!sb) return { erro: 'Supabase não conectado.' }
+
+  const { data, error: erroLeitura } = await sb
+    .from('conteudo_versoes')
+    .select('dados')
+    .eq('secao', secao)
+    .eq('versao', versao)
+    .single()
+
+  if (erroLeitura || !data) return { erro: 'Não encontrei essa versão.' }
+
+  const { error } = await sb
+    .from('conteudo')
+    .upsert(
+      { secao, dados: data.dados, atualizado_por: `painel (restaurou v${versao})` },
+      { onConflict: 'secao' },
+    )
+
+  if (error) return { erro: error.message }
+
+  updateTag(TAG_CONTEUDO)
+  revalidatePath('/', 'layout')
+  return { ok: true }
+}

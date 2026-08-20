@@ -25,6 +25,7 @@ export interface ItemMenu {
 export const ITENS: ItemMenu[] = [
   { href: '/painel', rotulo: 'Início', icone: 'M4 12 12 4l8 8v8a1 1 0 0 1-1 1h-4v-6H9v6H5a1 1 0 0 1-1-1v-8Z' },
   { href: '/painel/textos', rotulo: 'Textos', icone: 'M4 5h16v2H4V5Zm0 4h16v2H4V9Zm0 4h11v2H4v-2Zm0 4h11v2H4v-2Z' },
+  { href: '/painel/imagens', rotulo: 'Imagens', icone: 'M5 4h14a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2Zm0 2v9.6l3.7-3.4a1 1 0 0 1 1.36 0L13 15l2.4-2.2a1 1 0 0 1 1.35 0L19 14.8V6H5Zm4.5 1.5a1.75 1.75 0 1 1 0 3.5 1.75 1.75 0 0 1 0-3.5Z' },
   { href: '/painel/grupos', rotulo: 'Grupos', icone: 'M12 2a10 10 0 1 0 0 20 10 10 0 0 0 0-20Zm0 2a8 8 0 0 1 6.3 12.9l-2.1-2.1a5 5 0 1 0-8.4 0l-2.1 2.1A8 8 0 0 1 12 4Zm0 5a3 3 0 1 1 0 6 3 3 0 0 1 0-6Z' },
   { href: '/painel/metricas', rotulo: 'Métricas', icone: 'M4 20V10h4v10H4Zm6 0V4h4v16h-4Zm6 0v-7h4v7h-4Z' },
 ]
