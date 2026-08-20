@@ -1,8 +1,10 @@
-import { origem } from '@/content/copy'
+import { lerConteudo } from '@/lib/conteudo/ler'
 import { Secao, CabecalhoSecao } from '@/components/ui/Secao'
 import { QuadroImagem } from '@/components/ui/QuadroImagem'
 
-export function Origem() {
+export async function Origem() {
+  const { origem } = await lerConteudo()
+
   return (
     <Secao id="origem" fundo="branco" espaco="solto">
       <div className="grid gap-14 lg:grid-cols-[1.05fr_0.95fr] lg:gap-20">
@@ -54,7 +56,7 @@ export function Origem() {
       <ol className="mt-16 grid gap-5 sm:grid-cols-2 lg:grid-cols-4">
         {origem.linhaDoTempo.map((item, i) => (
           <li
-            key={item.ano}
+            key={item.id}
             data-revelar
             style={{ ['--atraso' as string]: `${i * 80}ms` }}
             className="cartao p-6 transition-shadow duration-300 hover:shadow-media"

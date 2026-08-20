@@ -1,4 +1,4 @@
-import { filtro } from '@/content/copy'
+import { lerConteudo } from '@/lib/conteudo/ler'
 import { Secao, CabecalhoSecao } from '@/components/ui/Secao'
 import { BotaoLink } from '@/components/ui/Botao'
 import { QuadroImagem } from '@/components/ui/QuadroImagem'
@@ -10,7 +10,9 @@ import { QuadroImagem } from '@/components/ui/QuadroImagem'
  * trocada é uma peça de campanha circulando de graça, assinada por
  * alguém que a rede da pessoa conhece.
  */
-export function SecaoFiltro() {
+export async function SecaoFiltro() {
+  const { filtro } = await lerConteudo()
+
   return (
     <Secao id="filtro" fundo="amarelo" espaco="solto">
       <div className="grid items-center gap-14 lg:grid-cols-[1fr_0.85fr] lg:gap-20">
@@ -28,7 +30,7 @@ export function SecaoFiltro() {
           <ol className="mt-10 grid gap-5 sm:grid-cols-2">
             {filtro.passos.map((p, i) => (
               <li
-                key={p.numero}
+                key={p.id}
                 data-revelar
                 style={{ ['--atraso' as string]: `${i * 70}ms` }}
                 className="flex gap-4"
