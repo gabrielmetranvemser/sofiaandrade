@@ -171,7 +171,7 @@ export const ESQUEMA: Record<string, SecaoEsquema> = {
             tipo: 'texto',
             rotulo: 'Ícone',
             max: 20,
-            ajuda: 'familia · liberdade · segurança · producao · imposto · fe',
+            ajuda: 'familia · liberdade · segurança · lei · armas · producao · imposto · fe',
           },
           titulo: { tipo: 'texto', rotulo: 'Título', max: 30 },
           texto: { tipo: 'longo', rotulo: 'Descrição', max: 180, linhas: 3 },

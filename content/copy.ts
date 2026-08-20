@@ -30,8 +30,8 @@ export const candidata = {
   uf: 'RO',
   partido: 'PL',
   partidoExtenso: 'Partido Liberal',
-  instagram: 'https://instagram.com/sofiaandrade', // ⚠️ CONFIRMAR
-  instagramHandle: '@sofiaandrade', // ⚠️ CONFIRMAR
+  instagram: 'https://instagram.com/sofiaandrade.ro',
+  instagramHandle: '@sofiaandrade.ro',
   whatsapp: 'https://wa.me/5569900000000', // ⚠️ CONFIRMAR
 } as const
 
@@ -40,7 +40,8 @@ export const meta = {
   tituloCurto: 'Sofia Andrade 2233',
   descricao:
     'Sofia Andrade, 2233, candidata a Deputada Federal por Rondônia pelo PL. ' +
-    'Entre no grupo de WhatsApp da sua cidade e coloque o 2233 na sua foto de perfil.',
+    'Vereadora de Porto Velho, preside a Comissão de Segurança Pública. ' +
+    'Entre no grupo de WhatsApp da sua cidade e coloque o 2233 na sua foto.',
   palavrasChave: [
     'Sofia Andrade',
     'Sofia Andrade 2233',
@@ -53,7 +54,7 @@ export const meta = {
   og: {
     titulo: 'SOFIA ANDRADE · 2233',
     subtitulo: 'Deputada Federal por Rondônia',
-    chamada: 'Entre no grupo da sua cidade',
+    chamada: 'Mandaram fechar. Eu fui pra rua.',
   },
 } as const
 
@@ -116,37 +117,42 @@ export const ctas = {
 // 1. HERO
 // ─────────────────────────────────────────────────────────────
 export const hero = {
-  etiqueta: 'Deputada Federal · Rondônia',
-  titulo: ['Eu sou Sofia Andrade.', '[[E eu não peço licença.]]'],
+  etiqueta: 'Candidata a Deputada Federal',
+  titulo: ['Mandaram fechar.', '[[Eu fui pra rua.]]'],
   subtitulo:
-    'Nasci em Rondônia, cresci vendo o povo daqui trabalhar dobrado para receber metade. ' +
-    'Não vim a Brasília aprender a falar bonito. Vim brigar.',
+    'Quando o decreto mandou fechar o comércio, eu tinha um carrinho de espetinho na calçada da ' +
+    'Avenida Rio Madeira. Fui pra rua e falei o que pensava. Hoje sou vereadora de Porto Velho.',
   numeroLegenda: 'Escreva 2233 na urna',
   ctaPrimario: ctas.grupo,
   ctaSecundario: 'Conhecer minha história',
   ctaSecundarioHref: '#origem',
-  rodapeHero: '52 municípios. 52 grupos. Um por cidade.',
+  rodapeHero: 'Vereadora em Porto Velho. Candidata por Rondônia.',
 } as const
 
 // ─────────────────────────────────────────────────────────────
 // 2. ORIGEM
 // ─────────────────────────────────────────────────────────────
 export const origem = {
-  etiqueta: 'De onde eu venho',
-  titulo: 'Ninguém me deu nada.',
+  etiqueta: 'De onde eu vim',
+  titulo: 'Cheguei onde a luz [[acabava às nove.]]',
   paragrafos: [
-    'Minha família chegou em Rondônia com uma mala e uma promessa de terra. ' + // ⚠️ CONFIRMAR
-      'A terra veio. A estrada, a escola e o posto de saúde não vieram junto.',
-    'Cresci entendendo cedo uma coisa que muita gente em Brasília nunca vai entender: ' +
-      'aqui, tudo que existe alguém levantou com a própria mão.',
-    'Trabalhei, estudei, criei meus filhos e nunca precisei de padrinho político. ' + // ⚠️ CONFIRMAR
-      'É por isso que hoje eu não devo favor a ninguém — só ao povo de Rondônia.',
+    'Nasci em Cacoal. Mas fui criada em Iata, um distrito de Guajará-Mirim que a maioria dos ' +
+      'brasileiros nunca ouviu falar. Cheguei lá numa época em que a luz só funcionava das seis da ' +
+      'manhã às nove da noite. Depois das nove, era lamparina, vela e escuridão.',
+    'De Iata fui pra Guajará-Mirim. De Guajará-Mirim, pra Porto Velho. Lá eu tinha um carrinho de ' +
+      'espetinho na calçada da Avenida Rio Madeira, na frente da casa dos meus pais.',
+    'Aí veio a pandemia. O decreto mandou fechar o comércio, e eu me vi tendo que mandar pra rua ' +
+      'pais e mães de família que trabalhavam comigo. Fiz o que achei certo: fui pra rua também. ' +
+      'Fiz vídeo, falei o que pensava. Sem script, sem assessor, sem partido na frente.',
+    'Tinha 200, 300 seguidores. De repente eram milhares compartilhando. E não foi o meu vídeo que ' +
+      'viralizou: foi a história de cada um deles. Cada mãe que ficou sem renda, cada pai que não ' +
+      'sabia como pagar a conta. Essa gente me encontrou, e eu encontrei o que tinha pra fazer.',
   ],
-  citacao: 'Quem nunca dependeu de ninguém para chegar não precisa obedecer a ninguém para ficar.',
+  citacao: 'Ninguém tem o direito de proibir uma pessoa de trabalhar.',
   linhaDoTempo: [
-    { id: 'tempo-01', ano: '1998', titulo: 'A infância no interior', texto: 'A vida começa em Rondônia, longe do asfalto.' }, // ⚠️ CONFIRMAR
-    { id: 'tempo-02', ano: '2010', titulo: 'O primeiro trabalho', texto: 'Aprende cedo que aqui nada cai do céu.' }, // ⚠️ CONFIRMAR
-    { id: 'tempo-03', ano: '2018', titulo: 'A virada', texto: 'Entra na vida pública para resolver o que ninguém resolvia.' }, // ⚠️ CONFIRMAR
+    { id: 'tempo-01', ano: '2020', titulo: 'A pandemia', texto: 'O decreto manda fechar o comércio. Eu vou pra rua e falo o que penso.' },
+    { id: 'tempo-02', ano: '2022', titulo: 'A primeira disputa', texto: '14.634 votos sem estrutura e sem padrinho político.' }, // ⚠️ CONFIRMAR cargo disputado
+    { id: 'tempo-03', ano: '2024', titulo: 'Vereadora', texto: 'Eleita em Porto Velho. Indico a criação da Comissão de Segurança Pública e passo a presidi-la.' },
     { id: 'tempo-04', ano: '2026', titulo: 'Brasília', texto: 'Candidata a Deputada Federal pelo PL. Número 2233.' },
   ],
 } as const
@@ -156,42 +162,42 @@ export const origem = {
 // ─────────────────────────────────────────────────────────────
 export const problema = {
   etiqueta: 'O que está errado',
-  titulo: 'Rondônia produz. [[Brasília consome.]]',
+  titulo: 'Você vive isso [[todo dia.]]',
   intro:
-    'Nosso estado alimenta o Brasil e sustenta a balança comercial do país. ' +
-    'Em troca recebe estrada esburacada, hospital cheio e imposto novo.',
+    'Você sabe do que eu estou falando. Enquanto Brasília discute o que não resolve a sua vida, ' +
+    'o povo que trabalha e paga a conta fica esperando.',
   itens: [
     {
       id: 'item-01',
       numero: '01',
-      titulo: 'O produtor vira réu',
+      titulo: 'A conta de luz que não para de subir',
       texto:
-        'Quem planta e quem cria é tratado como suspeito por quem nunca pisou numa lavoura. ' +
-        'Multa ambiental de gabinete não recupera nada. Só quebra família.',
+        'A Energisa cobra, o serviço falha, e ninguém responde. Rondônia paga uma das energias mais ' +
+        'caras do país e continua no escuro quando chove.',
     },
     {
       id: 'item-02',
       numero: '02',
-      titulo: 'A saúde vira fila',
+      titulo: 'A violência que bate na sua porta',
       texto:
-        'Consulta marcada para daqui a oito meses não é atendimento, é adiamento. ' +
-        'Gente de Rondônia morre esperando vaga em outro estado.',
+        'Rondônia tem índice de violência acima da média nacional. O Estado promete, não entrega, ' +
+        'e o cidadão fica sem proteção.',
     },
     {
       id: 'item-03',
       numero: '03',
-      titulo: 'A segurança vira sorte',
+      titulo: 'O custo de tudo',
       texto:
-        'Bandido solto e cidadão de bem com medo de sair de casa. ' +
-        'Quem defende a própria família ainda corre risco de virar processo.',
+        'A gasolina, o gás, o rancho do mês. Você trabalha mais e leva menos pra casa. E quem ' +
+        'deveria defender o seu dinheiro gasta com show de artista que faz apologia ao crime.',
     },
     {
       id: 'item-04',
       numero: '04',
-      titulo: 'O imposto vira hábito',
+      titulo: 'O pedágio que não entrega asfalto',
       texto:
-        'Cada ano uma sigla nova para tirar mais de quem já paga. ' +
-        'Ninguém em Brasília perde o sono com a conta que chega na sua casa.',
+        'A BR-364 tem sete pontos de cobrança. O produtor paga, o caminhoneiro paga, o preço do ' +
+        'alimento sobe — e quem fica com a conta é você.',
     },
   ],
 } as const
@@ -200,47 +206,59 @@ export const problema = {
 // 4. VALORES
 // ─────────────────────────────────────────────────────────────
 export const valores = {
-  etiqueta: 'No que eu não negocio',
-  titulo: 'Tem coisa que [[não entra em acordo.]]',
+  etiqueta: 'Minhas bandeiras',
+  titulo: 'Cristã. Patriota. [[Armamentista.]]',
   intro:
-    'Política é negociação em quase tudo. Mas existe um chão que não se vende. ' +
-    'Este é o meu, escrito antes da eleição para você poder cobrar depois dela.',
+    'Não escondo o que penso, e escrevo antes da eleição para você poder cobrar depois dela. ' +
+    'Cada bandeira aqui tem uma lei, um projeto ou uma ação real por trás.',
   itens: [
     {
       id: 'item-05',
-      chave: 'familia',
-      titulo: 'Família',
-      texto: 'Pai e mãe decidem a educação dos próprios filhos. Não o Estado, não a moda, não Brasília.',
+      chave: 'liberdade',
+      titulo: 'Liberdade de trabalhar',
+      texto:
+        'Contra qualquer governo que proíba o cidadão de trabalhar e empreender. O Estado existe ' +
+        'pra servir quem produz, não pra atrapalhar.',
     },
     {
       id: 'item-06',
-      chave: 'liberdade',
-      titulo: 'Liberdade',
-      texto: 'Trabalhar, empreender, falar e crer sem pedir autorização para funcionário público nenhum.',
+      chave: 'lei',
+      titulo: 'Leis mais rígidas',
+      texto:
+        'Castração química para estuprador, pena mais dura para crime violento e redução da ' +
+        'maioridade penal. Quem comete crime grave paga na altura do que fez.',
     },
     {
       id: 'item-07',
-      chave: 'segurança',
-      titulo: 'Segurança',
-      texto: 'Lei dura com quem faz o mal e respaldo total para quem defende a própria vida e a dos seus.',
+      chave: 'armas',
+      titulo: 'Armas para quem é de bem',
+      texto:
+        'Quem trabalha, sustenta família e não tem ficha criminal tem o direito de se armar e ' +
+        'proteger os seus. Segurança não pode depender só do Estado.',
     },
     {
       id: 'item-08',
-      chave: 'producao',
-      titulo: 'Produção',
-      texto: 'Quem produz é herói, não vilão. Regularização fundiária e fim da perseguição ao homem do campo.',
+      chave: 'familia',
+      titulo: 'Fé e família',
+      texto:
+        'Defesa da vida desde a concepção e do direito dos pais de educar os filhos nos valores ' +
+        'que escolheram. Contra ideologia de gênero nas escolas.',
     },
     {
       id: 'item-09',
-      chave: 'imposto',
-      titulo: 'Menos imposto',
-      texto: 'Cada real que sai do seu bolso tem que voltar em serviço. Se não volta, é confisco.',
+      chave: 'producao',
+      titulo: 'Defesa do agro',
+      texto:
+        'Menos burocracia e menos imposto pra quem alimenta o Brasil. O agro sustenta Rondônia e ' +
+        'precisa de representante em Brasília.',
     },
     {
       id: 'item-10',
-      chave: 'fe',
-      titulo: 'Fé',
-      texto: 'Respeito e defesa da liberdade religiosa de cada família de Rondônia.',
+      chave: 'imposto',
+      titulo: 'Fiscalização de verdade',
+      texto:
+        'Cada real que sai do seu bolso tem que virar serviço, não mordomia. Transparência nas ' +
+        'contratações, nos gastos e nas decisões de quem governa.',
     },
   ],
 } as const
@@ -257,63 +275,71 @@ export const valores = {
 // ─────────────────────────────────────────────────────────────
 export const cena = {
   verde: {
-    etiqueta: 'Rondônia',
-    titulo: 'Aqui a terra [[trabalha.]]',
-    texto: 'Soja, boi, café, peixe, madeira legal. O que sai deste estado alimenta o Brasil inteiro.',
+    etiqueta: 'Rondônia trabalha',
+    titulo: 'Aqui a porta abre [[às cinco.]]',
+    texto: 'Agro, comércio, gente de carrinho na calçada. É esse povo que sustenta o estado.',
   },
   amarelo: {
-    etiqueta: 'E o que volta',
-    titulo: 'O que volta [[é conta.]]',
-    texto: 'O imposto sobe todo ano. A estrada não vem, o hospital não abre, a energia é a mais cara do país.',
+    etiqueta: 'Aí mandaram parar',
+    titulo: 'E eu [[fui pra rua.]]',
+    texto: 'Peguei o celular na calçada e falei o que milhares de pessoas estavam sentindo e não tinham onde dizer.',
   },
   azul: {
     etiqueta: 'Por isso o 2233',
-    titulo: 'Brasília precisa [[ouvir daqui.]]',
-    texto: 'Não adianta mandar recado. Tem que ter gente de Rondônia sentada lá dentro, com voto na mão.',
+    titulo: 'Agora é [[Brasília.]]',
+    texto: 'Com a mesma convicção de quando eu estava atrás da churrasqueira: ninguém proíbe uma pessoa de trabalhar.',
   },
 } as const
 
 // ─────────────────────────────────────────────────────────────
 // 5. PROVAS
-// ⚠️ TODOS OS NÚMEROS DESTA SEÇÃO SÃO PLACEHOLDER.
-//    Substituir por dados auditáveis antes de publicar.
+// Os números e as leis vêm do registro público da Câmara Municipal
+// de Porto Velho. O único item ainda por confirmar está marcado.
 // ─────────────────────────────────────────────────────────────
 export const provas = {
-  etiqueta: 'O que já foi feito',
-  titulo: 'Eu não faço promessa. [[Eu presto conta.]]',
+  etiqueta: 'O que eu fiz',
+  titulo: 'Pesquisa [[o que eu fiz.]]',
   intro:
-    'Promessa qualquer um faz na véspera. O que separa candidato de gente séria é o que já está pronto e pode ser conferido.',
+    'Qualquer um sobe num palanque e fala bonito. O que separa candidato sério de vendedor de ' +
+    'promessa é uma coisa só: o que já está feito e pode ser conferido no registro público.',
   numeros: [
-    { id: 'num-01', valor: '52', unidade: 'municípios', texto: 'percorridos ouvindo quem mora e trabalha em cada um' }, // ⚠️ CONFIRMAR
-    { id: 'num-02', valor: '00', unidade: 'milhões', texto: 'em recursos destinados a Rondônia' }, // ⚠️ CONFIRMAR
-    { id: 'num-03', valor: '00', unidade: 'entidades', texto: 'sociais atendidas com apoio direto' }, // ⚠️ CONFIRMAR
-    { id: 'num-04', valor: '00', unidade: 'famílias', texto: 'beneficiadas pelos programas apoiados' }, // ⚠️ CONFIRMAR
+    { id: 'num-01', valor: '9', unidade: 'leis', texto: 'de autoria própria, sancionadas e em vigor em Porto Velho' },
+    { id: 'num-02', valor: '1', unidade: 'comissão', texto: 'a de Segurança Pública: indiquei a criação e hoje presido' },
+    { id: 'num-03', valor: '7', unidade: 'projetos', texto: 'em andamento, de Guarda Municipal a transparência nas multas' },
+    { id: 'num-04', valor: '14.634', unidade: 'votos em 2022', texto: 'na primeira disputa, sem estrutura e sem padrinho político' }, // ⚠️ CONFIRMAR
   ],
   entregas: [
     {
       id: 'entrega-01',
-      titulo: 'Título de entrega 1', // ⚠️ CONFIRMAR
-      municipio: 'Município', // ⚠️ CONFIRMAR
-      texto: 'Descrição curta e verificável do que foi entregue, com valor e data.',
-      valor: 'R$ 0,0 mi', // ⚠️ CONFIRMAR
+      titulo: 'Chega de apologia ao crime com o seu dinheiro',
+      municipio: 'Porto Velho',
+      texto:
+        'Proíbe shows e eventos com apologia ao crime, à violência e às drogas custeados com ' +
+        'recurso público. Seu imposto não financia mais quem faz apologia ao que destrói a sua família.',
+      valor: 'Lei 3.250/2025',
     },
     {
       id: 'entrega-02',
-      titulo: 'Título de entrega 2', // ⚠️ CONFIRMAR
-      municipio: 'Município', // ⚠️ CONFIRMAR
-      texto: 'Descrição curta e verificável do que foi entregue, com valor e data.',
-      valor: 'R$ 0,0 mi', // ⚠️ CONFIRMAR
+      titulo: 'Conscientização contra o aborto',
+      municipio: 'Porto Velho',
+      texto:
+        'Criou a Política Municipal de Conscientização contra o Aborto. Defesa da vida com lei ' +
+        'aprovada, não só com discurso.',
+      valor: 'Lei 3.285/2025',
     },
     {
       id: 'entrega-03',
-      titulo: 'Título de entrega 3', // ⚠️ CONFIRMAR
-      municipio: 'Município', // ⚠️ CONFIRMAR
-      texto: 'Descrição curta e verificável do que foi entregue, com valor e data.',
-      valor: 'R$ 0,0 mi', // ⚠️ CONFIRMAR
+      titulo: 'Direito dos pais nas escolas',
+      municipio: 'Porto Velho',
+      texto:
+        'Garante aos pais informação prévia sobre atividades religiosas nas escolas municipais. ' +
+        'Você tem o direito de saber o que ensinam pro seu filho.',
+      valor: 'Lei 3.256/2025',
     },
   ],
   aviso:
-    'Seção aguardando os dados oficiais da campanha. Números e entregas serão publicados com fonte.',
+    'E tem mais: combate à ludopatia, proteção à infância, furto de fios e cabos, incentivo aos ' +
+    'eSports, cidade limpa e o programa De Volta à Minha Terra.',
 } as const
 
 // ─────────────────────────────────────────────────────────────
@@ -321,46 +347,58 @@ export const provas = {
 // ─────────────────────────────────────────────────────────────
 export const futuro = {
   etiqueta: 'O que eu vou fazer',
-  titulo: 'Cinco compromissos. [[Assinados.]]',
+  titulo: 'O que eu levo [[pra Brasília.]]',
   intro:
-    'Não são vinte bandeiras para não caber nenhuma. São cinco, escritas de um jeito que dá para cobrar em quatro anos.',
+    'Vou fazer na Câmara Federal o que fiz na Câmara Municipal: trabalhar. Essas são as pautas ' +
+    'que eu levo, escritas de um jeito que dá para cobrar em quatro anos.',
   itens: [
     {
       id: 'item-11',
       numero: '01',
-      titulo: 'Regularização fundiária de verdade',
+      titulo: 'Segurança que pune de verdade',
       texto:
-        'Título na mão do produtor. Quem trabalha a terra há décadas não pode continuar ' +
-        'sendo tratado como invasor da própria vida.',
+        'Castração química para estuprador, redução da maioridade penal, fim da progressão de ' +
+        'regime para crime hediondo e excludente de ilicitude para policial em serviço.',
     },
     {
       id: 'item-12',
       numero: '02',
-      titulo: 'Saúde que não faz esperar',
+      titulo: 'Armas para o cidadão de bem',
       texto:
-        'Emendas carimbadas para cirurgia eletiva, exame e leito em Rondônia. ' +
-        'Ninguém deveria precisar sair do estado para ser atendido.',
+        'Ampliação da posse e do porte para quem trabalha, não tem ficha criminal e quer proteger ' +
+        'a família. O bandido já está armado; o cidadão de bem não pode ficar indefeso.',
     },
     {
       id: 'item-13',
       numero: '03',
-      titulo: 'Segurança com respaldo',
+      titulo: 'Defesa do agro',
       texto:
-        'Apoio à polícia, endurecimento de pena para crime violento e defesa de quem protege a própria família.',
+        'Menos burocracia e menos imposto para o produtor rural, e proteção contra regulação que ' +
+        'trava a produção. Rondônia alimenta o Brasil e precisa de quem defenda isso.',
     },
     {
       id: 'item-14',
       numero: '04',
-      titulo: 'Menos imposto para quem produz',
+      titulo: 'Fim do pedágio que sufoca a BR-364',
       texto:
-        'Voto contra qualquer aumento de carga tributária sobre o pequeno produtor, o comerciante e o autônomo.',
+        'Sete pontos de cobrança encarecem tudo em Rondônia. Vou lutar pela revisão dos contratos ' +
+        'e pela redução das tarifas.',
     },
     {
       id: 'item-15',
       numero: '05',
-      titulo: 'Estrada e energia',
+      titulo: 'Menos Estado, menos imposto',
       texto:
-        'Infraestrutura é o que transforma safra em renda. Sem estrada, produção vira prejuízo no meio do caminho.',
+        'Contra aumento de carga tributária e contra inchaço da máquina pública. Desburocratizar a ' +
+        'vida de quem abre negócio. O dinheiro do imposto é seu, não do governo.',
+    },
+    {
+      id: 'item-16',
+      numero: '06',
+      titulo: 'Vida, família e liberdade religiosa',
+      texto:
+        'Contra o aborto e contra ideologia de gênero nas escolas. O Estado é laico, mas eu sou ' +
+        'cristã — e vou defender o direito de todo cidadão de viver a sua fé sem ser perseguido.',
     },
   ],
 } as const
@@ -469,8 +507,8 @@ export const compartilhar = {
   intro:
     'Não tem verba que compre o que a sua indicação faz. Mande esta página para três pessoas que confiam em você.',
   textoWhatsapp:
-    'Olha essa página da Sofia Andrade 2233, deputada federal por Rondônia. ' +
-    'Tem grupo da nossa cidade e dá pra colocar o 2233 na sua foto:',
+    'Olha a página da Sofia Andrade 2233, deputada federal por Rondônia. ' +
+    'Mandaram fechar e ela foi pra rua. Tem grupo da nossa cidade e dá pra colocar o 2233 na sua foto:',
   botaoWhatsapp: 'Enviar no WhatsApp',
   botaoCopiar: 'Copiar o link',
   copiado: 'Link copiado.',
@@ -480,9 +518,10 @@ export const compartilhar = {
 // 10. CTA FINAL
 // ─────────────────────────────────────────────────────────────
 export const ctaFinal = {
-  titulo: ['No dia da eleição,', '[[escreva 2233.]]'],
+  titulo: ['4 de outubro de 2026.', '[[O próximo passo é seu.]]'],
   texto:
-    'Se você chegou até aqui, já sabe o que eu penso. Agora falta a parte que só você pode fazer.',
+    'Você já sabe quem eu sou. Você já sabe de onde eu vim. Você já sabe o que eu fiz. ' +
+    'Agora falta a parte que só você pode fazer.',
   ctaPrimario: ctas.grupo,
   ctaSecundario: ctas.filtro,
 } as const
@@ -498,10 +537,11 @@ export const ctaFinal = {
 export const faixa = {
   itens: [
     { id: 'faixa-01', texto: 'Sofia Andrade 2233' },
-    { id: 'faixa-02', texto: 'Deputada Federal' },
-    { id: 'faixa-03', texto: 'PL · Partido Liberal' },
-    { id: 'faixa-04', texto: '52 municípios, 52 grupos' },
-    { id: 'faixa-05', texto: 'Rondônia' },
+    { id: 'faixa-02', texto: 'Deputada Federal · PL' },
+    { id: 'faixa-03', texto: 'Mandaram fechar. Eu fui pra rua.' },
+    { id: 'faixa-04', texto: 'Vereadora de Porto Velho' },
+    { id: 'faixa-05', texto: '9 leis sancionadas' },
+    { id: 'faixa-06', texto: 'Pesquisa o que eu fiz' },
   ],
 } as const
 

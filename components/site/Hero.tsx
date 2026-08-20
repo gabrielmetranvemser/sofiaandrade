@@ -28,9 +28,24 @@ export async function Hero({ silencio = false }: { silencio?: boolean }) {
         <div className="grid items-center gap-12 lg:grid-cols-[1.05fr_0.95fr] lg:gap-16">
           {/* ── Texto ── */}
           <div className="pb-14 lg:pb-24">
-            <p className="anima-hero inline-flex items-center gap-2.5 rounded-full bg-white/12 px-4 py-2 text-[0.8125rem] font-semibold tracking-[0.06em] text-white ring-1 ring-white/25">
-              <span className="size-1.5 rounded-full bg-amarelo" aria-hidden />
-              {hero.etiqueta}
+            {/* Três barrinhas em vez da pílula com bolinha. A pílula
+                era forma de sistema de design, não da campanha: aparecia
+                igual em qualquer site. As barras são a bandeira reduzida
+                ao mínimo, e alturas diferentes fazem elas lerem como
+                marca em vez de três traços iguais.
+
+                A terceira é branca, e não azul: sobre o azul da dobra,
+                azul em cima de azul some. O branco é a faixa da própria
+                bandeira — a cor está na peça, só não naquela ordem. */}
+            <p className="anima-hero flex items-center gap-3">
+              <span className="flex items-end gap-[3px]" aria-hidden>
+                <span className="block h-3.5 w-[3px] rounded-full bg-verde" />
+                <span className="block h-5 w-[3px] rounded-full bg-amarelo" />
+                <span className="block h-3.5 w-[3px] rounded-full bg-white" />
+              </span>
+              <span className="text-[0.8125rem] font-semibold tracking-[0.16em] text-white uppercase">
+                {hero.etiqueta}
+              </span>
             </p>
 
             <h1 className="mt-7 titulo-cartaz text-white">

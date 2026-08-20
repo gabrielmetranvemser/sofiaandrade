@@ -5,8 +5,9 @@ import { Imagem } from '@/components/ui/Imagem'
 import { Aviso } from '@/components/ui/Aviso'
 
 /**
- * ⚠️ Todos os números desta seção são placeholder até a campanha
- *    entregar os dados auditáveis. Ver content/copy.ts e PENDENCIAS.md.
+ * Prestação de contas do mandato de vereadora. Os números e as leis
+ * vêm do registro público da Câmara Municipal de Porto Velho — o único
+ * item ainda por confirmar está marcado em content/copy.ts.
  */
 export async function Provas() {
   const [{ provas }, slots] = await Promise.all([lerConteudo(), lerSlots()])
@@ -77,14 +78,16 @@ export async function Provas() {
           ))}
         </ul>
 
-        <div className="mt-8 flex items-start gap-3 rounded-lg bg-amarelo/10 px-5 py-4 text-base text-white/80 ring-1 ring-amarelo/25">
+        {/* Era um aviso de "seção em preenchimento", com triângulo de
+            alerta, de quando os números eram placeholder. Agora a
+            seção tem dado real e esta linha é a CONTINUAÇÃO da lista —
+            as leis que não couberam nos três cartões. Alerta amarelo
+            em cima de prestação de contas lia como problema. */}
+        <div className="mt-8 flex items-start gap-3 rounded-lg bg-white/[0.06] px-5 py-4 text-base text-white/80 ring-1 ring-white/10">
           <svg viewBox="0 0 24 24" className="mt-0.5 size-5 shrink-0 text-amarelo" fill="currentColor" aria-hidden>
-            <path d="M12 2 1 21h22L12 2Zm-1 7h2v6h-2V9Zm0 8h2v2h-2v-2Z" />
+            <path d="M4 6h2v2H4V6Zm4 0h12v2H8V6ZM4 11h2v2H4v-2Zm4 0h12v2H8v-2Zm-4 5h2v2H4v-2Zm4 0h12v2H8v-2Z" />
           </svg>
-          <p>
-            <strong className="font-semibold text-white">Seção em preenchimento. </strong>
-            {provas.aviso}
-          </p>
+          <p>{provas.aviso}</p>
         </div>
       </div>
     </Secao>

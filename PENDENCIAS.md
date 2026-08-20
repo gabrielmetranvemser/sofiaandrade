@@ -21,17 +21,30 @@ sozinho e o rodapé mostra um aviso visível. É proposital.
 
 ---
 
-## 🔴 Conteúdo — a copy está escrita mas tem fatos a confirmar
+## 🔴 Conteúdo — a copy está escrita e tem um fato a confirmar
+
+A copy foi reescrita a partir do documento de campanha
+`pagina-sofia-v2` (09/08/2026). Origem, problema, valores, provas e
+futuro seguem aquele texto, adaptados ao tamanho de cada campo.
 
 Todo ponto marcado com `// ⚠️ CONFIRMAR` em [`content/copy.ts`](./content/copy.ts).
 
 | Seção | O que falta |
 |---|---|
-| `candidata` | @ do Instagram, número de WhatsApp |
-| `origem` | biografia real: onde nasceu, família, primeiro trabalho, entrada na vida pública. **Os parágrafos e a linha do tempo hoje são rascunho estrutural, não fatos verificados** |
-| `provas` | **todos os números e as três entregas são placeholder.** Precisam de dado auditável com fonte. A seção já mostra aviso de "em preenchimento" na tela |
-| `futuro` | os cinco compromissos foram escritos a partir do posicionamento do PL. Revisar com a campanha |
-| `valores` | idem |
+| `origem` · `provas` | **os 14.634 votos de 2022** — o documento traz o número mas não o cargo disputado. Confirmar antes de publicar: número de votação sem cargo é o tipo de dado que o adversário usa |
+| `candidata` | número de WhatsApp da campanha |
+
+O que **entrou** do documento e não estava aqui antes: a história do
+espetinho na Avenida Rio Madeira, Iata e Guajará-Mirim, o mandato de
+vereadora, a presidência da Comissão de Segurança Pública e as nove
+leis sancionadas com número e ano.
+
+O que **ficou de fora** de propósito: a Parte 3 do documento (vídeos,
+prints de comentários, depoimentos) depende de mídia que a campanha
+ainda não entregou, e o Bloco 8 inteiro — prova social e os processos
+— está fora pelo motivo abaixo.
+
+---
 
 **Nada nesta base menciona processos judiciais** (TRE-RO, governador
 Marcos Rocha ou qualquer outro). Isso fica fora até o jurídico da
