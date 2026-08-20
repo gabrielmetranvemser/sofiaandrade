@@ -1,6 +1,6 @@
 import type { Metadata } from 'next'
 import Link from 'next/link'
-import { filtro as copy } from '@/content/copy'
+import { lerConteudo } from '@/lib/conteudo/ler'
 import { config } from '@/lib/config'
 import { Header } from '@/components/site/Header'
 import { RodapeLegal } from '@/components/site/RodapeLegal'
@@ -21,7 +21,8 @@ export const metadata: Metadata = {
   },
 }
 
-export default function PaginaFiltro() {
+export default async function PaginaFiltro() {
+  const { filtro: copy } = await lerConteudo()
   const silencio = emSilencioEleitoral()
 
   return (

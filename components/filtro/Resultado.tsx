@@ -1,7 +1,7 @@
 'use client'
 
 import { useEffect, useState } from 'react'
-import { filtro as copy } from '@/content/copy'
+import { useConteudo } from '@/lib/conteudo/contexto'
 import { evento } from '@/lib/eventos'
 import { detectarWebview, podeCompartilharArquivo } from '@/lib/navegador'
 import { Botao } from '@/components/ui/Botao'
@@ -30,6 +30,7 @@ export function Resultado({
   proporcao: string
   onRefazer: () => void
 }) {
+  const { filtro: copy } = useConteudo()
   const [url, setUrl] = useState<string>('')
   const [podeShare, setPodeShare] = useState(false)
   const [noWebview, setNoWebview] = useState(false)

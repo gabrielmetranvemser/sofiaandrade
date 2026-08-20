@@ -1,7 +1,7 @@
 'use client'
 
 import { useEffect, useState } from 'react'
-import { filtro as copy } from '@/content/copy'
+import { useConteudo } from '@/lib/conteudo/contexto'
 import { abrirNoNavegador, detectarWebview, instrucaoSairDoWebview, type Webview } from '@/lib/navegador'
 
 /**
@@ -15,6 +15,7 @@ import { abrirNoNavegador, detectarWebview, instrucaoSairDoWebview, type Webview
  * Uma faixa, sem drama, sem modal gigante.
  */
 export function AvisoWebview() {
+  const { filtro: copy } = useConteudo()
   const [webview, setWebview] = useState<Webview>(null)
   const [instrucao, setInstrucao] = useState('')
 

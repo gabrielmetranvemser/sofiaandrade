@@ -1,7 +1,7 @@
 'use client'
 
 import { useEffect, useRef, useState } from 'react'
-import { filtro as copy } from '@/content/copy'
+import { useConteudo } from '@/lib/conteudo/contexto'
 import { evento } from '@/lib/eventos'
 import {
   canvasParaBlob,
@@ -22,6 +22,7 @@ import { Resultado } from './Resultado'
 type Etapa = 'escolher' | 'ajustar' | 'pronto'
 
 export function GeradorDeFiltro() {
+  const { filtro: copy } = useConteudo()
   const [etapa, setEtapa] = useState<Etapa>('escolher')
   const [moldura, setMoldura] = useState<Moldura>(MOLDURA_PADRAO)
   const [foto, setFoto] = useState<FotoCarregada | null>(null)

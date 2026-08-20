@@ -1,7 +1,7 @@
 'use client'
 
 import { useState } from 'react'
-import { compartilhar as copy, candidata } from '@/content/copy'
+import { useConteudo } from '@/lib/conteudo/contexto'
 import { Secao, CabecalhoSecao } from '@/components/ui/Secao'
 import { Botao } from '@/components/ui/Botao'
 import { evento } from '@/lib/eventos'
@@ -11,6 +11,7 @@ import { evento } from '@/lib/eventos'
  * Esta seção é o segundo trabalho da página, na ordem do plano.
  */
 export function Compartilhar({ siteUrl }: { siteUrl: string }) {
+  const { compartilhar: copy, candidata } = useConteudo()
   const [copiado, setCopiado] = useState(false)
   const texto = `${copy.textoWhatsapp} ${siteUrl}`
 

@@ -1,7 +1,7 @@
 'use client'
 
 import { useEffect, useMemo, useRef, useState } from 'react'
-import { grupos as copy } from '@/content/copy'
+import { useConteudo } from '@/lib/conteudo/contexto'
 import { buscarMunicipios, municipioMaisProximo } from '@/lib/geo'
 import { evento } from '@/lib/eventos'
 import type { MunicipioComGrupo, OrigemClique } from '@/lib/tipos'
@@ -17,6 +17,7 @@ interface Props {
 }
 
 export function BuscadorDeGrupo({ municipios, sugerido = null }: Props) {
+  const { grupos: copy } = useConteudo()
   const [termo, setTermo] = useState('')
   const [porGeo, setPorGeo] = useState<{ m: MunicipioComGrupo; km: number } | null>(null)
   const [estadoGeo, setEstadoGeo] = useState<'ocioso' | 'carregando' | 'negado' | 'erro'>('ocioso')

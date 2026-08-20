@@ -1,5 +1,7 @@
+'use client'
+
 import Image from 'next/image'
-import { candidata } from '@/content/copy'
+import { useConteudo } from '@/lib/conteudo/contexto'
 
 /**
  * A marca da campanha.
@@ -13,6 +15,10 @@ import { candidata } from '@/content/copy'
  *
  * O `Image` do Next serve nos dois casos com `sizes` certo, porque os
  * originais têm até 32.508px de largura e o público está em 4G.
+ *
+ * ⚠️ É Client Component por necessidade, não por escolha: o `Header`
+ *    (que é cliente) o importa, então na prática ele já era cliente.
+ *    Como o texto alternativo vem do conteúdo editável, precisa do hook.
  */
 
 type Versao = 'branco' | 'azul' | 'verde'
@@ -32,6 +38,7 @@ export function LogoVertical({
   className?: string
   prioridade?: boolean
 }) {
+  const { candidata } = useConteudo()
   return (
     <Image
       src={ARQUIVOS[versao]}
@@ -47,6 +54,7 @@ export function LogoVertical({
 
 /** Versão larga, branca. Só sobre fundo escuro. */
 export function LogoHorizontal({ className = '' }: { className?: string }) {
+  const { candidata } = useConteudo()
   return (
     <Image
       src="/marca/logo-horizontal-branco.png"
@@ -67,6 +75,7 @@ export function Simbolo({
   className?: string
   prioridade?: boolean
 }) {
+  const { candidata } = useConteudo()
   return (
     <Image
       src="/marca/simbolo.png"
@@ -95,6 +104,7 @@ export function Numero({
   className?: string
   prioridade?: boolean
 }) {
+  const { candidata } = useConteudo()
   const src = versao === 'cheio' ? '/marca/marca-numero.png' : '/marca/numero-2233-amarelo.png'
   return (
     <Image
