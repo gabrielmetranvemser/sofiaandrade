@@ -49,7 +49,7 @@ export function Hero({ silencio = false }: { silencio?: boolean }) {
                 style={{ animationDelay: '520ms' }}
               >
                 <CliqueGrupo origem="hero" className="contents">
-                  <span className="inline-flex min-h-14 items-center justify-center gap-2.5 rounded-full bg-azul px-8 text-lg font-semibold text-white shadow-media transition-all duration-300 hover:bg-marinho">
+                  <span className="inline-flex min-h-14 items-center justify-center gap-2.5 rounded-full bg-azul px-8 text-lg font-semibold text-white shadow-media transition-all duration-300 hover:bg-marinho sm:whitespace-nowrap">
                     {ctas.grupo}
                     <svg viewBox="0 0 24 24" className="hidden size-5 shrink-0 sm:block" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden>
                       <path d="M5 12h14M13 6l6 6-6 6" />
@@ -57,7 +57,7 @@ export function Hero({ silencio = false }: { silencio?: boolean }) {
                   </span>
                 </CliqueGrupo>
 
-                <BotaoLink href="/filtro" variante="claro" tamanho="lg">
+                <BotaoLink href="/filtro" variante="claro" tamanho="lg" className="sm:whitespace-nowrap">
                   {ctas.filtroCurto}
                 </BotaoLink>
               </div>
