@@ -61,6 +61,7 @@ export type OrigemClique =
   | 'lista'
   | 'busca'
   | 'geo'
+  | 'mapa'
   | 'cta_final'
   | 'rodape'
   | 'grupos_pagina'

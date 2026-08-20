@@ -1,5 +1,6 @@
 'use client'
 
+import { useEffect, useState } from 'react'
 import type { Evento, TipoEvento } from './tipos'
 
 const CHAVE_SESSAO = 'sofia2233.sessao'
@@ -22,6 +23,31 @@ export function idSessao(): string {
   } catch {
     return ''
   }
+}
+
+/**
+ * O id de sessão para usar DENTRO de um render.
+ *
+ * ⚠️ Nunca chame idSessao() direto no corpo de um componente. Ele lê
+ *    sessionStorage, que não existe no servidor: o HTML sai com "s="
+ *    vazio e o cliente monta "s=<uuid>". O React reclama de hidratação
+ *    e — o que importa mais — o link SERVIDO fica sem sessão, então um
+ *    clique dado antes da hidratação não conta como PESSOA na métrica,
+ *    só como clique.
+ *
+ * Aqui o primeiro render devolve string vazia nos dois lados, e o id
+ * entra depois que a página monta. Bate com o servidor e o link é
+ * honesto: antes da hidratação, sessão não existe mesmo.
+ */
+export function useSessao(): string {
+  const [sessao, setSessao] = useState('')
+  useEffect(() => setSessao(idSessao()), [])
+  return sessao
+}
+
+/** Monta o caminho do redirecionador com a origem e, se já houver, a sessão. */
+export function caminhoDoGrupo(slug: string, origem: string, sessao: string): string {
+  return `/g/${slug}?de=${origem}${sessao ? `&s=${sessao}` : ''}`
 }
 
 export function dispositivo(): 'celular' | 'desktop' {

@@ -9,6 +9,7 @@ import { Header } from '@/components/site/Header'
 import { RodapeLegal } from '@/components/site/RodapeLegal'
 import { RegistroDePagina } from '@/components/site/RegistroDePagina'
 import { BuscadorDeGrupo } from '@/components/grupos/BuscadorDeGrupo'
+import { MapaRondonia } from '@/components/grupos/MapaRondonia'
 import { Aviso } from '@/components/ui/Aviso'
 import { TextoComDestaque } from '@/components/ui/TextoComDestaque'
 
@@ -122,7 +123,11 @@ export default async function PaginaGrupos({
               </Aviso>
             ) : null}
 
-            <BuscadorDeGrupo municipios={municipios} sugerido={sugerido} />
+            <BuscadorDeGrupo
+              municipios={municipios}
+              sugerido={sugerido}
+              mapa={<MapaRondonia municipios={municipios} destacado={sugerido?.slug} />}
+            />
           </div>
         </section>
       </main>

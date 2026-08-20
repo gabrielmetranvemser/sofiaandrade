@@ -19,7 +19,7 @@ export const dynamic = 'force-dynamic'
 export const revalidate = 0
 
 const ORIGENS_VALIDAS = new Set<OrigemClique>([
-  'hero', 'topo', 'flutuante', 'lista', 'busca', 'geo',
+  'hero', 'topo', 'flutuante', 'lista', 'busca', 'geo', 'mapa',
   'cta_final', 'rodape', 'grupos_pagina', 'qr', 'direto',
 ])
 
