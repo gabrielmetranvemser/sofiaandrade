@@ -1,16 +1,18 @@
-import { ctaFinal, ctas } from '@/content/copy'
+import { lerConteudo } from '@/lib/conteudo/ler'
 import { BotaoLink } from '@/components/ui/Botao'
 import { Numero } from '@/components/ui/Marca'
 import { CliqueGrupo } from './CliqueGrupo'
 
-export function CtaFinal({ silencio = false }: { silencio?: boolean }) {
+export async function CtaFinal({ silencio = false }: { silencio?: boolean }) {
+  const { ctaFinal, ctas } = await lerConteudo()
+
   return (
     <section id="votar" className="relative isolate overflow-hidden fundo-azul-profundo py-24 text-white md:py-32">
 
       <div className="container-lp text-center">
         <h2 data-revelar className="titulo-cartaz text-white">
           {ctaFinal.titulo.map((linha, i) => (
-            <span key={linha} className="block">
+            <span key={i} className="block">
               {i === 1 ? <span className="text-amarelo">{linha}</span> : linha}
             </span>
           ))}

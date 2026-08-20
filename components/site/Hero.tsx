@@ -1,4 +1,4 @@
-import { ctas, hero } from '@/content/copy'
+import { lerConteudo } from '@/lib/conteudo/ler'
 import { Silhueta } from '@/components/ui/Silhueta'
 import { Numero } from '@/components/ui/Marca'
 import { BotaoLink } from '@/components/ui/Botao'
@@ -12,7 +12,9 @@ import { CliqueGrupo } from './CliqueGrupo'
  * Component, sem imagem de fundo, sem biblioteca de animação — o
  * gradiente é CSS puro, num matiz só — do azul claro ao azul-noite.
  */
-export function Hero({ silencio = false }: { silencio?: boolean }) {
+export async function Hero({ silencio = false }: { silencio?: boolean }) {
+  const { ctas, hero } = await lerConteudo()
+
   return (
     <section className="relative isolate overflow-hidden fundo-azul pt-28 text-white md:pt-32">
       <div className="container-lp">
@@ -27,7 +29,7 @@ export function Hero({ silencio = false }: { silencio?: boolean }) {
             <h1 className="mt-7 titulo-cartaz text-white">
               {hero.titulo.map((linha, i) => (
                 <span
-                  key={linha}
+                  key={i}
                   className="anima-hero block"
                   style={{ animationDelay: `${100 + i * 80}ms` }}
                 >

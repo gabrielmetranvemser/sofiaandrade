@@ -1,4 +1,4 @@
-import { valores } from '@/content/copy'
+import { lerConteudo } from '@/lib/conteudo/ler'
 import { Secao, CabecalhoSecao } from '@/components/ui/Secao'
 
 const ICONES: Record<string, React.ReactNode> = {
@@ -20,7 +20,9 @@ const ICONES: Record<string, React.ReactNode> = {
   fe: <path d="M10 2h4v5h5v4h-5v11h-4V11H5V7h5V2Z" />,
 }
 
-export function Valores() {
+export async function Valores() {
+  const { valores } = await lerConteudo()
+
   return (
     <Secao id="valores" fundo="verde" espaco="solto">
       <CabecalhoSecao
@@ -37,7 +39,7 @@ export function Valores() {
       <ul className="mt-14 grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
         {valores.itens.map((item, i) => (
           <li
-            key={item.chave}
+            key={item.id}
             data-revelar
             style={{ ['--atraso' as string]: `${i * 70}ms` }}
             className="group rounded-2xl bg-white p-7 shadow-suave transition-transform duration-300 hover:-translate-y-1 hover:shadow-alta"

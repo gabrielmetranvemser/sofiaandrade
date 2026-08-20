@@ -1,5 +1,5 @@
 import Link from 'next/link'
-import { candidata, rodape } from '@/content/copy'
+import { lerConteudo } from '@/lib/conteudo/ler'
 import { config } from '@/lib/config'
 import { LogoHorizontal } from '@/components/ui/Marca'
 
@@ -12,7 +12,8 @@ import { LogoHorizontal } from '@/components/ui/Marca'
  * ⚠️ CNPJ de candidato e de coligação são coisas diferentes.
  *    Confirmar com a campanha antes de publicar.
  */
-export function RodapeLegal() {
+export async function RodapeLegal() {
+  const { candidata, rodape } = await lerConteudo()
   const anoAtual = new Date().getFullYear()
   const pendente = config.legal.responsavel === 'A confirmar'
 
@@ -31,7 +32,7 @@ export function RodapeLegal() {
             <h2 className="text-sm font-semibold tracking-[0.08em] text-amarelo uppercase">Navegar</h2>
             <ul className="mt-4 space-y-1">
               {rodape.links.map((l) => (
-                <li key={l.href}>
+                <li key={l.id}>
                   <Link
                     href={l.href}
                     className="inline-flex min-h-11 items-center text-base text-white/80 transition-colors hover:text-amarelo"

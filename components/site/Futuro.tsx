@@ -1,7 +1,9 @@
-import { futuro } from '@/content/copy'
+import { lerConteudo } from '@/lib/conteudo/ler'
 import { Secao, CabecalhoSecao } from '@/components/ui/Secao'
 
-export function Futuro() {
+export async function Futuro() {
+  const { futuro } = await lerConteudo()
+
   return (
     <Secao id="futuro" fundo="branco" espaco="solto">
       <CabecalhoSecao
@@ -17,7 +19,7 @@ export function Futuro() {
       <ol className="mt-14 grid gap-4">
         {futuro.itens.map((item, i) => (
           <li
-            key={item.numero}
+            key={item.id}
             data-revelar
             style={{ ['--atraso' as string]: `${i * 70}ms` }}
             className="group grid gap-3 rounded-2xl border border-linha bg-white p-7 transition-all duration-300 hover:border-verde/40 hover:shadow-media md:grid-cols-[4rem_1fr_1.15fr] md:items-start md:gap-8 md:p-8"
