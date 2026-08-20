@@ -1,13 +1,15 @@
 import type { Metadata } from 'next'
 import Link from 'next/link'
 import { lerConteudo } from '@/lib/conteudo/ler'
-import { config } from '@/lib/config'
+import { lerSlots } from '@/lib/midia/ler'
+import { lerApoios, formatarApoios } from '@/lib/apoios'
+import { resolverMolduras } from '@/lib/molduras'
+import { config, emSilencioEleitoral } from '@/lib/config'
 import { Header } from '@/components/site/Header'
 import { RodapeLegal } from '@/components/site/RodapeLegal'
 import { TextoComDestaque } from '@/components/ui/TextoComDestaque'
 import { AvisoWebview } from '@/components/filtro/AvisoWebview'
-import { GeradorDeFiltro } from '@/components/filtro/GeradorDeFiltro'
-import { emSilencioEleitoral } from '@/lib/config'
+import { Fluxo } from '@/components/filtro/Fluxo'
 
 export async function generateMetadata(): Promise<Metadata> {
   const { paginas } = await lerConteudo()
@@ -24,8 +26,18 @@ export async function generateMetadata(): Promise<Metadata> {
 }
 
 export default async function PaginaFiltro() {
-  const { filtro: copy } = await lerConteudo()
+  const [{ filtro: copy }, slots, apoios] = await Promise.all([
+    lerConteudo(),
+    lerSlots(),
+    lerApoios(),
+  ])
+
   const silencio = emSilencioEleitoral()
+
+  // A arte final da moldura vem do painel. O SVG em /public é a rede
+  // de segurança, e a resolução acontece aqui porque o fluxo é Client
+  // Component e não alcança o Storage.
+  const molduras = resolverMolduras(slots)
 
   return (
     <>
@@ -36,7 +48,10 @@ export default async function PaginaFiltro() {
             antes de qualquer coisa. É onde ela é vista. */}
         <AvisoWebview />
 
-        <section className="relative isolate overflow-hidden bg-white pt-12 pb-14 md:pt-16 md:pb-20">
+        {/* A abertura é curta de propósito: quem chega aqui já decidiu
+            fazer a foto. Título, uma linha e o fluxo — a explicação
+            longa empurrava o primeiro controle para fora da tela. */}
+        <section className="relative isolate overflow-hidden bg-white pt-10 pb-10 md:pt-14">
           <div aria-hidden className="pointer-events-none absolute inset-0 -z-10 brilho-claro" />
 
           <div className="container-lp">
@@ -50,21 +65,16 @@ export default async function PaginaFiltro() {
               Voltar para a página
             </Link>
 
-            <p className="mt-6 flex w-fit items-center gap-2 rounded-full border border-azul/15 bg-white/70 px-4 py-2 text-[0.8125rem] font-semibold tracking-[0.04em] text-azul">
-              <span className="size-1.5 rounded-full bg-verde" aria-hidden />
-              {copy.etiqueta}
-            </p>
-
-            <h1 className="mt-6 titulo-cartaz">
+            <h1 className="mt-5 titulo-cartaz">
               <TextoComDestaque texto={copy.titulo} tom="azul" />
             </h1>
-            <p className="mt-6 max-w-2xl text-lg text-grafite md:text-xl">{copy.intro}</p>
+            <p className="mt-4 max-w-2xl text-lg text-grafite">{copy.intro}</p>
           </div>
         </section>
 
-        <section className="bg-areia py-14 md:py-20">
+        <section className="bg-areia pt-10 pb-16 md:pt-14 md:pb-24">
           <div className="container-lp">
-            <GeradorDeFiltro />
+            <Fluxo molduras={molduras} apoios={apoios ? formatarApoios(apoios) : null} />
           </div>
         </section>
       </main>

@@ -3,48 +3,60 @@
 import { useEffect, useState } from 'react'
 import { useConteudo } from '@/lib/conteudo/contexto'
 import { evento } from '@/lib/eventos'
-import { detectarWebview, podeCompartilharArquivo } from '@/lib/navegador'
+import { detectarWebview, ehAndroid, ehIOS, podeCompartilharArquivo } from '@/lib/navegador'
 import { Botao } from '@/components/ui/Botao'
 import { Aviso } from '@/components/ui/Aviso'
 
 /**
- * A tela do resultado.
+ * O que fazer com a foto pronta.
  *
- * Ordem dos caminhos de salvamento, do que mais funciona para o que
- * menos funciona — exatamente o contrário do que parece intuitivo:
+ * A ordem dos caminhos vai do que mais funciona para o que menos
+ * funciona — e é o contrário do que parece intuitivo:
  *
- *   1. IMAGEM GRANDE NA TELA com "segure para salvar".
- *      É o caminho que funciona em QUALQUER navegador, inclusive no
- *      webview do Instagram, e é o que o público mais velho entende.
- *   2. navigator.share com arquivo — melhor que download em celular.
- *   3. Download — plano B, e o que quebra no Instagram.
+ *   1. A IMAGEM GRANDE NA TELA com "segure para salvar". Funciona em
+ *      QUALQUER navegador, inclusive no webview do Instagram, e é o
+ *      caminho que o público mais velho já conhece. Ela é o palco,
+ *      desenhado pelo fluxo, e é por isso que o aviso vem antes dos
+ *      botões aqui embaixo.
+ *   2. navigator.share com arquivo — melhor que download no celular, e
+ *      é ele que abre a folha do sistema com "Instagram ▸ Stories".
+ *   3. Download — plano B, e o que quebra dentro do Instagram.
+ *
+ * SOBRE O ATALHO DO STORY: não existe, da web, jeito de abrir o editor
+ * de stories JÁ COM a imagem. O instagram-stories://share documentado
+ * pela Meta depende de a imagem estar no pasteboard (iOS) ou vir por
+ * Intent com content URI (Android) — as duas coisas exigem app nativo.
+ * Chamar o esquema da web abre a câmera de story VAZIA, que é pior que
+ * não ter botão: a pessoa espera ver a foto dela lá.
+ *
+ * Então o atalho aqui é honesto e em dois tempos: salve, depois abra.
+ * Ele só aparece DEPOIS de salvar ou compartilhar, e o texto diz que a
+ * foto precisa ser escolhida na galeria.
  */
-export function Resultado({
+export function AcoesDoResultado({
   blob,
+  url,
   nomeArquivo,
-  proporcao,
   onRefazer,
 }: {
   blob: Blob
+  url: string
   nomeArquivo: string
-  proporcao: string
   onRefazer: () => void
 }) {
   const { filtro: copy } = useConteudo()
-  const [url, setUrl] = useState<string>('')
   const [podeShare, setPodeShare] = useState(false)
   const [noWebview, setNoWebview] = useState(false)
+  const [temInstagram, setTemInstagram] = useState(false)
   const [avisoDownload, setAvisoDownload] = useState(false)
+  const [jaSalvou, setJaSalvou] = useState(false)
 
   useEffect(() => {
-    const objectUrl = URL.createObjectURL(blob)
-    setUrl(objectUrl)
-
     const arquivo = new File([blob], nomeArquivo, { type: blob.type })
     setPodeShare(podeCompartilharArquivo([arquivo]))
     setNoWebview(detectarWebview() !== null)
-
-    return () => URL.revokeObjectURL(objectUrl)
+    // O esquema instagram:// só resolve onde o app existe.
+    setTemInstagram(ehIOS() || ehAndroid())
   }, [blob, nomeArquivo])
 
   async function compartilhar() {
@@ -53,6 +65,7 @@ export function Resultado({
     try {
       await nav.share?.({ files: [arquivo], title: 'Sofia Andrade 2233' })
       evento('compartilhou_filtro')
+      setJaSalvou(true)
     } catch {
       /* pessoa cancelou */
     }
@@ -67,37 +80,24 @@ export function Resultado({
     document.body.appendChild(a)
     a.click()
     a.remove()
+    setJaSalvou(true)
 
     // No webview o clique acima frequentemente não faz nada e não
-    // dispara erro nenhum. Então avisamos preventivamente qual é o
+    // lança erro nenhum. Então avisamos preventivamente qual é o
     // caminho que funciona.
     if (noWebview) setTimeout(() => setAvisoDownload(true), 900)
   }
 
   return (
     <div>
-      <p className="text-sm font-semibold tracking-[0.06em] text-verde uppercase">Pronto</p>
-      <h2 className="mt-2 titulo-secao">Sua foto está pronta.</h2>
+      <h2 className="titulo-secao">{copy.tituloPronto}</h2>
+      <p className="mt-2 text-base text-grafite">{copy.textoPronto}</p>
 
-      {/* 1. A imagem grande. O caminho que sempre funciona. */}
-      <div className="mt-6 rounded-2xl border border-linha bg-areia overflow-hidden">
-        {url ? (
-          // eslint-disable-next-line @next/next/no-img-element
-          <img
-            src={url}
-            alt="Sua foto com a moldura da campanha"
-            className="mx-auto w-full max-w-md"
-            style={{ aspectRatio: proporcao }}
-          />
-        ) : null}
-      </div>
-
-      <Aviso tom="alerta" className="mt-4">
+      <Aviso tom="alerta" className="mt-5">
         <strong className="font-extrabold">{copy.dicaSalvar}</strong>
       </Aviso>
 
-      {/* 2 e 3. Compartilhar nativo e download. */}
-      <div className="mt-6 flex flex-col gap-3 sm:flex-row sm:flex-wrap">
+      <div className="mt-6 flex flex-col gap-3">
         {podeShare ? (
           <Botao variante="verde" tamanho="lg" onClick={compartilhar}>
             <svg viewBox="0 0 24 24" className="size-6" fill="currentColor" aria-hidden>
@@ -114,25 +114,33 @@ export function Resultado({
           {copy.botaoBaixar}
         </Botao>
 
-        <Botao variante="texto" tamanho="lg" onClick={onRefazer} className="text-azul">
+        {jaSalvou && temInstagram ? (
+          <div className="rounded-2xl border border-linha bg-white p-4">
+            <a
+              href="instagram://story-camera"
+              onClick={() => evento('clicou_instagram')}
+              className="toque inline-flex min-h-12 w-full items-center justify-center gap-2.5 rounded-full bg-azul-escuro px-6 font-semibold text-white"
+            >
+              {copy.botaoStory}
+              <svg viewBox="0 0 24 24" className="size-5" fill="currentColor" aria-hidden>
+                <path d="M14 3v2h3.6l-8.3 8.3 1.4 1.4L19 6.4V10h2V3h-7ZM5 5h5v2H7v10h10v-3h2v5H5V5Z" />
+              </svg>
+            </a>
+            <p className="mt-3 text-sm text-grafite">{copy.notaStory}</p>
+          </div>
+        ) : null}
+
+        <Botao variante="texto" tamanho="lg" onClick={onRefazer} className="self-start text-azul">
           {copy.botaoRefazer}
         </Botao>
       </div>
 
       {avisoDownload ? (
         <Aviso tom="erro" className="mt-5">
-          <strong className="block font-extrabold">Não baixou?</strong>
-          Dentro do Instagram o download costuma não funcionar. Segure o dedo na
-          foto acima e escolha “Salvar imagem”, ou abra esta página no navegador.
+          <strong className="block font-extrabold">{copy.naoBaixouTitulo}</strong>
+          {copy.naoBaixouTexto}
         </Aviso>
       ) : null}
-
-      <p className="mt-6 flex items-center gap-2 text-base text-verde">
-        <svg viewBox="0 0 24 24" className="size-5" fill="currentColor" aria-hidden>
-          <path d="M12 2 4 5.5V11c0 5.2 3.4 9.9 8 11 4.6-1.1 8-5.8 8-11V5.5L12 2Zm-1 14-4-4 1.4-1.4L11 13.2l4.6-4.6L17 10l-6 6Z" />
-        </svg>
-        {copy.privacidade}
-      </p>
     </div>
   )
 }
