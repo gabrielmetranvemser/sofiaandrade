@@ -9,10 +9,10 @@ Ordenado por **o que bloqueia a publicação** primeiro.
 
 | # | Item | Onde entra |
 |---|---|---|
-| 1 | **CNPJ correto da campanha** — CNPJ de candidato e de coligação são coisas diferentes | `NEXT_PUBLIC_CNPJ_CAMPANHA` + `public/molduras/*.svg` |
-| 2 | **Nome do responsável pela campanha** | `NEXT_PUBLIC_RESPONSAVEL_CAMPANHA` |
-| 3 | **Endereço do comitê** | `NEXT_PUBLIC_ENDERECO_COMITE` |
-| 4 | **Coligação / nome exato do partido** | `NEXT_PUBLIC_PARTIDO` |
+| 1 | **CNPJ correto da campanha** — CNPJ de candidato e de coligação são coisas diferentes | Painel ▸ Textos ▸ Rodapé + `scripts/gerar-molduras.mjs` |
+| 2 | **Nome completo na urna** | Painel ▸ Textos ▸ Rodapé |
+| 3 | **Endereço do comitê**, se houver | Painel ▸ Textos ▸ Rodapé |
+| 4 | **Coligação / nome exato do partido** | Painel ▸ Textos ▸ Rodapé |
 | 5 | **Domínio da campanha** | `NEXT_PUBLIC_SITE_URL` |
 | 6 | **Data exata do silêncio eleitoral** — hoje está em 03/10 00h (UTC-4) | `NEXT_PUBLIC_SILENCIO_ELEITORAL_EM` |
 

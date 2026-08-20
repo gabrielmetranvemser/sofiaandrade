@@ -151,17 +151,37 @@ export function CampoDinamico({ campo, valor, caminho, erros, onMudar }: Props) 
         <div className="space-y-2">
           {lista.map((linha, i) => (
             <div key={i} className="flex items-start gap-2">
-              <textarea
-                value={linha}
-                rows={linha.length > 90 ? 3 : 1}
-                onChange={(e) => {
-                  const novo = [...lista]
-                  novo[i] = e.target.value
-                  onMudar(caminho, novo)
-                }}
-                className={`${ENTRADA} ${erros[`${caminho}.${i}`] ? 'border-red-400' : ''}`}
-                aria-label={`${campo.rotulo} ${i + 1}`}
-              />
+              <div className="min-w-0 flex-1">
+                {/* Cada linha ganha o seu próprio Destacar: numa lista
+                    de linhas de título, o realce é por linha. */}
+                {campo.destaque ? (
+                  <CampoDestaque
+                    valor={linha}
+                    multilinha
+                    linhas={linha.length > 90 ? 3 : 1}
+                    rotuloAcessivel={`${campo.rotulo} ${i + 1}`}
+                    invalido={Boolean(erros[`${caminho}.${i}`])}
+                    className={`${ENTRADA} ${erros[`${caminho}.${i}`] ? 'border-red-400' : ''}`}
+                    onMudar={(novoTexto) => {
+                      const novo = [...lista]
+                      novo[i] = novoTexto
+                      onMudar(caminho, novo)
+                    }}
+                  />
+                ) : (
+                  <textarea
+                    value={linha}
+                    rows={linha.length > 90 ? 3 : 1}
+                    onChange={(e) => {
+                      const novo = [...lista]
+                      novo[i] = e.target.value
+                      onMudar(caminho, novo)
+                    }}
+                    className={`${ENTRADA} ${erros[`${caminho}.${i}`] ? 'border-red-400' : ''}`}
+                    aria-label={`${campo.rotulo} ${i + 1}`}
+                  />
+                )}
+              </div>
               <div className="flex shrink-0 gap-1 pt-1">
                 <BotaoIcone
                   titulo="Subir"

@@ -26,15 +26,22 @@ export function CampoDestaque({
   invalido,
   descreve,
   className,
+  multilinha = false,
+  linhas = 1,
+  rotuloAcessivel,
 }: {
-  id: string
+  id?: string
   valor: string
   onMudar: (v: string) => void
   invalido?: boolean
   descreve?: string
   className: string
+  /** O título da primeira dobra é uma lista de linhas, e cada uma é textarea. */
+  multilinha?: boolean
+  linhas?: number
+  rotuloAcessivel?: string
 }) {
-  const campo = useRef<HTMLInputElement>(null)
+  const campo = useRef<HTMLInputElement | HTMLTextAreaElement>(null)
 
   function alternarDestaque() {
     const el = campo.current
@@ -75,20 +82,25 @@ export function CampoDestaque({
   }
 
   const props = {
-    ref: campo,
     id,
     value: valor,
-    onChange: (e: React.ChangeEvent<HTMLInputElement>) => onMudar(e.target.value),
+    onChange: (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) =>
+      onMudar(e.target.value),
     className,
     'aria-invalid': Boolean(invalido),
     'aria-describedby': descreve,
+    'aria-label': rotuloAcessivel,
   }
 
   const temMarcacao = valor.includes('[[')
 
   return (
     <div>
-      <input type="text" {...props} />
+      {multilinha ? (
+        <textarea ref={campo as React.RefObject<HTMLTextAreaElement>} rows={linhas} {...props} />
+      ) : (
+        <input type="text" ref={campo as React.RefObject<HTMLInputElement>} {...props} />
+      )}
 
       <div className="mt-2 flex flex-wrap items-center gap-3">
         <button
@@ -142,7 +154,7 @@ function Previa({ texto }: { texto: string }) {
 }
 
 /** Devolve o cursor para onde a pessoa estava, depois do React repintar. */
-function recolocar(el: HTMLInputElement, inicio: number, fim: number) {
+function recolocar(el: HTMLInputElement | HTMLTextAreaElement, inicio: number, fim: number) {
   requestAnimationFrame(() => {
     el.focus()
     el.setSelectionRange(inicio, fim)

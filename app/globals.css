@@ -747,6 +747,76 @@
 }
 
 /* ═══════════════════════════════════════════════════════════════
+   PRIMEIRA DOBRA — profundidade pela rolagem
+
+   O quadro encolhe pelo TOPO enquanto a página desce, e a foto cresce
+   um pouco. Duas coisas fazem isso ler como profundidade: as duas
+   animações partem da mesma âncora embaixo (transform-origin 50% 100%),
+   então a foto parece plantada no chão do quadro; e elas andam em
+   sentidos opostos, o que é o que o olho lê como uma coisa vindo para
+   frente enquanto a outra recua.
+
+   Presas à rolagem da página inteira, e não à entrada do elemento em
+   tela: a primeira dobra JÁ está visível quando a página abre, então
+   uma linha do tempo de "entrada" começaria com o efeito no meio.
+   ═══════════════════════════════════════════════════════════════ */
+
+@keyframes hero-encolhe { to { transform: scaleY(0.8); } }
+@keyframes hero-cresce  { to { transform: scale(1.07); } }
+
+@layer components {
+  .hero-quadro,
+  .hero-foto {
+    transform-origin: 50% 100%;
+  }
+
+  @supports (animation-timeline: scroll()) {
+    @media (prefers-reduced-motion: no-preference) {
+      .hero-quadro,
+      .hero-foto {
+        animation-timing-function: linear;
+        animation-fill-mode: both;
+        animation-timeline: scroll(root block);
+        animation-range: 0 72vh;
+        will-change: transform;
+      }
+
+      .hero-quadro { animation-name: hero-encolhe; }
+      .hero-foto { animation-name: hero-cresce; }
+    }
+  }
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   FAIXA CORRIDA
+   ═══════════════════════════════════════════════════════════════ */
+
+@keyframes faixa-correr {
+  to { transform: translate3d(-50%, 0, 0); }
+}
+
+@layer components {
+  .faixa-trilha {
+    display: flex;
+    width: max-content;
+    align-items: center;
+    animation: faixa-correr 38s linear infinite;
+    will-change: transform;
+  }
+
+  /* Parar com o ponteiro em cima é acessibilidade, não enfeite: texto
+     em movimento é uma das reclamações mais antigas de quem tem
+     dificuldade de leitura, e um jeito de parar precisa existir. */
+  @media (pointer: fine) {
+    .faixa:hover .faixa-trilha { animation-play-state: paused; }
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .faixa-trilha { animation: none !important; }
+}
+
+/* ═══════════════════════════════════════════════════════════════
    FOLHA — bottom sheet no celular, caixa centralizada no desktop
 
    É um <dialog> nativo. O que ele entrega de graça e um modal caseiro

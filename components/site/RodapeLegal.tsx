@@ -1,6 +1,5 @@
 import Link from 'next/link'
 import { lerConteudo } from '@/lib/conteudo/ler'
-import { config } from '@/lib/config'
 import { LogoHorizontal } from '@/components/ui/Marca'
 
 /**
@@ -15,7 +14,22 @@ import { LogoHorizontal } from '@/components/ui/Marca'
 export async function RodapeLegal() {
   const { candidata, rodape } = await lerConteudo()
   const anoAtual = new Date().getFullYear()
-  const pendente = config.legal.responsavel === 'A confirmar'
+  const legal = rodape.legal
+
+  // A peça sobe sem um dos obrigatórios? O aviso é para a campanha ver,
+  // não para o visitante — mas fica visível de propósito: escondido no
+  // painel, ninguém olha.
+  const faltando = (
+    [
+      ['eleição', legal.eleicao],
+      ['nome na urna', legal.candidato],
+      ['cargo', legal.cargo],
+      ['partido', legal.partido],
+      ['CNPJ', legal.cnpj],
+    ] as const
+  )
+    .filter(([, v]) => !v.trim())
+    .map(([nome]) => nome)
 
   return (
     <footer className="relative isolate overflow-hidden bg-azul-noite text-white">
@@ -62,42 +76,35 @@ export async function RodapeLegal() {
           </div>
         </div>
 
-        {/* ── Bloco legal obrigatório ── */}
+        {/* ── Bloco legal obrigatório ──
+            A linha corrida é a forma que a peça precisa ter: é assim
+            que a identificação aparece em material eleitoral, tudo
+            junto, separado por barras. A grade de rótulos que existia
+            aqui era mais bonita e menos parecida com o que a lei pede. */}
         <div className="mt-14 rounded-2xl border border-white/12 bg-white/[0.06] p-7 md:p-8">
           <h2 className="text-sm font-semibold tracking-[0.08em] text-amarelo uppercase">
             {rodape.legalRotulo}
           </h2>
 
-          <dl className="mt-5 grid gap-x-10 gap-y-4 text-[0.9375rem] sm:grid-cols-2 lg:grid-cols-4">
-            <div>
-              <dt className="text-xs font-medium tracking-[0.06em] text-white/50 uppercase">Candidata</dt>
-              <dd className="mt-0.5">
-                {candidata.nome} — {candidata.numero}
-              </dd>
-            </div>
-            <div>
-              <dt className="text-xs font-medium tracking-[0.06em] text-white/50 uppercase">Partido</dt>
-              <dd className="mt-0.5">{config.legal.partido}</dd>
-            </div>
-            <div>
-              <dt className="text-xs font-medium tracking-[0.06em] text-white/50 uppercase">CNPJ da campanha</dt>
-              <dd className="mt-0.5 tabular-nums">{config.legal.cnpj}</dd>
-            </div>
-            <div>
-              <dt className="text-xs font-medium tracking-[0.06em] text-white/50 uppercase">Responsável</dt>
-              <dd className="mt-0.5">{config.legal.responsavel}</dd>
-            </div>
-            <div className="sm:col-span-2 lg:col-span-4">
-              <dt className="text-xs font-medium tracking-[0.06em] text-white/50 uppercase">Comitê</dt>
-              <dd className="mt-0.5">{config.legal.endereco}</dd>
-            </div>
-          </dl>
+          <p className="mt-4 text-[0.9375rem] leading-relaxed text-white/85">
+            {[legal.eleicao, legal.candidato, legal.cargo].filter(Boolean).join(' ')}
+            {[legal.partido, legal.cnpj, legal.coligacao, legal.comite]
+              .filter((t) => t && t.trim())
+              .map((t) => (
+                <span key={t}>
+                  {' '}
+                  <span className="text-white/35" aria-hidden>
+                    /
+                  </span>{' '}
+                  {t}
+                </span>
+              ))}
+          </p>
 
-          {pendente ? (
+          {faltando.length > 0 ? (
             <p className="mt-6 rounded-lg bg-amarelo/12 px-4 py-3 text-sm text-amarelo ring-1 ring-amarelo/35">
-              <strong className="font-semibold">Dados legais ainda não confirmados.</strong>{' '}
-              Preencha NEXT_PUBLIC_CNPJ_CAMPANHA, NEXT_PUBLIC_RESPONSAVEL_CAMPANHA e
-              NEXT_PUBLIC_ENDERECO_COMITE antes de publicar em domínio próprio.
+              <strong className="font-semibold">Identificação incompleta.</strong> Falta{' '}
+              {faltando.join(', ')}. Preencha no painel, em Rodapé, antes de publicar.
             </p>
           ) : null}
         </div>

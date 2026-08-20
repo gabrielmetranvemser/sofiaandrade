@@ -87,9 +87,22 @@ export async function Hero({ silencio = false }: { silencio?: boolean }) {
             </p>
           </div>
 
-          {/* ── Foto ── */}
+          {/* ── Foto ──
+              O quadro fica ATRÁS e começa mais abaixo; a foto ocupa a
+              altura inteira e passa por cima dele. É o que dá a
+              sensação de ela estar saindo do quadro em vez de estar
+              colada dentro.
+
+              Enquanto a página desce, o quadro encolhe pelo topo e a
+              foto cresce — as duas coisas presas à rolagem, sem
+              JavaScript. Ver .hero-quadro e .hero-foto em globals.css. */}
           <div className="anima-surge relative" style={{ animationDelay: '260ms' }}>
-            <div className="relative overflow-hidden rounded-[2rem] bg-gradient-to-b from-white/18 to-white/4 ring-1 ring-white/20 md:rounded-[2.75rem]">
+            <div
+              aria-hidden
+              className="hero-quadro absolute inset-x-0 top-14 bottom-0 rounded-[2rem] bg-gradient-to-b from-white/18 to-white/4 ring-1 ring-white/20 md:top-20 md:rounded-[2.75rem]"
+            />
+
+            <div className="hero-foto relative">
               {/* Sem foto, o gradiente e a silhueta já sustentam a composição. */}
               <Imagem
                 slot="hero.retrato"
@@ -97,7 +110,7 @@ export async function Hero({ silencio = false }: { silencio?: boolean }) {
                 vazio="silhueta"
                 prioridade
                 sizes="(max-width: 1024px) 100vw, 45vw"
-                className="h-[23rem] w-full object-contain object-bottom sm:h-[29rem] lg:h-[33rem]"
+                className="h-[25rem] w-full object-contain object-bottom sm:h-[31rem] lg:h-[35rem]"
               />
             </div>
 

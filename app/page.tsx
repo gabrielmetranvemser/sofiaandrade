@@ -8,6 +8,7 @@ import { Header } from '@/components/site/Header'
 import { BotaoFlutuante } from '@/components/site/BotaoFlutuante'
 import { RegistroDePagina } from '@/components/site/RegistroDePagina'
 import { Hero } from '@/components/site/Hero'
+import { FaixaCorrida } from '@/components/site/FaixaCorrida'
 import { Origem } from '@/components/site/Origem'
 import { Problema } from '@/components/site/Problema'
 import { Valores } from '@/components/site/Valores'
@@ -50,6 +51,7 @@ export default async function Home() {
 
       <main id="conteudo">
         <Hero silencio={silencio} />
+        <FaixaCorrida />
         <Origem />
         <Problema />
         <Valores />

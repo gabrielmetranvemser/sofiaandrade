@@ -490,6 +490,21 @@ export const ctaFinal = {
 // ─────────────────────────────────────────────────────────────
 // 11. RODAPÉ LEGAL
 // ─────────────────────────────────────────────────────────────
+// ─────────────────────────────────────────────────────────────
+// FAIXA — a tarja que corre entre a primeira dobra e o resto.
+// Serve para o que precisa ser lembrado sem ocupar seção: número,
+// nome de urna, partido, o que a campanha quiser martelar.
+// ─────────────────────────────────────────────────────────────
+export const faixa = {
+  itens: [
+    { id: 'faixa-01', texto: 'Sofia Andrade 2233' },
+    { id: 'faixa-02', texto: 'Deputada Federal' },
+    { id: 'faixa-03', texto: 'PL · Partido Liberal' },
+    { id: 'faixa-04', texto: '52 municípios, 52 grupos' },
+    { id: 'faixa-05', texto: 'Rondônia' },
+  ],
+} as const
+
 export const rodape = {
   assinatura: 'Feito em Rondônia.',
   links: [
@@ -500,6 +515,30 @@ export const rodape = {
   legalRotulo: 'Propaganda eleitoral',
   aviso:
     'Esta página é propaganda eleitoral e não coleta dados pessoais dos visitantes.',
+
+  /**
+   * ⚠️ IDENTIFICAÇÃO ELEITORAL OBRIGATÓRIA.
+   *
+   * Estes campos saíram de variável de ambiente e passaram para o
+   * painel, a pedido da campanha. A troca tem um lado e outro, e vale
+   * dizer os dois: pelo painel, corrigir um dado errado leva trinta
+   * segundos em vez de um deploy — e é isso que importa numa campanha.
+   * Em compensação, quem tem a senha do painel passa a poder mudar o
+   * CNPJ da peça, que é exposição jurídica. O histórico de versões
+   * cobre parte disso: toda alteração fica registrada e dá para
+   * restaurar.
+   *
+   * NÃO PUBLICAR com qualquer um destes em branco.
+   */
+  legal: {
+    eleicao: 'ELEIÇÃO 2026',
+    candidato: 'SOFIA ANDRADE DE AGUIAR GOMES',
+    cargo: 'DEPUTADO FEDERAL',
+    partido: 'PARTIDO PL 22',
+    cnpj: 'CNPJ 68.379.640/0001-98',
+    coligacao: 'COLIGAÇÃO: Juntos por Rondônia — PL, PODEMOS, DC, NOVO, MOBILIZA',
+    comite: '',
+  },
 } as const
 
 export const privacidade = {
@@ -620,6 +659,7 @@ export const PADRAO = {
   origem,
   problema,
   valores,
+  faixa,
   cena,
   provas,
   futuro,

@@ -441,10 +441,30 @@ export const ESQUEMA: Record<string, SecaoEsquema> = {
     },
   },
 
+  faixa: {
+    rotulo: 'Faixa corrida',
+    grupo: 'Página',
+    nota: 'A tarja que passa entre a primeira dobra e o resto da página. Frases curtas: elas correm de lado e ninguém lê frase longa em movimento.',
+    campos: {
+      itens: {
+        tipo: 'lista',
+        rotulo: 'O que passa na faixa',
+        rotuloItem: 'Item',
+        titulo: 'texto',
+        min: 2,
+        max: 8,
+        item: {
+          id: ID,
+          texto: { tipo: 'texto', rotulo: 'Texto', max: 40 },
+        },
+      },
+    },
+  },
+
   rodape: {
     rotulo: 'Rodapé',
     grupo: 'Página',
-    nota: 'Os dados legais (CNPJ, responsável, comitê) ficam em variável de ambiente, e mudá-los exige deploy. É de propósito: CNPJ errado em propaganda eleitoral é exposição jurídica.',
+    nota: 'O bloco legal é obrigatório por lei e a peça não pode ir ao ar sem ele. Confira com quem cuida da parte jurídica antes de mexer — e lembre que toda alteração fica no histórico.',
     campos: {
       assinatura: { tipo: 'texto', rotulo: 'Assinatura', max: 40 },
       legalRotulo: { tipo: 'texto', rotulo: 'Título do bloco legal', max: 40 },
@@ -460,6 +480,24 @@ export const ESQUEMA: Record<string, SecaoEsquema> = {
           id: ID,
           rotulo: { tipo: 'texto', rotulo: 'Texto', max: 40 },
           href: { tipo: 'ancora', rotulo: 'Destino' },
+        },
+      },
+      legal: {
+        tipo: 'grupo',
+        rotulo: 'Identificação eleitoral (obrigatória)',
+        campos: {
+          eleicao: { tipo: 'texto', rotulo: 'Eleição', max: 30 },
+          candidato: { tipo: 'texto', rotulo: 'Nome completo na urna', max: 80 },
+          cargo: { tipo: 'texto', rotulo: 'Cargo', max: 40 },
+          partido: { tipo: 'texto', rotulo: 'Partido e número', max: 40 },
+          cnpj: { tipo: 'texto', rotulo: 'CNPJ da campanha', max: 40 },
+          coligacao: { tipo: 'longo', rotulo: 'Coligação', max: 200, linhas: 2 },
+          comite: {
+            tipo: 'texto',
+            rotulo: 'Endereço do comitê',
+            max: 140,
+            ajuda: 'Deixe vazio se não houver comitê com endereço fixo.',
+          },
         },
       },
     },
