@@ -31,12 +31,26 @@ export default async function PainelInicio() {
   const naoTocadas = await secoesNaoTocadas()
 
   const pendencias: { texto: string; onde?: string }[] = []
-  if (config.legal.responsavel === 'A confirmar')
-    pendencias.push({ texto: 'Responsável pela campanha não preenchido (variável de ambiente)' })
-  if (config.legal.endereco === 'A confirmar')
-    pendencias.push({ texto: 'Endereço do comitê não preenchido (variável de ambiente)' })
-  if (config.legal.cnpj === '00.000.000/0001-00')
-    pendencias.push({ texto: 'CNPJ da campanha não confirmado (variável de ambiente)' })
+
+  // Identificação eleitoral em branco impede publicar. Agora ela vive
+  // no próprio painel, então a pendência aponta para onde resolver.
+  const legal = conteudo.rodape.legal
+  const faltaLegal = (
+    [
+      ['Eleição', legal.eleicao],
+      ['Nome completo na urna', legal.candidato],
+      ['Cargo', legal.cargo],
+      ['Partido', legal.partido],
+      ['CNPJ da campanha', legal.cnpj],
+    ] as const
+  ).filter(([, v]) => !v.trim())
+
+  for (const [nome] of faltaLegal) {
+    pendencias.push({
+      texto: `${nome} não preenchido na identificação eleitoral`,
+      onde: '/painel/textos/rodape',
+    })
+  }
   if (semLink > 0)
     pendencias.push({ texto: `${semLink} município${semLink === 1 ? '' : 's'} sem link de grupo`, onde: '/painel/grupos' })
   if (conteudo.provas.numeros.some((n) => n.valor === '00'))

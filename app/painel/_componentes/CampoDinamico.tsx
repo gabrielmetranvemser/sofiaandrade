@@ -1,6 +1,7 @@
 'use client'
 
 import type { Campo } from '@/content/esquema'
+import { CampoDestaque } from './CampoDestaque'
 
 /**
  * UM componente para os 8 tipos de campo. É a resposta a "17 seções não
@@ -80,25 +81,35 @@ export function CampoDinamico({ campo, valor, caminho, erros, onMudar }: Props) 
       'aria-invalid': Boolean(erro),
       'aria-describedby': campo.ajuda ? `${id}-ajuda` : undefined,
     }
+    const temDestaque = 'destaque' in campo && campo.destaque
+
     return (
       <div>
         <Rotulo para={id} extra={RESTANTE(v, campo.max)}>
           {campo.rotulo}
         </Rotulo>
-        {campo.tipo === 'longo' ? (
+
+        {/* Campo com destaque ganha botão e prévia. A marcação
+            [[colchetes]] deixa de ser algo que a pessoa precisa saber
+            que existe — ela seleciona a palavra e toca em Destacar. */}
+        {temDestaque ? (
+          <CampoDestaque
+            id={id}
+            valor={v}
+            onMudar={(novo) => onMudar(caminho, novo)}
+            invalido={Boolean(erro)}
+            descreve={campo.ajuda ? `${id}-ajuda` : undefined}
+            className={comum.className}
+          />
+        ) : campo.tipo === 'longo' ? (
           <textarea {...comum} rows={campo.linhas ?? 3} />
         ) : (
           <input type="text" {...comum} />
         )}
+
         {campo.ajuda ? (
           <p id={`${id}-ajuda`} className="mt-1 text-xs text-grafite">
             {campo.ajuda}
-          </p>
-        ) : null}
-        {'destaque' in campo && campo.destaque ? (
-          <p className="mt-1 text-xs text-grafite">
-            Envolva o trecho colorido em{' '}
-            <code className="rounded bg-areia px-1">[[colchetes duplos]]</code>.
           </p>
         ) : null}
         {erro ? <p className="mt-1 text-xs font-medium text-red-600">{erro}</p> : null}
@@ -140,17 +151,37 @@ export function CampoDinamico({ campo, valor, caminho, erros, onMudar }: Props) 
         <div className="space-y-2">
           {lista.map((linha, i) => (
             <div key={i} className="flex items-start gap-2">
-              <textarea
-                value={linha}
-                rows={linha.length > 90 ? 3 : 1}
-                onChange={(e) => {
-                  const novo = [...lista]
-                  novo[i] = e.target.value
-                  onMudar(caminho, novo)
-                }}
-                className={`${ENTRADA} ${erros[`${caminho}.${i}`] ? 'border-red-400' : ''}`}
-                aria-label={`${campo.rotulo} ${i + 1}`}
-              />
+              <div className="min-w-0 flex-1">
+                {/* Cada linha ganha o seu próprio Destacar: numa lista
+                    de linhas de título, o realce é por linha. */}
+                {campo.destaque ? (
+                  <CampoDestaque
+                    valor={linha}
+                    multilinha
+                    linhas={linha.length > 90 ? 3 : 1}
+                    rotuloAcessivel={`${campo.rotulo} ${i + 1}`}
+                    invalido={Boolean(erros[`${caminho}.${i}`])}
+                    className={`${ENTRADA} ${erros[`${caminho}.${i}`] ? 'border-red-400' : ''}`}
+                    onMudar={(novoTexto) => {
+                      const novo = [...lista]
+                      novo[i] = novoTexto
+                      onMudar(caminho, novo)
+                    }}
+                  />
+                ) : (
+                  <textarea
+                    value={linha}
+                    rows={linha.length > 90 ? 3 : 1}
+                    onChange={(e) => {
+                      const novo = [...lista]
+                      novo[i] = e.target.value
+                      onMudar(caminho, novo)
+                    }}
+                    className={`${ENTRADA} ${erros[`${caminho}.${i}`] ? 'border-red-400' : ''}`}
+                    aria-label={`${campo.rotulo} ${i + 1}`}
+                  />
+                )}
+              </div>
               <div className="flex shrink-0 gap-1 pt-1">
                 <BotaoIcone
                   titulo="Subir"

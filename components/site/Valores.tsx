@@ -18,6 +18,17 @@ const ICONES: Record<string, React.ReactNode> = {
     <path d="M12 2a10 10 0 1 0 0 20 10 10 0 0 0 0-20Zm1 15.9V19h-2v-1.1c-1.6-.3-2.8-1.3-3-3h2c.1.8.9 1.4 2 1.4 1.1 0 1.8-.5 1.8-1.2 0-.7-.5-1-2.2-1.4-2.1-.5-3.4-1.2-3.4-3 0-1.5 1.1-2.5 2.8-2.8V6h2v1c1.5.3 2.6 1.2 2.8 2.8h-2c-.1-.7-.7-1.2-1.7-1.2s-1.7.4-1.7 1.1c0 .6.5.9 2.2 1.3 2.2.5 3.4 1.3 3.4 3.1 0 1.6-1.2 2.6-3 2.8Z" />
   ),
   fe: <path d="M10 2h4v5h5v4h-5v11h-4V11H5V7h5V2Z" />,
+  // Balança: "leis mais rígidas" é sobre a lei, não sobre polícia —
+  // o escudo já é a bandeira da segurança e repetir confundiria os dois.
+  lei: (
+    <path d="M11 2h2v2.3l7 1.9-.5 1.9-1.7-.4L21 15c0 1.9-1.8 3.2-4 3.2S13 16.9 13 15l3.2-7.8-3.2-.9V20h5v2H6v-2h5V6.3l-3.2.9L11 15c0 1.9-1.8 3.2-4 3.2S3 16.9 3 15l3.2-7.7-1.7.4L4 5.8l7-1.9V2Zm-4 8.6L5.4 15h3.2L7 10.6Zm10 0L15.4 15h3.2L17 10.6Z" />
+  ),
+  // Escudo com estrela: direito de se proteger. Desenhar uma arma
+  // marcaria a página em classificador de conteúdo de rede social, e o
+  // custo disso cai justamente no alcance orgânico, que é o motor aqui.
+  armas: (
+    <path d="M12 2 4 5.5V11c0 5.2 3.4 9.9 8 11 4.6-1.1 8-5.8 8-11V5.5L12 2Zm0 4.6 1.5 3.1 3.4.5-2.5 2.4.6 3.4-3-1.6-3 1.6.6-3.4L7.1 10.2l3.4-.5L12 6.6Z" />
+  ),
 }
 
 export async function Valores() {

@@ -29,10 +29,13 @@ export function resolverTokens(texto: string, conteudo: Conteudo): string {
     'candidata.uf': conteudo.candidata.uf,
     'candidata.partidoExtenso': conteudo.candidata.partidoExtenso,
     'candidata.instagramHandle': conteudo.candidata.instagramHandle,
-    'legal.cnpj': config.legal.cnpj,
-    'legal.responsavel': config.legal.responsavel,
-    'legal.endereco': config.legal.endereco,
-    'legal.partido': config.legal.partido,
+    // Os dados legais saíram de variável de ambiente e passaram para o
+    // painel — ver o comentário em content/copy.ts, seção rodape.legal.
+    'legal.cnpj': conteudo.rodape.legal.cnpj,
+    'legal.candidato': conteudo.rodape.legal.candidato,
+    'legal.comite': conteudo.rodape.legal.comite,
+    'legal.partido': conteudo.rodape.legal.partido,
+    'legal.coligacao': conteudo.rodape.legal.coligacao,
     'site.url': config.siteUrl,
   }
 
@@ -49,8 +52,9 @@ export const TOKENS_DISPONIVEIS = [
   'candidata.partidoExtenso',
   'candidata.instagramHandle',
   'legal.cnpj',
-  'legal.responsavel',
-  'legal.endereco',
+  'legal.candidato',
+  'legal.comite',
   'legal.partido',
+  'legal.coligacao',
   'site.url',
 ] as const

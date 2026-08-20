@@ -13,12 +13,8 @@ export const config = {
     process.env.NEXT_PUBLIC_SUPABASE_URL && process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY,
   ),
 
-  legal: {
-    cnpj: process.env.NEXT_PUBLIC_CNPJ_CAMPANHA || '00.000.000/0001-00',
-    responsavel: process.env.NEXT_PUBLIC_RESPONSAVEL_CAMPANHA || 'A confirmar',
-    endereco: process.env.NEXT_PUBLIC_ENDERECO_COMITE || 'A confirmar',
-    partido: process.env.NEXT_PUBLIC_PARTIDO || 'PL — Partido Liberal',
-  },
+  // ⚠️ Os dados legais NÃO moram mais aqui. Foram para o painel, em
+  //    Rodapé ▸ Identificação eleitoral. Ver content/copy.ts.
 
   /** Instante em que os CTAs saem do ar. ISO-8601 em UTC. */
   silencioEleitoralEm: process.env.NEXT_PUBLIC_SILENCIO_ELEITORAL_EM || '',

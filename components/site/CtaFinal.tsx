@@ -37,7 +37,7 @@ export async function CtaFinal({ silencio = false }: { silencio?: boolean }) {
               duas coisas escrevem em transform e a última a falar
               apagaria a outra. */}
           <div className="parallax-suave">
-            <Numero versao="amarelo" className="w-full drop-shadow-[0_16px_40px_rgba(0,0,0,0.35)]" />
+            <Numero className="w-full drop-shadow-[0_16px_40px_rgba(0,0,0,0.35)]" />
           </div>
         </div>
 

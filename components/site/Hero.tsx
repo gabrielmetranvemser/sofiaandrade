@@ -28,9 +28,24 @@ export async function Hero({ silencio = false }: { silencio?: boolean }) {
         <div className="grid items-center gap-12 lg:grid-cols-[1.05fr_0.95fr] lg:gap-16">
           {/* ── Texto ── */}
           <div className="pb-14 lg:pb-24">
-            <p className="anima-hero inline-flex items-center gap-2.5 rounded-full bg-white/12 px-4 py-2 text-[0.8125rem] font-semibold tracking-[0.06em] text-white ring-1 ring-white/25">
-              <span className="size-1.5 rounded-full bg-amarelo" aria-hidden />
-              {hero.etiqueta}
+            {/* Três barrinhas em vez da pílula com bolinha. A pílula
+                era forma de sistema de design, não da campanha: aparecia
+                igual em qualquer site. As barras são a bandeira reduzida
+                ao mínimo, e alturas diferentes fazem elas lerem como
+                marca em vez de três traços iguais.
+
+                A terceira é branca, e não azul: sobre o azul da dobra,
+                azul em cima de azul some. O branco é a faixa da própria
+                bandeira — a cor está na peça, só não naquela ordem. */}
+            <p className="anima-hero flex items-center gap-3">
+              <span className="flex items-end gap-[3px]" aria-hidden>
+                <span className="block h-3.5 w-[3px] rounded-full bg-verde" />
+                <span className="block h-5 w-[3px] rounded-full bg-amarelo" />
+                <span className="block h-3.5 w-[3px] rounded-full bg-white" />
+              </span>
+              <span className="text-[0.8125rem] font-semibold tracking-[0.16em] text-white uppercase">
+                {hero.etiqueta}
+              </span>
             </p>
 
             <h1 className="mt-7 titulo-cartaz text-white">
@@ -87,9 +102,22 @@ export async function Hero({ silencio = false }: { silencio?: boolean }) {
             </p>
           </div>
 
-          {/* ── Foto ── */}
+          {/* ── Foto ──
+              O quadro fica ATRÁS e começa mais abaixo; a foto ocupa a
+              altura inteira e passa por cima dele. É o que dá a
+              sensação de ela estar saindo do quadro em vez de estar
+              colada dentro.
+
+              Enquanto a página desce, o quadro encolhe pelo topo e a
+              foto cresce — as duas coisas presas à rolagem, sem
+              JavaScript. Ver .hero-quadro e .hero-foto em globals.css. */}
           <div className="anima-surge relative" style={{ animationDelay: '260ms' }}>
-            <div className="relative overflow-hidden rounded-[2rem] bg-gradient-to-b from-white/18 to-white/4 ring-1 ring-white/20 md:rounded-[2.75rem]">
+            <div
+              aria-hidden
+              className="hero-quadro absolute inset-x-0 top-14 bottom-0 rounded-[2rem] bg-gradient-to-b from-white/18 to-white/4 ring-1 ring-white/20 md:top-20 md:rounded-[2.75rem]"
+            />
+
+            <div className="hero-foto relative">
               {/* Sem foto, o gradiente e a silhueta já sustentam a composição. */}
               <Imagem
                 slot="hero.retrato"
@@ -97,13 +125,13 @@ export async function Hero({ silencio = false }: { silencio?: boolean }) {
                 vazio="silhueta"
                 prioridade
                 sizes="(max-width: 1024px) 100vw, 45vw"
-                className="h-[23rem] w-full object-contain object-bottom sm:h-[29rem] lg:h-[33rem]"
+                className="h-[25rem] w-full object-contain object-bottom sm:h-[31rem] lg:h-[35rem]"
               />
             </div>
 
             {/* O 2233 da campanha, na arte oficial */}
             <div className="absolute -bottom-6 left-2 w-40 drop-shadow-[0_10px_24px_rgba(1,32,58,0.45)] sm:w-52 md:left-6">
-              <Numero versao="amarelo" prioridade className="w-full" />
+              <Numero prioridade className="w-full" />
             </div>
           </div>
         </div>

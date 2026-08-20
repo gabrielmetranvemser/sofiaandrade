@@ -9,10 +9,10 @@ Ordenado por **o que bloqueia a publicação** primeiro.
 
 | # | Item | Onde entra |
 |---|---|---|
-| 1 | **CNPJ correto da campanha** — CNPJ de candidato e de coligação são coisas diferentes | `NEXT_PUBLIC_CNPJ_CAMPANHA` + `public/molduras/*.svg` |
-| 2 | **Nome do responsável pela campanha** | `NEXT_PUBLIC_RESPONSAVEL_CAMPANHA` |
-| 3 | **Endereço do comitê** | `NEXT_PUBLIC_ENDERECO_COMITE` |
-| 4 | **Coligação / nome exato do partido** | `NEXT_PUBLIC_PARTIDO` |
+| 1 | **CNPJ correto da campanha** — CNPJ de candidato e de coligação são coisas diferentes | Painel ▸ Textos ▸ Rodapé + `scripts/gerar-molduras.mjs` |
+| 2 | **Nome completo na urna** | Painel ▸ Textos ▸ Rodapé |
+| 3 | **Endereço do comitê**, se houver | Painel ▸ Textos ▸ Rodapé |
+| 4 | **Coligação / nome exato do partido** | Painel ▸ Textos ▸ Rodapé |
 | 5 | **Domínio da campanha** | `NEXT_PUBLIC_SITE_URL` |
 | 6 | **Data exata do silêncio eleitoral** — hoje está em 03/10 00h (UTC-4) | `NEXT_PUBLIC_SILENCIO_ELEITORAL_EM` |
 
@@ -21,17 +21,30 @@ sozinho e o rodapé mostra um aviso visível. É proposital.
 
 ---
 
-## 🔴 Conteúdo — a copy está escrita mas tem fatos a confirmar
+## 🔴 Conteúdo — a copy está escrita e tem um fato a confirmar
+
+A copy foi reescrita a partir do documento de campanha
+`pagina-sofia-v2` (09/08/2026). Origem, problema, valores, provas e
+futuro seguem aquele texto, adaptados ao tamanho de cada campo.
 
 Todo ponto marcado com `// ⚠️ CONFIRMAR` em [`content/copy.ts`](./content/copy.ts).
 
 | Seção | O que falta |
 |---|---|
-| `candidata` | @ do Instagram, número de WhatsApp |
-| `origem` | biografia real: onde nasceu, família, primeiro trabalho, entrada na vida pública. **Os parágrafos e a linha do tempo hoje são rascunho estrutural, não fatos verificados** |
-| `provas` | **todos os números e as três entregas são placeholder.** Precisam de dado auditável com fonte. A seção já mostra aviso de "em preenchimento" na tela |
-| `futuro` | os cinco compromissos foram escritos a partir do posicionamento do PL. Revisar com a campanha |
-| `valores` | idem |
+| `origem` · `provas` | **os 14.634 votos de 2022** — o documento traz o número mas não o cargo disputado. Confirmar antes de publicar: número de votação sem cargo é o tipo de dado que o adversário usa |
+| `candidata` | número de WhatsApp da campanha |
+
+O que **entrou** do documento e não estava aqui antes: a história do
+espetinho na Avenida Rio Madeira, Iata e Guajará-Mirim, o mandato de
+vereadora, a presidência da Comissão de Segurança Pública e as nove
+leis sancionadas com número e ano.
+
+O que **ficou de fora** de propósito: a Parte 3 do documento (vídeos,
+prints de comentários, depoimentos) depende de mídia que a campanha
+ainda não entregou, e o Bloco 8 inteiro — prova social e os processos
+— está fora pelo motivo abaixo.
+
+---
 
 **Nada nesta base menciona processos judiciais** (TRE-RO, governador
 Marcos Rocha ou qualquer outro). Isso fica fora até o jurídico da
