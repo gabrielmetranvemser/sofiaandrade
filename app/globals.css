@@ -1,0 +1,269 @@
+@import 'tailwindcss';
+
+/* ═══════════════════════════════════════════════════════════════
+   SISTEMA VISUAL — institucional, claro, arredondado.
+
+   Direção: leveza e organização. Nada de bloco chapado, caixa alta
+   corrida ou contraste duro. A força vem do espaço em branco, da
+   hierarquia tipográfica e de um azul institucional bem usado.
+
+   Regras não-negociáveis (plano, seção 9):
+   · corpo de texto ≥ 18px
+   · alvo de toque ≥ 48px
+   · contraste real de texto (amarelo só como detalhe, nunca como texto)
+   · animação discreta e respeitando prefers-reduced-motion
+   ═══════════════════════════════════════════════════════════════ */
+
+@theme {
+  /* ── Paleta ─────────────────────────────────────────────────
+     Azul, verde e amarelo do PL, rebaixados para tom institucional. */
+  --color-marinho: #0d2440;       /* texto forte e seções escuras   */
+  --color-marinho-2: #16385d;     /* superfície escura secundária    */
+  --color-azul: #12539e;          /* cor de marca, botões e links    */
+  --color-azul-claro: #3c7fd0;
+  --color-azul-suave: #eaf1fa;    /* fundo de destaque               */
+  --color-verde: #10884f;
+  --color-verde-suave: #e8f4ee;
+  --color-amarelo: #f2b134;       /* detalhe, nunca texto sobre claro*/
+  --color-amarelo-suave: #fdf3e0;
+
+  --color-branco: #ffffff;
+  --color-areia: #faf8f5;         /* fundo alternado, quase branco   */
+  --color-grafite: #4a5563;       /* texto secundário                */
+  --color-linha: #e7e3dc;         /* bordas sobre claro              */
+  --color-linha-escura: #24405f;  /* bordas sobre escuro             */
+
+  /* ── Tipografia ── */
+  --font-titulo: var(--fonte-titulo), ui-sans-serif, system-ui, sans-serif;
+  --font-corpo: var(--fonte-corpo), ui-sans-serif, system-ui, sans-serif;
+
+  --text-base: 1.0625rem;
+  --text-base--line-height: 1.7;
+  --text-lg: 1.125rem;            /* 18px — mínimo do corpo de leitura */
+  --text-lg--line-height: 1.7;
+  --text-xl: 1.3125rem;
+  --text-xl--line-height: 1.6;
+
+  /* ── Forma ── */
+  --radius-sm: 0.5rem;
+  --radius-md: 0.875rem;
+  --radius-lg: 1.25rem;
+  --radius-xl: 1.75rem;
+  --radius-2xl: 2.25rem;
+
+  /* ── Sombra: difusa e discreta, nunca deslocada ── */
+  --shadow-suave: 0 1px 2px rgb(13 36 64 / 0.04), 0 8px 24px -8px rgb(13 36 64 / 0.10);
+  --shadow-media: 0 2px 4px rgb(13 36 64 / 0.04), 0 16px 40px -12px rgb(13 36 64 / 0.14);
+  --shadow-alta: 0 4px 8px rgb(13 36 64 / 0.05), 0 28px 60px -18px rgb(13 36 64 / 0.20);
+
+  --ease-suave: cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   BASE
+   ═══════════════════════════════════════════════════════════════ */
+
+@layer base {
+  * {
+    min-width: 0;
+  }
+
+  html {
+    scroll-behavior: smooth;
+    -webkit-text-size-adjust: 100%;
+    scroll-padding-top: 6rem;
+  }
+
+  body {
+    background-color: var(--color-branco);
+    color: var(--color-marinho);
+    font-family: var(--font-corpo);
+    font-size: var(--text-lg);
+    line-height: 1.7;
+    -webkit-font-smoothing: antialiased;
+    text-rendering: optimizeLegibility;
+    overflow-x: clip;
+  }
+
+  h1, h2, h3, h4 {
+    font-family: var(--font-titulo);
+    font-weight: 700;
+    line-height: 1.12;
+    letter-spacing: -0.022em;
+    text-wrap: balance;
+    color: var(--color-marinho);
+  }
+
+  h1 { letter-spacing: -0.032em; line-height: 1.05; }
+
+  p { text-wrap: pretty; }
+
+  a { color: inherit; }
+
+  :focus-visible {
+    outline: 2px solid var(--color-azul);
+    outline-offset: 3px;
+    border-radius: var(--radius-sm);
+  }
+
+  ::selection {
+    background: var(--color-azul-suave);
+    color: var(--color-marinho);
+  }
+
+  a, button, [role='button'] {
+    touch-action: manipulation;
+  }
+
+  img, svg, video, canvas {
+    display: block;
+    max-width: 100%;
+  }
+
+  /* Barra de rolagem discreta no editor e nas listas longas */
+  @supports (scrollbar-width: thin) {
+    * { scrollbar-width: thin; scrollbar-color: var(--color-linha) transparent; }
+  }
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   UTILITÁRIOS
+   ═══════════════════════════════════════════════════════════════ */
+
+@utility container-lp {
+  width: 100%;
+  margin-inline: auto;
+  padding-inline: 1.25rem;
+  max-width: 75rem;
+
+  @media (min-width: 768px) {
+    padding-inline: 2rem;
+  }
+}
+
+/* Título de primeira dobra. Grande, mas sem gritar. */
+@utility titulo-cartaz {
+  font-family: var(--font-titulo);
+  font-weight: 700;
+  font-size: clamp(2.4rem, 6.2vw, 4.5rem);
+  line-height: 1.04;
+  letter-spacing: -0.034em;
+}
+
+@utility titulo-secao {
+  font-family: var(--font-titulo);
+  font-weight: 700;
+  font-size: clamp(1.85rem, 3.8vw, 2.9rem);
+  line-height: 1.12;
+  letter-spacing: -0.028em;
+}
+
+/* Etiqueta de seção: pequena, espaçada, discreta. */
+@utility etiqueta {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-family: var(--font-corpo);
+  font-weight: 600;
+  font-size: 0.8125rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+
+/* Grifo suave sob a palavra-chave. Substitui o bloco chapado. */
+@utility grifo {
+  position: relative;
+  display: inline;
+  background-image: linear-gradient(
+    to top,
+    color-mix(in srgb, var(--color-amarelo) 45%, transparent) 0 32%,
+    transparent 32%
+  );
+  background-repeat: no-repeat;
+  padding-inline: 0.06em;
+}
+
+@utility grifo-azul {
+  color: var(--color-azul);
+}
+
+/* Superfície de cartão padrão do site. */
+@utility cartao {
+  background-color: var(--color-branco);
+  border: 1px solid var(--color-linha);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-suave);
+}
+
+/* Brilho de fundo suave, usado atrás do hero e do CTA final. */
+@utility brilho-suave {
+  background-image:
+    radial-gradient(60% 55% at 15% 0%, color-mix(in srgb, var(--color-azul) 12%, transparent) 0%, transparent 70%),
+    radial-gradient(50% 50% at 95% 20%, color-mix(in srgb, var(--color-verde) 10%, transparent) 0%, transparent 70%);
+}
+
+@utility brilho-escuro {
+  background-image:
+    radial-gradient(55% 50% at 10% 0%, color-mix(in srgb, var(--color-azul-claro) 22%, transparent) 0%, transparent 70%),
+    radial-gradient(45% 45% at 100% 30%, color-mix(in srgb, var(--color-verde) 16%, transparent) 0%, transparent 70%);
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   ANIMAÇÃO — discreta. Dois momentos: entrada do hero e revelação
+   dos blocos ao rolar. Nada além disso.
+   ═══════════════════════════════════════════════════════════════ */
+
+@keyframes sobe-suave {
+  from { opacity: 0; transform: translate3d(0, 1.25rem, 0); }
+  to   { opacity: 1; transform: none; }
+}
+
+@keyframes surge {
+  from { opacity: 0; transform: scale(0.985); }
+  to   { opacity: 1; transform: none; }
+}
+
+@utility anima-hero {
+  animation: sobe-suave 0.8s var(--ease-suave) both;
+}
+
+@utility anima-surge {
+  animation: surge 1s var(--ease-suave) both;
+}
+
+@layer components {
+  [data-revelar] {
+    opacity: 0;
+    transform: translate3d(0, 1.25rem, 0);
+    transition:
+      opacity 0.7s var(--ease-suave),
+      transform 0.7s var(--ease-suave);
+    transition-delay: var(--atraso, 0ms);
+  }
+
+  [data-revelar][data-visivel='true'] {
+    opacity: 1;
+    transform: none;
+  }
+
+  /* Sem JS o conteúdo aparece. Nunca esconder texto atrás de script. */
+  .sem-js [data-revelar] {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html { scroll-behavior: auto; }
+
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+
+  [data-revelar] {
+    opacity: 1 !important;
+    transform: none !important;
+  }
+}
