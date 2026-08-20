@@ -22,8 +22,8 @@ export function CardCidadeSugerida({
   const longe = typeof distanciaKm === 'number' && distanciaKm > 60
 
   return (
-    <div className="rounded-2xl border border-azul/15 bg-azul-suave p-6 md:p-7">
-      <p className="flex items-center gap-2 text-sm font-medium text-azul">
+    <div className="rounded-2xl fundo-azul-profundo p-6 text-white md:p-7">
+      <p className="flex items-center gap-2 text-sm font-medium text-amarelo">
         <svg viewBox="0 0 24 24" className="size-4" fill="currentColor" aria-hidden>
           <path d="M12 2a7 7 0 0 0-7 7c0 5.2 7 13 7 13s7-7.8 7-13a7 7 0 0 0-7-7Zm0 9.5A2.5 2.5 0 1 1 12 6.5a2.5 2.5 0 0 1 0 5Z" />
         </svg>
@@ -34,7 +34,7 @@ export function CardCidadeSugerida({
         {municipio.nome}?
       </p>
 
-      <p className="mt-2 text-base text-grafite">
+      <p className="mt-2 text-base text-white/75">
         {longe
           ? `A sede mais próxima fica a cerca de ${Math.round(distanciaKm!)} km. Confira se é a sua cidade.`
           : copy.sugestaoPergunta}
@@ -44,12 +44,12 @@ export function CardCidadeSugerida({
         {municipio.disponivel ? (
           <a
             href={`/g/${municipio.slug}?de=${origem}&s=${idSessao()}`}
-            className="inline-flex min-h-13 items-center justify-center gap-2 rounded-full bg-azul px-7 py-3.5 font-semibold text-white shadow-suave transition-colors hover:bg-marinho"
+            className="inline-flex min-h-13 items-center justify-center gap-2 rounded-full bg-amarelo px-7 py-3.5 font-semibold text-azul-escuro shadow-media transition-all hover:brightness-105"
           >
             Sim, entrar no grupo
           </a>
         ) : (
-          <span className="inline-flex min-h-13 items-center justify-center rounded-full bg-white px-7 py-3.5 font-medium text-grafite">
+          <span className="inline-flex min-h-13 items-center justify-center rounded-full bg-white/15 px-7 py-3.5 font-medium text-white/80 ring-1 ring-white/25">
             {municipio.status === 'cheio' ? copy.cheio : copy.emBreve}
           </span>
         )}
@@ -57,7 +57,7 @@ export function CardCidadeSugerida({
         <button
           type="button"
           onClick={onNaoEMinha}
-          className="min-h-12 text-left text-base text-grafite underline decoration-1 underline-offset-[6px] transition-colors hover:text-azul"
+          className="min-h-12 text-left text-base text-white/75 underline decoration-1 underline-offset-[6px] transition-colors hover:text-amarelo"
         >
           {copy.sugestaoNao}
         </button>

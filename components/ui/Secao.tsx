@@ -3,18 +3,24 @@ import type { ReactNode } from 'react'
 interface Props {
   id?: string
   children: ReactNode
-  fundo?: 'branco' | 'areia' | 'azul-suave' | 'marinho' | 'verde-suave'
+  /**
+   * Só cor cheia ou branco. Nada de pastel: fundo lavado tira a força
+   * da paleta e deixa a página com cara de apresentação corporativa.
+   */
+  fundo?: 'branco' | 'areia' | 'azul-profundo' | 'verde' | 'amarelo'
   className?: string
   /** Espaçamento vertical. 'solto' para as seções principais. */
   espaco?: 'normal' | 'solto'
 }
 
 const FUNDOS = {
-  branco: 'bg-white text-marinho',
-  areia: 'bg-areia text-marinho',
-  'azul-suave': 'bg-azul-suave text-marinho',
-  'verde-suave': 'bg-verde-suave text-marinho',
-  marinho: 'bg-marinho text-white',
+  branco: 'bg-white text-tinta',
+  areia: 'bg-areia text-tinta',
+  // superfícies cheias: um matiz só, do claro ao escuro
+  'azul-profundo': 'fundo-azul-profundo text-white',
+  verde: 'fundo-verde text-white',
+  // amarelo é chapado — gradiente em amarelo suja para ocre
+  amarelo: 'bg-amarelo text-azul-escuro',
 } as const
 
 export function Secao({
@@ -56,16 +62,19 @@ export function CabecalhoSecao({
 }: CabecalhoProps) {
   return (
     <header className={`${centro ? 'mx-auto max-w-3xl text-center' : 'max-w-3xl'} ${className}`}>
+      {/* A etiqueta é texto pequeno: sobre fundo escuro ela é branca,
+          porque amarelo em 13px sobre o verde não passa em contraste.
+          O traço, sim, é amarelo — é detalhe, não é leitura. */}
       {etiqueta ? (
         <p
           data-revelar
           className={`etiqueta ${centro ? 'justify-center' : ''} ${
-            tom === 'escuro' ? 'text-amarelo' : 'text-azul'
+            tom === 'escuro' ? 'text-white' : 'text-azul-escuro'
           }`}
         >
           <span
             className={`inline-block h-px w-8 ${
-              tom === 'escuro' ? 'bg-amarelo/60' : 'bg-azul/40'
+              tom === 'escuro' ? 'bg-amarelo' : 'bg-azul/45'
             }`}
             aria-hidden
           />
@@ -82,7 +91,7 @@ export function CabecalhoSecao({
           data-revelar
           style={{ ['--atraso' as string]: '140ms' }}
           className={`mt-5 text-lg md:text-xl ${
-            tom === 'escuro' ? 'text-white/75' : 'text-grafite'
+            tom === 'escuro' ? 'text-white/80' : 'text-grafite'
           } ${centro ? 'mx-auto' : ''}`}
         >
           {intro}

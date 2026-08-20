@@ -172,7 +172,7 @@ export function EditorCanvas({
             height: `${zs.altura * 100}%`,
           }}
         >
-          <span className="absolute -top-7 left-0 rounded-full bg-marinho/80 px-3 py-1 text-[0.6875rem] font-medium text-white backdrop-blur-sm">
+          <span className="absolute -top-7 left-0 rounded-full bg-azul-escuro/80 px-3 py-1 text-[0.6875rem] font-medium text-white">
             {copy.avisoZonaSegura}
           </span>
         </div>

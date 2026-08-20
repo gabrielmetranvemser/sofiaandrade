@@ -65,8 +65,8 @@ export function Silhueta({
 
       {rotulo ? (
         <span
-          className={`absolute left-4 top-4 z-10 inline-block rounded-full px-3 py-1.5 text-[0.6875rem] font-semibold tracking-[0.08em] backdrop-blur ${
-            tom === 'escuro' ? 'bg-white/12 text-white/80' : 'bg-marinho/8 text-marinho/60'
+          className={`absolute left-4 top-4 z-10 inline-block rounded-full px-3 py-1.5 text-[0.6875rem] font-semibold tracking-[0.08em] ${
+            tom === 'escuro' ? 'bg-white/12 text-white/80' : 'bg-azul-escuro/8 text-azul-escuro/55'
           }`}
         >
           {rotulo}

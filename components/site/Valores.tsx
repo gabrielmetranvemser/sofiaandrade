@@ -22,8 +22,17 @@ const ICONES: Record<string, React.ReactNode> = {
 
 export function Valores() {
   return (
-    <Secao id="valores" fundo="branco" espaco="solto">
-      <CabecalhoSecao etiqueta={valores.etiqueta} titulo={valores.titulo} intro={valores.intro} />
+    <Secao id="valores" fundo="verde" espaco="solto">
+      <CabecalhoSecao
+        etiqueta={valores.etiqueta}
+        titulo={
+          <>
+            Tem coisa que <span className="text-amarelo">não entra em acordo.</span>
+          </>
+        }
+        intro={valores.intro}
+        tom="escuro"
+      />
 
       <ul className="mt-14 grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
         {valores.itens.map((item, i) => (
@@ -31,17 +40,17 @@ export function Valores() {
             key={item.chave}
             data-revelar
             style={{ ['--atraso' as string]: `${i * 70}ms` }}
-            className="group rounded-2xl border border-linha bg-areia p-7 transition-all duration-300 hover:border-azul/25 hover:bg-white hover:shadow-media"
+            className="group rounded-2xl bg-white p-7 shadow-suave transition-transform duration-300 hover:-translate-y-1 hover:shadow-alta"
           >
             <span
-              className="inline-flex size-12 items-center justify-center rounded-2xl bg-white text-azul shadow-suave transition-colors duration-300 group-hover:bg-azul group-hover:text-white"
+              className="inline-flex size-12 items-center justify-center rounded-2xl bg-verde-escuro text-white"
               aria-hidden
             >
               <svg viewBox="0 0 24 24" fill="currentColor" className="size-6">
                 {ICONES[item.chave]}
               </svg>
             </span>
-            <h3 className="mt-5 text-xl">{item.titulo}</h3>
+            <h3 className="mt-5 text-xl text-tinta">{item.titulo}</h3>
             <p className="mt-2 text-base text-grafite">{item.texto}</p>
           </li>
         ))}

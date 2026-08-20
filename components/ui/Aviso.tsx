@@ -7,10 +7,10 @@ interface Props {
 }
 
 const TONS = {
-  alerta: 'bg-amarelo-suave text-marinho ring-amarelo/40',
-  info: 'bg-azul-suave text-marinho ring-azul/20',
+  alerta: 'bg-amarelo-suave text-tinta ring-amarelo/40',
+  info: 'bg-azul-suave text-tinta ring-azul/20',
   erro: 'bg-red-50 text-red-900 ring-red-200',
-  sucesso: 'bg-verde-suave text-marinho ring-verde/25',
+  sucesso: 'bg-verde-suave text-tinta ring-verde/25',
 } as const
 
 const ICONES = {

@@ -33,7 +33,7 @@ export function FormularioLogin({ proximo }: { proximo: string }) {
       <button
         type="submit"
         disabled={pendente}
-        className="inline-flex min-h-12 w-full items-center justify-center rounded-full bg-azul px-6 font-semibold text-white transition-colors hover:bg-marinho disabled:opacity-50"
+        className="inline-flex min-h-12 w-full items-center justify-center rounded-full bg-azul px-6 font-semibold text-white transition-colors hover:bg-azul-escuro disabled:opacity-50"
       >
         {pendente ? 'Entrando…' : 'Entrar'}
       </button>

@@ -1,23 +1,17 @@
 import { ctaFinal, ctas } from '@/content/copy'
 import { BotaoLink } from '@/components/ui/Botao'
+import { Numero } from '@/components/ui/Marca'
 import { CliqueGrupo } from './CliqueGrupo'
 
 export function CtaFinal({ silencio = false }: { silencio?: boolean }) {
   return (
-    <section id="votar" className="relative isolate overflow-hidden bg-marinho py-24 text-white md:py-32">
-      <div aria-hidden className="pointer-events-none absolute inset-0 -z-10 brilho-escuro" />
+    <section id="votar" className="relative isolate overflow-hidden fundo-azul-profundo py-24 text-white md:py-32">
 
       <div className="container-lp text-center">
         <h2 data-revelar className="titulo-cartaz text-white">
           {ctaFinal.titulo.map((linha, i) => (
             <span key={linha} className="block">
-              {i === 1 ? (
-                <span className="bg-gradient-to-r from-amarelo to-amarelo/70 bg-clip-text text-transparent">
-                  {linha}
-                </span>
-              ) : (
-                linha
-              )}
+              {i === 1 ? <span className="text-amarelo">{linha}</span> : linha}
             </span>
           ))}
         </h2>
@@ -25,47 +19,41 @@ export function CtaFinal({ silencio = false }: { silencio?: boolean }) {
         <p
           data-revelar
           style={{ ['--atraso' as string]: '120ms' }}
-          className="mx-auto mt-7 max-w-2xl text-lg text-white/70 md:text-xl"
+          className="mx-auto mt-7 max-w-2xl text-lg text-white/75 md:text-xl"
         >
           {ctaFinal.texto}
         </p>
 
+        {/* O número na arte oficial, grande. É o que a pessoa precisa levar. */}
+        <div
+          data-revelar
+          style={{ ['--atraso' as string]: '200ms' }}
+          className="mx-auto mt-12 w-64 sm:w-80 md:w-[26rem]"
+        >
+          <Numero versao="amarelo" className="w-full drop-shadow-[0_16px_40px_rgba(0,0,0,0.35)]" />
+        </div>
+
         {!silencio ? (
           <div
             data-revelar
-            style={{ ['--atraso' as string]: '200ms' }}
-            className="mt-10 flex flex-col items-center justify-center gap-3 sm:flex-row"
+            style={{ ['--atraso' as string]: '280ms' }}
+            className="mt-12 flex flex-col items-center justify-center gap-3 sm:flex-row"
           >
             <CliqueGrupo origem="cta_final" className="contents">
-              <span className="inline-flex min-h-14 items-center justify-center gap-2.5 rounded-full bg-white px-8 text-lg font-semibold text-marinho shadow-alta transition-all duration-300 hover:bg-amarelo">
+              <span className="inline-flex min-h-14 items-center justify-center gap-2.5 rounded-full bg-amarelo px-8 text-lg font-semibold text-azul-escuro shadow-alta transition-all duration-300 hover:brightness-105">
                 {ctaFinal.ctaPrimario}
               </span>
             </CliqueGrupo>
 
-            <BotaoLink
-              href="/filtro"
-              variante="contorno"
-              tamanho="lg"
-              className="text-white"
-            >
+            <BotaoLink href="/filtro" variante="contorno" tamanho="lg" className="text-white">
               {ctaFinal.ctaSecundario}
             </BotaoLink>
           </div>
         ) : (
-          <p className="mx-auto mt-10 max-w-xl rounded-lg bg-white/10 px-5 py-4 ring-1 ring-white/15">
+          <p className="mx-auto mt-10 max-w-xl rounded-lg bg-white/10 px-5 py-4 ring-1 ring-white/20">
             {ctas.silencio}
           </p>
         )}
-
-        <div
-          data-revelar
-          style={{ ['--atraso' as string]: '280ms' }}
-          className="mx-auto mt-16 inline-flex flex-col items-center"
-        >
-          <span className="font-[family-name:var(--font-titulo)] text-[clamp(4rem,16vw,10rem)] font-extrabold leading-none tracking-[-0.05em] text-white/10 tabular-nums">
-            2233
-          </span>
-        </div>
       </div>
     </section>
   )

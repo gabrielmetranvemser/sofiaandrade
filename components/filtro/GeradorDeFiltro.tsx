@@ -116,7 +116,7 @@ export function GeradorDeFiltro() {
           />
 
           <Botao
-            variante={foto ? 'contorno' : 'primario'}
+            variante={foto ? 'contorno' : 'acao'}
             tamanho="lg"
             onClick={() => inputRef.current?.click()}
             className={`mt-4 w-full ${foto ? 'text-azul hover:text-white' : ''}`}
@@ -151,7 +151,7 @@ export function GeradorDeFiltro() {
           <div className="mt-10">
             <p className="text-sm font-semibold tracking-[0.06em] text-azul uppercase">4 · Gerar</p>
             <Botao
-              variante="secundario"
+              variante="verde"
               tamanho="lg"
               onClick={gerar}
               disabled={gerando}
@@ -206,7 +206,7 @@ function PreviaVazia({ moldura }: { moldura: Moldura }) {
           className="absolute inset-0 size-full object-contain"
         />
         <div className="absolute inset-0 flex items-center justify-center p-8">
-          <p className="max-w-[22ch] rounded-xl bg-marinho/80 px-4 py-3 text-center text-base font-medium text-white backdrop-blur-sm">
+          <p className="max-w-[22ch] rounded-xl bg-azul-escuro/80 px-4 py-3 text-center text-base font-medium text-white">
             Sua foto entra aqui.
           </p>
         </div>

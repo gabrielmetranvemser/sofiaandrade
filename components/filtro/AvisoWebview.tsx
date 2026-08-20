@@ -29,7 +29,7 @@ export function AvisoWebview() {
   return (
     <div className="border-b border-amarelo/30 bg-amarelo-suave">
       <div className="container-lp flex flex-col gap-3 py-3.5 sm:flex-row sm:items-center sm:justify-between">
-        <p className="flex items-start gap-2.5 text-base text-marinho">
+        <p className="flex items-start gap-2.5 text-base text-tinta">
           <svg viewBox="0 0 24 24" className="mt-0.5 size-5 shrink-0 text-amarelo" fill="currentColor" aria-hidden>
             <path d="M12 2 1 21h22L12 2Zm0 5 7.5 12.9h-15L12 7Zm-1 4v5h2v-5h-2Zm0 6v2h2v-2h-2Z" />
           </svg>
@@ -42,7 +42,7 @@ export function AvisoWebview() {
         <button
           type="button"
           onClick={() => abrirNoNavegador(window.location.href)}
-          className="inline-flex min-h-12 shrink-0 items-center justify-center gap-2 rounded-full bg-marinho px-6 font-semibold text-white transition-colors hover:bg-azul"
+          className="inline-flex min-h-12 shrink-0 items-center justify-center gap-2 rounded-full bg-azul-escuro px-6 font-semibold text-white transition-colors hover:bg-azul"
         >
           {copy.avisoInstagramBotao}
           <svg viewBox="0 0 24 24" className="size-5" fill="currentColor" aria-hidden>

@@ -17,8 +17,8 @@ interface Props {
 
 const TONS = {
   claro: 'bg-areia text-azul/45 border-linha',
-  escuro: 'bg-marinho-2 text-white/40 border-white/12',
-  azul: 'bg-azul-suave text-azul/50 border-azul/15',
+  escuro: 'bg-azul-noite text-white/40 border-white/12',
+  azul: 'bg-white text-azul-escuro/40 border-linha',
 } as const
 
 const RAIOS = {

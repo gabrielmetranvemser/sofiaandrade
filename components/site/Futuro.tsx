@@ -20,10 +20,10 @@ export function Futuro() {
             key={item.numero}
             data-revelar
             style={{ ['--atraso' as string]: `${i * 70}ms` }}
-            className="group grid gap-3 rounded-2xl border border-linha bg-white p-7 transition-all duration-300 hover:border-azul/25 hover:shadow-media md:grid-cols-[4rem_1fr_1.15fr] md:items-start md:gap-8 md:p-8"
+            className="group grid gap-3 rounded-2xl border border-linha bg-white p-7 transition-all duration-300 hover:border-verde/40 hover:shadow-media md:grid-cols-[4rem_1fr_1.15fr] md:items-start md:gap-8 md:p-8"
           >
             <span
-              className="inline-flex size-12 items-center justify-center rounded-full bg-azul-suave font-[family-name:var(--font-titulo)] text-base font-bold text-azul transition-colors duration-300 group-hover:bg-azul group-hover:text-white"
+              className="inline-flex size-12 items-center justify-center rounded-full bg-verde-escuro font-[family-name:var(--font-titulo)] text-base font-bold text-white transition-colors duration-300 group-hover:bg-amarelo group-hover:text-azul-escuro"
               aria-hidden
             >
               {item.numero}

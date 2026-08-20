@@ -24,9 +24,9 @@ export function Origem() {
 
           <blockquote
             data-revelar
-            className="mt-10 rounded-2xl bg-azul-suave p-7 md:p-8"
+            className="mt-10 rounded-2xl fundo-azul-profundo p-7 text-white md:p-8"
           >
-            <svg viewBox="0 0 24 24" className="size-8 text-azul/30" fill="currentColor" aria-hidden>
+            <svg viewBox="0 0 24 24" className="size-8 text-amarelo" fill="currentColor" aria-hidden>
               <path d="M9.5 5C6.5 6.6 5 9 5 12.2c0 .6.1 1.2.2 1.8h.3c.5-.5 1.2-.8 2.1-.8 1.7 0 3 1.3 3 3.1S9.2 19.5 7.4 19.5C5 19.5 3.2 17.4 3.2 14c0-4.3 2.3-7.6 6.3-9.7L9.5 5Zm10 0C16.5 6.6 15 9 15 12.2c0 .6.1 1.2.2 1.8h.3c.5-.5 1.2-.8 2.1-.8 1.7 0 3 1.3 3 3.1s-1.4 3.2-3.2 3.2c-2.4 0-4.2-2.1-4.2-5.5 0-4.3 2.3-7.6 6.3-9.7l.2.7Z" />
             </svg>
             <p className="mt-4 font-[family-name:var(--font-titulo)] text-xl font-semibold leading-snug tracking-[-0.02em] md:text-2xl">
@@ -59,7 +59,7 @@ export function Origem() {
             style={{ ['--atraso' as string]: `${i * 80}ms` }}
             className="cartao p-6 transition-shadow duration-300 hover:shadow-media"
           >
-            <span className="inline-flex items-center rounded-full bg-azul-suave px-3 py-1 text-sm font-semibold text-azul tabular-nums">
+            <span className="inline-flex items-center rounded-full bg-azul-escuro px-3 py-1 text-sm font-semibold text-white tabular-nums">
               {item.ano}
             </span>
             <h3 className="mt-4 text-lg">{item.titulo}</h3>
