@@ -1,6 +1,7 @@
 import { lerConteudo } from '@/lib/conteudo/ler'
+import { lerSlots } from '@/lib/midia/ler'
 import { Secao, CabecalhoSecao } from '@/components/ui/Secao'
-import { QuadroImagem } from '@/components/ui/QuadroImagem'
+import { Imagem } from '@/components/ui/Imagem'
 import { Aviso } from '@/components/ui/Aviso'
 
 /**
@@ -8,7 +9,7 @@ import { Aviso } from '@/components/ui/Aviso'
  *    entregar os dados auditáveis. Ver content/copy.ts e PENDENCIAS.md.
  */
 export async function Provas() {
-  const { provas } = await lerConteudo()
+  const [{ provas }, slots] = await Promise.all([lerConteudo(), lerSlots()])
 
   return (
     <Secao id="provas" fundo="azul-profundo" espaco="solto" className="overflow-hidden">
@@ -48,13 +49,11 @@ export async function Provas() {
               style={{ ['--atraso' as string]: `${i * 80}ms` }}
               className="flex flex-col overflow-hidden rounded-2xl border border-white/10 bg-white/[0.06]"
             >
-              <QuadroImagem
-                proporcao="3/2"
-                tom="escuro"
-                raio="md"
-                rotulo="Foto da entrega"
-                nota="Obra, evento ou equipamento"
-                className="rounded-none border-0 border-b border-white/10"
+              <Imagem
+                slot={`provas.entrega.${i + 1}`}
+                slots={slots}
+                sizes="(max-width: 768px) 100vw, 33vw"
+                className="w-full border-b border-white/10 object-cover"
               />
               <div className="flex flex-1 flex-col p-6">
                 <span className="text-sm font-medium text-amarelo">{e.municipio}</span>

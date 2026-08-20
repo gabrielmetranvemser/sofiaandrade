@@ -58,7 +58,18 @@ export function FormularioSecao({
           </svg>
           Todos os textos
         </Link>
-        <h1 className="mt-4 titulo-secao">{esquema.rotulo}</h1>
+        <div className="mt-4 flex flex-wrap items-center justify-between gap-3">
+          <h1 className="titulo-secao">{esquema.rotulo}</h1>
+          <Link
+            href={`/painel/textos/${secao}/historico`}
+            className="inline-flex min-h-10 items-center gap-2 rounded-full border border-linha bg-white px-4 text-sm font-medium transition-colors hover:border-azul/30 hover:text-azul"
+          >
+            <svg viewBox="0 0 24 24" className="size-4" fill="currentColor" aria-hidden>
+              <path d="M13 3a9 9 0 1 0 8.5 12h-2.1A7 7 0 1 1 13 5v4l5-5-5-5v4Zm-1 5v5l4 2 .7-1.3L13.5 12V8H12Z" />
+            </svg>
+            Histórico
+          </Link>
+        </div>
         {esquema.nota ? (
           <p className="mt-3 max-w-2xl rounded-xl bg-azul-suave px-4 py-3 text-[0.9375rem]">
             {esquema.nota}

@@ -1,9 +1,10 @@
 import { lerConteudo } from '@/lib/conteudo/ler'
+import { lerSlots } from '@/lib/midia/ler'
 import { Secao, CabecalhoSecao } from '@/components/ui/Secao'
-import { QuadroImagem } from '@/components/ui/QuadroImagem'
+import { Imagem } from '@/components/ui/Imagem'
 
 export async function Origem() {
-  const { origem } = await lerConteudo()
+  const [{ origem }, slots] = await Promise.all([lerConteudo(), lerSlots()])
 
   return (
     <Secao id="origem" fundo="branco" espaco="solto">
@@ -38,16 +39,15 @@ export async function Origem() {
         </div>
 
         <div data-revelar className="space-y-4">
-          <QuadroImagem
-            proporcao="4/5"
-            tom="azul"
-            raio="2xl"
-            rotulo="Retrato"
-            nota="Foto da candidata em ambiente de trabalho ou de rua"
+          <Imagem
+            slot="origem.retrato"
+            slots={slots}
+            sizes="(max-width: 1024px) 100vw, 40vw"
+            className="w-full rounded-2xl object-cover"
           />
           <div className="grid grid-cols-2 gap-4">
-            <QuadroImagem proporcao="1/1" tom="claro" raio="xl" rotulo="Foto" nota="Detalhe" />
-            <QuadroImagem proporcao="1/1" tom="claro" raio="xl" rotulo="Foto" nota="Detalhe" />
+            <Imagem slot="origem.detalhe.1" slots={slots} sizes="20vw" className="w-full rounded-xl object-cover" />
+            <Imagem slot="origem.detalhe.2" slots={slots} sizes="20vw" className="w-full rounded-xl object-cover" />
           </div>
         </div>
       </div>
