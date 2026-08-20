@@ -53,7 +53,7 @@ export function BotaoFlutuante({ silencio = false }: { silencio?: boolean }) {
     >
       <Link
         href="/#grupos"
-        onClick={() => evento('clicou_grupo', { origem: 'flutuante' })}
+        onClick={() => evento('clicou_cta', { origem: 'flutuante' })}
         className="flex min-h-14 w-full items-center justify-center gap-3 rounded-full bg-verde px-7 font-semibold text-white shadow-alta transition-all duration-300 hover:brightness-110 md:w-auto"
       >
         <svg viewBox="0 0 24 24" className="size-5 shrink-0" fill="currentColor" aria-hidden>

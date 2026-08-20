@@ -1,7 +1,7 @@
 'use client'
 
 import { grupos as copy } from '@/content/copy'
-import { evento } from '@/lib/eventos'
+import { idSessao } from '@/lib/eventos'
 import type { MunicipioComGrupo, OrigemClique } from '@/lib/tipos'
 
 /**
@@ -43,8 +43,7 @@ export function CardCidadeSugerida({
       <div className="mt-6 flex flex-col gap-3 sm:flex-row sm:items-center">
         {municipio.disponivel ? (
           <a
-            href={`/g/${municipio.slug}?de=${origem}`}
-            onClick={() => evento('clicou_grupo', { municipio_slug: municipio.slug, origem })}
+            href={`/g/${municipio.slug}?de=${origem}&s=${idSessao()}`}
             className="inline-flex min-h-13 items-center justify-center gap-2 rounded-full bg-azul px-7 py-3.5 font-semibold text-white shadow-suave transition-colors hover:bg-marinho"
           >
             Sim, entrar no grupo

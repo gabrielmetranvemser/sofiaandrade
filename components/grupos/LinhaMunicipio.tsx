@@ -1,12 +1,17 @@
 'use client'
 
 import { grupos as copy } from '@/content/copy'
-import { evento } from '@/lib/eventos'
+import { evento, idSessao } from '@/lib/eventos'
 import type { MunicipioComGrupo, OrigemClique } from '@/lib/tipos'
 
 /**
  * Uma linha da lista. O href aponta sempre para /g/[slug] — nunca
  * para o link do WhatsApp. O link real só existe no servidor.
+ *
+ * O clique NÃO é gravado aqui: quem grava é a própria rota /g/[slug],
+ * no servidor, para não contar duas vezes. O que vai na URL é a origem
+ * (`de`) e o id de sessão (`s`), para o servidor conseguir dizer quantas
+ * PESSOAS entraram, e não só quantos cliques houve.
  *
  * Município sem grupo aparece desabilitado com selo "em breve".
  * Melhor ver a cidade e entender que ainda não abriu do que não
@@ -82,8 +87,7 @@ export function LinhaMunicipio({
   return (
     <li className={className}>
       <a
-        href={`/g/${municipio.slug}?de=${origem}`}
-        onClick={() => evento('clicou_grupo', { municipio_slug: municipio.slug, origem })}
+        href={`/g/${municipio.slug}?de=${origem}&s=${idSessao()}`}
         className={`${base} hover:bg-azul-suave`}
       >
         {conteudo}

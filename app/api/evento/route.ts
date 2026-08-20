@@ -14,10 +14,13 @@ export const runtime = 'nodejs'
  * O pior que alguém consegue fazer é inflar métrica própria.
  */
 
+// `clicou_grupo` NÃO está aqui de propósito: quem grava esse evento é
+// a rota /g/[slug], no servidor, quando a pessoa realmente sai para o
+// WhatsApp. Aceitar do navegador criaria contagem dobrada.
 const TIPOS = new Set([
   'pagina_vista', 'rolou_50', 'rolou_90',
   'buscou_cidade', 'usou_localizacao',
-  'clicou_grupo', 'entrou_grupo_indisponivel',
+  'clicou_cta', 'entrou_grupo_indisponivel',
   'abriu_filtro', 'subiu_foto', 'gerou_filtro',
   'baixou_filtro', 'compartilhou_filtro',
   'compartilhou_pagina', 'clicou_instagram',
