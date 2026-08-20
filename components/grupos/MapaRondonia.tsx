@@ -83,9 +83,11 @@ const PASSO = 1.5
 
 /** Altura do bloco, por estado. Grupo aberto é o mais alto: o relevo
  *  carrega a mesma informação da cor, para quem enxerga mal cor. */
+// Três degraus bem separados. Alturas próximas viram um planalto só e
+// o relevo deixa de dizer qualquer coisa.
 const ALTURA: Record<string, number> = {
-  aberto: 34,
-  cheio: 24,
+  aberto: 46,
+  cheio: 27,
   em_breve: 12,
   desativado: 12,
 }
@@ -93,18 +95,28 @@ const ALTURA: Record<string, number> = {
 /** Quanto o bloco sobe com o ponteiro em cima. */
 const ERGUER = 16
 
+/**
+ * UMA COR SÓ, EM TRÊS TONS.
+ *
+ * A primeira versão misturava verde, azul e cinza — três matizes
+ * diferentes no mesmo desenho, que é o mesmo erro dos gradientes que
+ * saíram da paleta lá atrás: matizes distantes brigam e o mapa vira
+ * remendo. Aqui é o verde da marca do claro ao escuro, e a escala
+ * carrega o significado sozinha: quanto mais escuro e mais alto, mais
+ * perto de ter grupo.
+ */
 const TOPO: Record<string, string> = {
-  aberto: '#509c47',
-  cheio: '#01518f',
-  em_breve: '#dfe4e9',
-  desativado: '#dfe4e9',
+  aberto: '#3f8836',
+  cheio: '#86bd7e',
+  em_breve: '#e0ecdb',
+  desativado: '#e0ecdb',
 }
 
 const PAREDE: Record<string, string> = {
-  aberto: '#2f6b2c',
-  cheio: '#012f52',
-  em_breve: '#b0bcc7',
-  desativado: '#b0bcc7',
+  aberto: '#27591f',
+  cheio: '#579150',
+  em_breve: '#b3c9ac',
+  desativado: '#b3c9ac',
 }
 
 // A caixa de recorte sai dos quatro cantos passados pela matriz, mais
@@ -152,12 +164,39 @@ export function MapaRondonia({
         }
       >
         <defs>
+          <filter id="borrao-chao" x="-8%" y="-8%" width="116%" height="124%">
+            <feGaussianBlur stdDeviation="10" />
+          </filter>
           {mapa.municipios.map(({ slug, d }) => (
             <path key={slug} id={`ro-${slug}`} d={d} />
           ))}
         </defs>
 
         <g transform={TRANSFORMACAO}>
+          {/* A sombra no chão. É o que separa "desenho achatado" de
+              "objeto pousado numa mesa" — sozinha faz mais pelo relevo
+              que qualquer altura de parede.
+
+              A opacidade vai no GRUPO, e não em cada forma: os 52
+              contornos se tocam nas divisas, e com alfa por forma as
+              bordas somariam e apareceriam como uma teia escura. No
+              grupo, o conjunto é composto de uma vez.
+
+              Sai da tela no celular: desfoque desta área custa caro em
+              GPU de aparelho fraco, e é justamente onde ele menos se
+              nota. */}
+          <g className="mapa-sombra" filter="url(#borrao-chao)" opacity={0.22}>
+            {mapa.municipios.map(({ slug }) => (
+              <use
+                key={slug}
+                href={`#ro-${slug}`}
+                x={-ELEVACAO.x * 9}
+                y={-ELEVACAO.y * 9}
+                fill="#0f3b18"
+              />
+            ))}
+          </g>
+
           {mapa.municipios.map(({ slug }) => {
             const m = porSlug.get(slug)
             if (!m) return null
@@ -196,8 +235,15 @@ export function MapaRondonia({
                   x={ELEVACAO.x * h}
                   y={ELEVACAO.y * h}
                   fill={TOPO[m.status] ?? TOPO.em_breve}
-                  stroke="var(--color-branco)"
-                  strokeWidth={1.4}
+                  // A divisa é da cor da PRÓPRIA parede, fina e
+                  // apagada. Branco abria sulcos claros no meio do
+                  // verde e o mapa virava um quebra-cabeça; sem divisa
+                  // nenhuma, vizinhos do mesmo tom viram um borrão só
+                  // e ninguém acha a própria cidade. Da cor da parede,
+                  // ela lê como vinco e não como corte.
+                  stroke={PAREDE[m.status] ?? PAREDE.em_breve}
+                  strokeOpacity={0.55}
+                  strokeWidth={0.9}
                   strokeLinejoin="round"
                   className="mapa-topo"
                 />

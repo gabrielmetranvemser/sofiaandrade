@@ -132,16 +132,19 @@ export function MapaInterativo({ children }: { children: ReactNode }) {
 
       {/* Legenda. Curta: são três estados e um deles é "nada ainda". */}
       <ul className="mt-4 flex flex-wrap items-center gap-x-5 gap-y-2 text-sm text-grafite">
+        {/* Os quadradinhos repetem EXATAMENTE os tons do topo dos
+            blocos. Legenda com cor aproximada é pior que legenda
+            nenhuma: manda procurar no mapa uma cor que não está lá. */}
         <li className="flex items-center gap-2">
-          <span className="size-3 rounded-[3px] bg-verde" aria-hidden />
+          <span className="size-3 rounded-[3px] bg-[#3f8836]" aria-hidden />
           {copy.mapaLegendaAberto}
         </li>
         <li className="flex items-center gap-2">
-          <span className="size-3 rounded-[3px] bg-azul-escuro" aria-hidden />
+          <span className="size-3 rounded-[3px] bg-[#86bd7e]" aria-hidden />
           {copy.cheio}
         </li>
         <li className="flex items-center gap-2">
-          <span className="size-3 rounded-[3px] bg-[#dfe4e9]" aria-hidden />
+          <span className="size-3 rounded-[3px] bg-[#e0ecdb]" aria-hidden />
           {copy.emBreve}
         </li>
       </ul>

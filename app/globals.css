@@ -851,7 +851,14 @@
 
   .mapa-mun.escolhida .mapa-topo {
     stroke: var(--color-amarelo);
+    stroke-opacity: 1;
     stroke-width: 5;
+  }
+
+  /* Desfoque de área grande é caro em GPU de celular fraco, e a sombra
+     é justamente o detalhe que menos se nota numa tela de 375px. */
+  @media (max-width: 767px) {
+    .mapa-sombra { display: none; }
   }
 
   /* Escolhida uma cidade, as outras recuam. O contraste é o que
