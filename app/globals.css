@@ -73,6 +73,11 @@
   --shadow-alta: 0 4px 8px rgb(1 58 103 / 0.06), 0 28px 60px -18px rgb(1 58 103 / 0.26);
 
   --ease-suave: cubic-bezier(0.22, 1, 0.36, 1);
+  /* Mola: passa um pouco do ponto e volta. É o que dá a sensação de
+     resposta física do iOS. Só em transformação — em cor, o overshoot
+     vira piscada. */
+  --ease-mola: cubic-bezier(0.34, 1.42, 0.64, 1);
+  --ease-saida: cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 /* ═══════════════════════════════════════════════════════════════
@@ -234,6 +239,17 @@
 
 /* ═══════════════════════════════════════════════════════════════
    ANIMAÇÃO
+
+   Orçamento: 3 segundos até o botão principal ficar clicável num
+   celular mediano em 4G. Por isso tudo aqui é CSS — nenhuma
+   biblioteca, nenhum JS por quadro. O único JavaScript de animação
+   da página é o IntersectionObserver de Revelar.tsx, que só põe um
+   atributo e sai de cena.
+
+   Três famílias:
+     · revelação simples ... [data-revelar], o padrão
+     · cena da bandeira .... presa na tela, pintada pelo scroll
+     · movimento por scroll  animation-timeline, zero JS
    ═══════════════════════════════════════════════════════════════ */
 
 @keyframes sobe-suave {
@@ -264,6 +280,154 @@
   .sem-js [data-revelar] { opacity: 1; transform: none; }
 }
 
+/* ───────────────────────────────────────────────────────────────
+   TRILHO HORIZONTAL
+
+   scroll-snap nativo. Funciona no toque, no trackpad e no teclado
+   sem uma linha de JavaScript — o JS do componente só acende os
+   pontinhos e as setas, e a rolagem continua correta se ele falhar.
+   ─────────────────────────────────────────────────────────────── */
+
+/* Três peças: o scroller (nomeado, focável), a pista (a fila em si) e
+   os itens. Separar scroller de pista não é preciosismo — é o que
+   permite pôr role="region" no elemento que rola sem sobrescrever o
+   papel de lista do <ul>, que o leitor de tela usa para anunciar
+   "lista com 5 itens". */
+
+@utility trilho {
+  overflow-x: auto;
+  /* scroll-behavior NÃO é herdado: o smooth do <html> vale só para o
+     scroller da página. Sem esta linha as setas saltam de card em card. */
+  scroll-behavior: smooth;
+  scroll-snap-type: x mandatory;
+  overscroll-behavior-x: contain;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: none;
+
+  &::-webkit-scrollbar { display: none; }
+}
+
+@utility trilho-pista {
+  display: flex;
+  /* Bloco dentro de scroller herda a largura do scroller e os itens
+     seriam espremidos. max-content é o que deixa a fila transbordar. */
+  width: max-content;
+}
+
+@utility trilho-item {
+  flex: 0 0 auto;
+  scroll-snap-align: start;
+}
+
+/* Um trilho pode virar grade a partir de um ponto de quebra.
+
+   Estas regras ficam FORA de @layer de propósito: estilo sem camada
+   vence estilo em camada, então elas ganham da utilitária .trilho sem
+   depender da ordem em que o Tailwind resolve compilar as duas. */
+@media (min-width: 768px) {
+  [data-trilho='md'] .trilho { overflow: visible; scroll-snap-type: none; }
+  [data-trilho='md'] .trilho-pista { display: grid; width: auto; }
+  [data-trilho='md'] .trilho-controles { display: none; }
+}
+
+@media (min-width: 1024px) {
+  [data-trilho='lg'] .trilho { overflow: visible; scroll-snap-type: none; }
+  [data-trilho='lg'] .trilho-pista { display: grid; width: auto; }
+  [data-trilho='lg'] .trilho-controles { display: none; }
+}
+
+/* ───────────────────────────────────────────────────────────────
+   MOVIMENTO POR SCROLL — sem JavaScript nenhum
+
+   animation-timeline liga a animação à posição da rolagem. Onde não
+   houver suporte, a regra inteira é ignorada e o elemento fica
+   parado no lugar certo: degradação sem fallback a manter.
+   ─────────────────────────────────────────────────────────────── */
+
+@keyframes desliza-parallax {
+  from { transform: translate3d(0, -3%, 0); }
+  to   { transform: translate3d(0, 3%, 0); }
+}
+
+@keyframes avanca-barra {
+  from { transform: scaleX(0); }
+  to   { transform: scaleX(1); }
+}
+
+@utility parallax-suave {
+  @supports (animation-timeline: view()) {
+    @media (prefers-reduced-motion: no-preference) {
+      animation: desliza-parallax linear both;
+      animation-timeline: view();
+      animation-range: entry 0% exit 100%;
+      will-change: transform;
+    }
+  }
+}
+
+@utility barra-progresso {
+  transform-origin: 0 50%;
+  transform: scaleX(0);
+
+  @supports (animation-timeline: scroll()) {
+    animation: avanca-barra linear both;
+    animation-timeline: scroll(root block);
+  }
+}
+
+/* ───────────────────────────────────────────────────────────────
+   BRILHO QUE SEGUE O CURSOR
+
+   Só onde existe ponteiro de verdade. No celular a regra nem é
+   avaliada, o listener nem é registrado, e o custo é zero.
+   ─────────────────────────────────────────────────────────────── */
+
+@utility brilho-cursor {
+  @media (pointer: fine) {
+    &::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      z-index: -1;
+      pointer-events: none;
+      opacity: var(--brilho-op, 0);
+      transition: opacity 0.45s var(--ease-saida);
+      background-image: radial-gradient(
+        24rem 24rem at var(--cx, 50%) var(--cy, 50%),
+        color-mix(in srgb, var(--color-branco) 16%, transparent) 0%,
+        transparent 68%
+      );
+    }
+  }
+}
+
+/* ───────────────────────────────────────────────────────────────
+   RESPOSTA AO TOQUE
+
+   O que falta hoje: apertar um alvo e nada acontecer até a página
+   trocar. O afundamento de 3% é o sinal de que o toque foi lido.
+   ─────────────────────────────────────────────────────────────── */
+
+@utility toque {
+  transition: transform 0.24s var(--ease-mola);
+
+  &:active { transform: scale(0.97); }
+}
+
+@utility toque-leve {
+  transition: transform 0.24s var(--ease-mola);
+
+  &:active { transform: scale(0.985); }
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   MOVIMENTO REDUZIDO
+
+   Regra do plano: nenhuma animação nova pode ignorar isto. As três
+   famílias acima morrem juntas, e o conteúdo fica no estado final —
+   nunca escondido.
+   ═══════════════════════════════════════════════════════════════ */
+
 @media (prefers-reduced-motion: reduce) {
   html { scroll-behavior: auto; }
 
@@ -274,4 +438,281 @@
   }
 
   [data-revelar] { opacity: 1 !important; transform: none !important; }
+
+  .trilho { scroll-behavior: auto; }
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   PALCO — prender a tela e pintar pela rolagem
+
+   Um palco é uma seção que fica presa enquanto a página rola, com o
+   conteúdo mudando conforme a pessoa avança. Rolar para cima desfaz
+   na mesma proporção: não é uma animação que "toca", é um estado
+   ligado à posição da rolagem.
+
+   Dois palcos usam isto: a CENA DA BANDEIRA (verde, cunha amarela,
+   disco azul) e os COMPROMISSOS (fita de cartões que anda de lado).
+
+   Por que o palco existe como mecanismo em vez de uma barra rolável
+   comum: barra rolável horizontal em desktop rouba o gesto. O
+   trackpad manda um pouco de X junto com o Y, o navegador tranca o
+   gesto no eixo horizontal, e a página inteira para de descer. Aqui
+   quem rola é sempre a página — o movimento lateral é consequência,
+   nunca um alvo de rolagem concorrente.
+
+   Por isso tudo pende de UMA variável, --palco-p, de 0 a 1:
+
+     · onde há animation-timeline, o próprio navegador escreve --palco-p
+       a partir da rolagem. Zero JavaScript, e a reversão sai de graça
+       porque não existe "tocar" — existe posição.
+     · onde não há, PalcoMotor.tsx escreve a mesma variável num listener
+       com rAF. Mesmo CSS, mesma conta, mesmo resultado.
+
+   --palco-p precisa ser REGISTRADA. Custom property sem @property é
+   texto para o interpolador: iria de 0 a 1 num salto no meio do
+   caminho, em vez de percorrer os valores.
+   ═══════════════════════════════════════════════════════════════ */
+
+@property --palco-p {
+  syntax: '<number>';
+  inherits: true;
+  initial-value: 0;
+}
+
+@keyframes palco-rolagem {
+  from { --palco-p: 0; }
+  to   { --palco-p: 1; }
+}
+
+@layer components {
+  /* O trilho é alto de propósito: a altura dele É a duração do palco.
+     Cada palco declara os seus passos; o padrão de 3 dá 280svh, menos
+     de três rolagens de tela. */
+  .palco-trilho {
+    height: calc(100svh + var(--palco-passos, 3) * 60svh);
+    view-timeline: --palco block;
+  }
+
+  .palco-fixa {
+    position: sticky;
+    top: 0;
+    height: 100svh;
+    overflow: hidden;
+    isolation: isolate;
+    animation: palco-rolagem linear both;
+    animation-timeline: --palco;
+    /* `contain` é a janela em que o trilho cobre a tela inteira — ou
+       seja, exatamente o tempo em que a cena fica presa.
+
+       ⚠️ Ela começa 96px antes do que a intuição diz, porque o <html>
+       tem scroll-padding-top: 6rem (a barra fixa) e a linha do tempo
+       de vista respeita esse recuo. Por isso as contas abaixo abrem
+       com folga: em --palco-p 0.10 ainda é tudo verde. */
+    animation-range: contain 0% contain 100%;
+  }
+
+  .cena-camada {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    align-items: center;
+  }
+
+  .cena-verde   { background-color: var(--color-verde); color: var(--color-branco); }
+  .cena-amarelo { background-color: var(--color-amarelo); color: var(--color-azul-escuro); }
+  .cena-azul    { background-color: var(--color-azul-escuro); color: var(--color-branco); }
+
+  /* A cunha amarela: um polígono de bico à esquerda que atravessa a
+     tela da direita para a esquerda. O bico é o que dá o movimento de
+     lâmina — borda reta lê como cortina, não como bandeira.
+
+     Fora da tela até 0.10, cobrindo tudo a partir de 0.50. Passar de
+     0% não estraga nada: continua cobrindo. */
+  .cena-amarelo {
+    clip-path: polygon(
+      calc(162.5% - var(--palco-p) * 325%) 0%,
+      220% 0%,
+      220% 100%,
+      calc(162.5% - var(--palco-p) * 325%) 100%,
+      calc(144.5% - var(--palco-p) * 325%) 50%
+    );
+  }
+
+  /* O azul cresce como disco a partir da direita, de 0.55 a 0.95.
+     max(0%, …) não é zelo: raio negativo invalida a função inteira, o
+     clip-path é descartado, e a camada apareceria de uma vez na
+     primeira metade da cena. */
+  .cena-azul {
+    clip-path: circle(max(0%, calc((var(--palco-p) - 0.55) * 375%)) at 100% 50%);
+  }
+
+  /* Cada texto anda junto com a cor que o carrega: entra com ela e sai
+     quando a próxima cobre. O último para no lugar natural — é o que
+     fica na tela quando a cena acaba.
+
+     O passeio é parametrizado em distância E EM EIXO, e o eixo é a
+     parte que importa.
+
+     No desktop o movimento é horizontal, acompanhando a cunha. No
+     celular isso quebra duas vezes: 55vw de 375px são 206px jogando a
+     frase para fora da direita; e, encolhendo a distância para caber,
+     os dois textos passam a dividir a mesma linha de base no meio da
+     transição — o olho lê "Aqui a terra tra" emendado com "volta é
+     conta." como se fosse uma frase só.
+
+     Por isso, abaixo de 768px, o mesmo passeio corre na VERTICAL: um
+     texto sobe enquanto o outro chega por baixo. Nenhuma frase é
+     cortada pela largura e as duas nunca compartilham a linha. */
+  .cena-camada {
+    --cena-entrada: 55vw;
+    --cena-saida: 55vw;
+    --cena-x: 1;
+    --cena-y: 0;
+  }
+
+  @media (max-width: 767px) {
+    .cena-camada {
+      --cena-entrada: 24svh;
+      --cena-saida: 24svh;
+      --cena-x: 0;
+      --cena-y: 1;
+    }
+  }
+
+  .cena-texto { will-change: transform; }
+
+  .cena-verde .cena-texto {
+    --cena-d: calc((var(--palco-p) - 0.1) * var(--cena-saida) / -0.9);
+  }
+
+  .cena-amarelo .cena-texto {
+    --cena-d: calc(
+      var(--cena-entrada) -
+      (var(--palco-p) - 0.1) * (var(--cena-entrada) + var(--cena-saida)) / 0.9
+    );
+  }
+
+  .cena-azul .cena-texto {
+    --cena-d: calc(var(--cena-entrada) * (1 - (var(--palco-p) - 0.55) / 0.45));
+  }
+
+  .cena-texto {
+    transform: translate3d(
+      calc(var(--cena-d, 0px) * var(--cena-x)),
+      calc(var(--cena-d, 0px) * var(--cena-y)),
+      0
+    );
+  }
+
+  /* ── Fita de cartões ──────────────────────────────────────────
+     Uma fila que anda de lado conforme a página desce.
+
+     A conta é (100vw - 100%): em translate, porcentagem se resolve
+     contra o PRÓPRIO elemento, então 100% é a largura da fita e a
+     diferença é exatamente o que sobra para fora da tela. Sem
+     medir nada em JavaScript, e continua certo quando a campanha
+     acrescenta ou tira um compromisso pelo painel. */
+  .palco-fita {
+    display: flex;
+    width: max-content;
+    /* Mesma calha do container-lp: o primeiro cartão nasce alinhado ao
+       título, não colado na borda. A conta é a do container repetida
+       porque aqui a fita é mais larga que a tela e não pode usá-lo. */
+    padding-inline: max(1.25rem, calc((100vw - 75rem) / 2 + 1.25rem));
+    /* O clamp segura a fita parada no começo. Sem ele a fita já entra
+       andando: o palco não abre em --palco-p 0 exato, por causa do
+       scroll-padding de 96px que a barra fixa exige. */
+    transform: translate3d(
+      calc(clamp(0, (var(--palco-p) - 0.08) / 0.84, 1) * (100vw - 100%)),
+      0,
+      0
+    );
+    will-change: transform;
+  }
+
+  @media (min-width: 768px) {
+    .palco-fita { padding-inline: max(2rem, calc((100vw - 75rem) / 2 + 2rem)); }
+  }
+}
+
+/* ── Onde não existe animation-timeline ────────────────────────
+   A cena vira três blocos empilhados, cada um com a sua cor e o seu
+   texto. Perde o efeito, mantém a informação — que é o que não pode
+   faltar: com --palco-p parado em 0, dois terços do texto ficariam
+   recortados para fora da tela, invisíveis para sempre.
+
+   Este é o estado de PARTIDA nesses navegadores, e não algo que o
+   JavaScript desfaz depois. Fosse ao contrário — estático no HTML,
+   dinâmico ao hidratar — todo mundo veria a página saltar de três
+   telas para uma. Aqui só recalcula quem não tem suporte E tem JS, e
+   quem não tem nenhum dos dois lê os três textos empilhados.
+
+   O :not(.palco-viva) é o que evita repetir os recortes aqui dentro:
+   quando PalcoMotor acende a classe, estas regras simplesmente param
+   de valer e as de cima voltam a mandar. */
+
+@supports not (animation-timeline: view()) {
+  [data-palco]:not(.palco-viva) .palco-trilho { height: auto; }
+
+  [data-palco]:not(.palco-viva) .palco-fixa {
+    position: static;
+    height: auto;
+    overflow: visible;
+  }
+
+  [data-palco]:not(.palco-viva) .cena-camada {
+    position: static;
+    min-height: 62svh;
+    clip-path: none;
+  }
+
+  [data-palco]:not(.palco-viva) .cena-texto { transform: none; }
+
+  /* A fita vira grade: mesma informação, sem o movimento. */
+  [data-palco]:not(.palco-viva) .palco-fita {
+    display: grid;
+    width: auto;
+    padding-inline: 0;
+    gap: 1.25rem;
+    transform: none;
+  }
+
+  @media (min-width: 640px) {
+    [data-palco]:not(.palco-viva) .palco-fita { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  }
+
+  [data-palco]:not(.palco-viva) .palco-fita > * { width: auto; }
+}
+
+/* Movimento reduzido: mesma pilha estática, e nada pode reacendê-la.
+   A regra global lá de cima zera animation-duration, o que numa
+   animação de rolagem significa "pula para o fim" — só o azul
+   sobraria. Aqui a cena é desmontada antes de isso acontecer. */
+@media (prefers-reduced-motion: reduce) {
+  .palco-trilho { height: auto !important; }
+
+  .palco-fixa {
+    position: static !important;
+    height: auto !important;
+    overflow: visible !important;
+    animation: none !important;
+  }
+
+  .cena-camada {
+    position: static !important;
+    min-height: 62svh !important;
+    clip-path: none !important;
+  }
+
+  .cena-texto { transform: none !important; }
+
+  .palco-fita {
+    display: grid !important;
+    width: auto !important;
+    padding-inline: 0 !important;
+    gap: 1.25rem;
+    transform: none !important;
+  }
+
+  .palco-fita > * { width: auto !important; }
 }

@@ -11,6 +11,7 @@ import { Hero } from '@/components/site/Hero'
 import { Origem } from '@/components/site/Origem'
 import { Problema } from '@/components/site/Problema'
 import { Valores } from '@/components/site/Valores'
+import { CenaBandeira } from '@/components/animacao/CenaBandeira'
 import { Provas } from '@/components/site/Provas'
 import { Futuro } from '@/components/site/Futuro'
 import { SecaoGrupos } from '@/components/site/SecaoGrupos'
@@ -52,6 +53,7 @@ export default async function Home() {
         <Origem />
         <Problema />
         <Valores />
+        <CenaBandeira />
         <Provas />
         <Futuro />
         <SecaoGrupos municipios={municipios} sugerido={sugerido} />

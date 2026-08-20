@@ -3,6 +3,7 @@ import { lerSlots } from '@/lib/midia/ler'
 import { Secao, CabecalhoSecao } from '@/components/ui/Secao'
 import { Imagem } from '@/components/ui/Imagem'
 import { Aviso } from '@/components/ui/Aviso'
+import { TrilhoHorizontal } from '@/components/animacao/TrilhoHorizontal'
 
 /**
  * ⚠️ Todos os números desta seção são placeholder até a campanha
@@ -40,14 +41,23 @@ export async function Provas() {
           ))}
         </ul>
 
-        {/* Entregas */}
-        <ul className="mt-6 grid gap-5 md:grid-cols-3">
-          {provas.entregas.map((e, i) => (
+        {/* Entregas — trilho no celular, grade a partir de md.
+            Três cartões com foto empilhados passam de 1.100px numa tela
+            de 360. Deitados, cabem num gesto. No desktop o trilho não
+            resolveria nada: os três já cabem lado a lado. */}
+        <div className="mt-6">
+          <TrilhoHorizontal
+            rotulo={provas.etiqueta}
+            quebra="md"
+            tom="escuro"
+            className="gap-5 md:grid-cols-3"
+          >
+            {provas.entregas.map((e, i) => (
             <li
               key={e.id}
               data-revelar
               style={{ ['--atraso' as string]: `${i * 80}ms` }}
-              className="flex flex-col overflow-hidden rounded-2xl border border-white/10 bg-white/[0.06]"
+              className="trilho-item flex w-[80vw] flex-col overflow-hidden rounded-2xl border border-white/10 bg-white/[0.06] sm:w-[24rem] md:w-auto"
             >
               <Imagem
                 slot={`provas.entrega.${i + 1}`}
@@ -64,8 +74,9 @@ export async function Provas() {
                 </span>
               </div>
             </li>
-          ))}
-        </ul>
+            ))}
+          </TrilhoHorizontal>
+        </div>
 
         <div className="mt-8 flex items-start gap-3 rounded-lg bg-amarelo/10 px-5 py-4 text-base text-white/80 ring-1 ring-amarelo/25">
           <svg viewBox="0 0 24 24" className="mt-0.5 size-5 shrink-0 text-amarelo" fill="currentColor" aria-hidden>

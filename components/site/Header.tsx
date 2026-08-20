@@ -29,7 +29,7 @@ export function Header({ silencio = false }: { silencio?: boolean }) {
     <header className="fixed inset-x-0 top-0 z-50 pt-3 md:pt-4">
       <div className="container-lp">
         <div
-          className={`flex h-16 items-center justify-between gap-4 rounded-full px-3 pl-5 transition-all duration-300 ${
+          className={`relative flex h-16 items-center justify-between gap-4 rounded-full px-3 pl-5 transition-all duration-300 ${
             rolou || aberto
               ? 'border border-linha bg-white/92 text-tinta shadow-suave backdrop-blur-xl'
               : // sobre o azul do hero, a barra é vidro e o texto é branco
@@ -73,7 +73,7 @@ export function Header({ silencio = false }: { silencio?: boolean }) {
               <Link
                 href="/#grupos"
                 onClick={() => evento('clicou_cta', { origem: 'topo' })}
-                className="hidden min-h-11 items-center rounded-full bg-amarelo px-5 text-[0.9375rem] font-semibold text-azul-escuro shadow-suave transition-all hover:brightness-105 sm:inline-flex"
+                className="toque hidden min-h-11 items-center rounded-full bg-amarelo px-5 text-[0.9375rem] font-semibold text-azul-escuro shadow-suave transition-all hover:brightness-105 sm:inline-flex"
               >
                 {ctas.grupoCurto}
               </Link>
@@ -108,6 +108,17 @@ export function Header({ silencio = false }: { silencio?: boolean }) {
               </span>
             </button>
           </div>
+
+          {/* Progresso de leitura. Zero JavaScript: a animação é ligada
+              à rolagem da página por animation-timeline. Onde o
+              navegador não suporta, a regra inteira é ignorada e a
+              barra fica em scaleX(0) — invisível, sem quebrar nada. */}
+          <span
+            aria-hidden
+            className="pointer-events-none absolute inset-x-7 bottom-0 h-[3px] overflow-hidden rounded-full"
+          >
+            <span className="barra-progresso block h-full rounded-full bg-amarelo" />
+          </span>
         </div>
 
         {/* Menu mobile */}
