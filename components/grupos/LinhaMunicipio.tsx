@@ -20,10 +20,13 @@ import type { MunicipioComGrupo, OrigemClique } from '@/lib/tipos'
 export function LinhaMunicipio({
   municipio,
   origem,
+  distanciaKm,
   className = '',
 }: {
   municipio: MunicipioComGrupo
   origem: OrigemClique
+  /** Distância em km, quando a linha vem da lista das mais próximas. */
+  distanciaKm?: number
   /** classes aplicadas no <li>, para a grade desenhar as separações */
   className?: string
 }) {
@@ -40,6 +43,14 @@ export function LinhaMunicipio({
   const conteudo = (
     <>
       <span className="min-w-0 flex-1 truncate font-medium">{municipio.nome}</span>
+      {/* A distância só aparece na lista das mais próximas. É o que
+          responde "por que esta cidade e não a minha" sem precisar de
+          explicação nenhuma. */}
+      {typeof distanciaKm === 'number' ? (
+        <span className="shrink-0 text-sm text-grafite tabular-nums">
+          {distanciaKm < 10 ? distanciaKm.toFixed(1) : Math.round(distanciaKm)} km
+        </span>
+      ) : null}
       <span
         className={`inline-flex shrink-0 items-center gap-1 rounded-full px-3 py-1 text-xs font-semibold ${selo.classe}`}
       >
