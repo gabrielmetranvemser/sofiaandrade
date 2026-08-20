@@ -1,6 +1,7 @@
 'use client'
 
 import type { Campo } from '@/content/esquema'
+import { CampoDestaque } from './CampoDestaque'
 
 /**
  * UM componente para os 8 tipos de campo. É a resposta a "17 seções não
@@ -80,25 +81,35 @@ export function CampoDinamico({ campo, valor, caminho, erros, onMudar }: Props) 
       'aria-invalid': Boolean(erro),
       'aria-describedby': campo.ajuda ? `${id}-ajuda` : undefined,
     }
+    const temDestaque = 'destaque' in campo && campo.destaque
+
     return (
       <div>
         <Rotulo para={id} extra={RESTANTE(v, campo.max)}>
           {campo.rotulo}
         </Rotulo>
-        {campo.tipo === 'longo' ? (
+
+        {/* Campo com destaque ganha botão e prévia. A marcação
+            [[colchetes]] deixa de ser algo que a pessoa precisa saber
+            que existe — ela seleciona a palavra e toca em Destacar. */}
+        {temDestaque ? (
+          <CampoDestaque
+            id={id}
+            valor={v}
+            onMudar={(novo) => onMudar(caminho, novo)}
+            invalido={Boolean(erro)}
+            descreve={campo.ajuda ? `${id}-ajuda` : undefined}
+            className={comum.className}
+          />
+        ) : campo.tipo === 'longo' ? (
           <textarea {...comum} rows={campo.linhas ?? 3} />
         ) : (
           <input type="text" {...comum} />
         )}
+
         {campo.ajuda ? (
           <p id={`${id}-ajuda`} className="mt-1 text-xs text-grafite">
             {campo.ajuda}
-          </p>
-        ) : null}
-        {'destaque' in campo && campo.destaque ? (
-          <p className="mt-1 text-xs text-grafite">
-            Envolva o trecho colorido em{' '}
-            <code className="rounded bg-areia px-1">[[colchetes duplos]]</code>.
           </p>
         ) : null}
         {erro ? <p className="mt-1 text-xs font-medium text-red-600">{erro}</p> : null}

@@ -103,7 +103,7 @@ export async function Hero({ silencio = false }: { silencio?: boolean }) {
 
             {/* O 2233 da campanha, na arte oficial */}
             <div className="absolute -bottom-6 left-2 w-40 drop-shadow-[0_10px_24px_rgba(1,32,58,0.45)] sm:w-52 md:left-6">
-              <Numero versao="amarelo" prioridade className="w-full" />
+              <Numero prioridade className="w-full" />
             </div>
           </div>
         </div>

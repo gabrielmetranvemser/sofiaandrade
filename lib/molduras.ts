@@ -39,7 +39,9 @@ export const MOLDURAS: Moldura[] = [
     largura: 1080,
     altura: 1920,
     arquivo: '/molduras/story-apoio.svg',
-    zonaSegura: { x: 0.1, y: 0.14, largura: 0.8, altura: 0.5 },
+    // Termina onde o véu começa (y 0,56): rosto dentro do degradê
+    // sai escurecido e com o logotipo por cima.
+    zonaSegura: { x: 0.1, y: 0.1, largura: 0.8, altura: 0.44 },
     padrao: true,
   },
   {
@@ -49,7 +51,8 @@ export const MOLDURAS: Moldura[] = [
     largura: 1080,
     altura: 1080,
     arquivo: '/molduras/perfil-apoio.svg',
-    zonaSegura: { x: 0.12, y: 0.08, largura: 0.76, altura: 0.62 },
+    // Acima do véu (y 0,46) e dentro do círculo do WhatsApp.
+    zonaSegura: { x: 0.14, y: 0.07, largura: 0.72, altura: 0.38 },
     padrao: true,
   },
 ]
