@@ -262,8 +262,19 @@
   to   { opacity: 1; transform: none; }
 }
 
+@keyframes entra-lateral {
+  from { opacity: 0; transform: translate3d(1.25rem, 0, 0); }
+  to   { opacity: 1; transform: none; }
+}
+
 @utility anima-hero { animation: sobe-suave 0.8s var(--ease-suave) both; }
 @utility anima-surge { animation: surge 1s var(--ease-suave) both; }
+
+/* Troca de etapa no fluxo do filtro: o bloco de controle entra pela
+   direita, como tela de aplicativo. O palco não se mexe — se ele
+   também animasse, a prévia piscaria a cada passo e o efeito viraria
+   ruído em cima da única coisa que a pessoa está olhando. */
+@utility anima-etapa { animation: entra-lateral 0.34s var(--ease-saida) both; }
 
 @layer components {
   [data-revelar] {
@@ -382,6 +393,26 @@
   }
 
   [data-revelar] { opacity: 1 !important; transform: none !important; }
+}
+
+/* O palco do filtro: a prévia que não muda de lugar entre as etapas.
+
+   O teto é pela ALTURA, não pela largura, porque o story é 9:16 — numa
+   tela de celular, largura cheia vira 600px de altura e o controle da
+   etapa some abaixo da dobra. A pessoa fica olhando a foto sem ver o
+   botão que faz a coisa andar.
+
+   46svh no celular é o que sobra depois de trilha, texto do passo,
+   controle, linha de privacidade e barra de ação — tudo numa tela só.
+   svh e não vh: com vh, a barra do navegador do celular entra na conta
+   e o teto fica maior que a tela de verdade. */
+@utility palco-filtro {
+  --palco-altura: 46svh;
+  max-width: calc(var(--palco-altura) * var(--palco-prop));
+
+  @media (min-width: 1024px) {
+    --palco-altura: 70svh;
+  }
 }
 
 /* ═══════════════════════════════════════════════════════════════

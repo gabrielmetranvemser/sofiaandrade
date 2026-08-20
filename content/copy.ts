@@ -416,17 +416,36 @@ export const filtro = {
   botaoGerando: 'Gerando…',
   botaoBaixar: 'Baixar foto',
   botaoCompartilhar: 'Compartilhar',
+  botaoStory: 'Abrir o Instagram',
+  notaStory:
+    'Salve a foto primeiro. O Instagram abre na câmera de story — aí é só escolher a foto salva.',
   botaoRefazer: 'Fazer outra',
+  botaoVoltar: 'Voltar',
+  botaoAvancar: 'Continuar',
   dicaSalvar: 'No celular: segure o dedo na foto acima e escolha "Salvar imagem".',
+  vazioPrevia: 'Sua foto entra aqui.',
+  rotuloZoom: 'Zoom',
+  botaoCentralizar: 'Centralizar',
+  dicaAjuste: 'Arraste a foto para posicionar. No celular, use dois dedos para aproximar.',
+  tituloPronto: 'Sua foto está pronta.',
+  textoPronto: 'Agora é postar. Story, perfil, status do WhatsApp — onde a sua gente vê.',
   avisoInstagram:
     'Você abriu pelo Instagram. Aqui o download costuma falhar — toque para abrir no navegador.',
   avisoInstagramBotao: 'Abrir no navegador',
+  naoBaixouTitulo: 'Não baixou?',
+  naoBaixouTexto:
+    'Dentro do Instagram o download costuma não funcionar. Segure o dedo na foto acima e ' +
+    'escolha "Salvar imagem", ou abra esta página no navegador.',
   erroFormato:
     'Essa foto está num formato que o navegador não abre (comum em fotos de iPhone). ' +
     'Tire um print dela e use o print.',
   erroPequena: 'Essa foto é pequena e vai sair borrada. Sugerimos escolher outra.',
-  avisoZonaSegura: 'Mantenha o rosto dentro da área clara.',
+  erroGerar: 'Não foi possível gerar a imagem neste aparelho. Tente uma foto menor.',
+  avisoZonaSegura: 'Deixe o rosto aqui dentro',
   privacidade: 'Sua foto nunca sai do seu aparelho.',
+  // O número entra na frente, vindo do banco. Só aparece depois de
+  // passar de um piso que não constranja — ver lib/apoios.ts.
+  apoios: 'pessoas já colocaram o {{candidata.numero}} na foto.',
 } as const
 
 // ─────────────────────────────────────────────────────────────

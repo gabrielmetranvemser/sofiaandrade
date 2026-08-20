@@ -315,8 +315,11 @@ export const ESQUEMA: Record<string, SecaoEsquema> = {
         rotulo: 'Passos',
         rotuloItem: 'Passo',
         titulo: 'titulo',
-        min: 2,
-        max: 6,
+        // Quatro, fixos: são as quatro telas do fluxo, não uma lista
+        // decorativa. As palavras mudam, a quantidade não — o quinto
+        // passo não teria tela para onde apontar.
+        min: 4,
+        max: 4,
         item: {
           id: ID,
           numero: { tipo: 'texto', rotulo: 'Número', max: 2 },
@@ -325,11 +328,66 @@ export const ESQUEMA: Record<string, SecaoEsquema> = {
         },
       },
       privacidade: { tipo: 'texto', rotulo: 'Frase de privacidade', max: 60 },
+      apoios: {
+        tipo: 'texto',
+        rotulo: 'Contador de apoio',
+        max: 70,
+        tokens: true,
+        ajuda: 'O número entra sozinho na frente. Só aparece depois de passar de 50.',
+      },
+
+      formatos: {
+        tipo: 'grupo',
+        rotulo: 'Os dois formatos',
+        campos: {
+          story: {
+            tipo: 'grupo',
+            rotulo: 'Story',
+            campos: {
+              rotulo: { tipo: 'texto', rotulo: 'Nome', max: 16 },
+              descricao: { tipo: 'texto', rotulo: 'Para que serve', max: 60 },
+            },
+          },
+          perfil: {
+            tipo: 'grupo',
+            rotulo: 'Perfil',
+            campos: {
+              rotulo: { tipo: 'texto', rotulo: 'Nome', max: 16 },
+              descricao: { tipo: 'texto', rotulo: 'Para que serve', max: 60 },
+            },
+          },
+        },
+      },
+
       botaoEscolherFoto: { tipo: 'texto', rotulo: 'Botão: escolher foto', max: 30 },
+      botaoTrocarFoto: { tipo: 'texto', rotulo: 'Botão: trocar foto', max: 30 },
+      botaoGerar: { tipo: 'texto', rotulo: 'Botão: gerar', max: 30 },
+      botaoGerando: { tipo: 'texto', rotulo: 'Botão: gerando', max: 30 },
+      botaoBaixar: { tipo: 'texto', rotulo: 'Botão: baixar', max: 30 },
+      botaoCompartilhar: { tipo: 'texto', rotulo: 'Botão: compartilhar', max: 30 },
+      botaoStory: { tipo: 'texto', rotulo: 'Botão: abrir o Instagram', max: 30 },
+      notaStory: { tipo: 'longo', rotulo: 'Nota do botão do Instagram', max: 160, linhas: 2 },
+      botaoRefazer: { tipo: 'texto', rotulo: 'Botão: fazer outra', max: 30 },
+      botaoVoltar: { tipo: 'texto', rotulo: 'Botão: voltar', max: 20 },
+      botaoAvancar: { tipo: 'texto', rotulo: 'Botão: continuar', max: 20 },
+      botaoCentralizar: { tipo: 'texto', rotulo: 'Botão: centralizar', max: 20 },
+      rotuloZoom: { tipo: 'texto', rotulo: 'Rótulo do zoom', max: 16 },
+
+      vazioPrevia: { tipo: 'texto', rotulo: 'Prévia vazia', max: 40 },
+      avisoZonaSegura: { tipo: 'texto', rotulo: 'Guia da zona segura', max: 40 },
+      dicaAjuste: { tipo: 'longo', rotulo: 'Como ajustar', max: 140, linhas: 2 },
+      tituloPronto: { tipo: 'texto', rotulo: 'Título do resultado', max: 40 },
+      textoPronto: { tipo: 'longo', rotulo: 'Texto do resultado', max: 160, linhas: 2 },
       dicaSalvar: { tipo: 'longo', rotulo: 'Como salvar no celular', max: 140, linhas: 2 },
+
       avisoInstagram: { tipo: 'longo', rotulo: 'Aviso do navegador do Instagram', max: 160, linhas: 2 },
+      avisoInstagramBotao: { tipo: 'texto', rotulo: 'Botão: abrir no navegador', max: 30 },
+      naoBaixouTitulo: { tipo: 'texto', rotulo: 'Não baixou: título', max: 30 },
+      naoBaixouTexto: { tipo: 'longo', rotulo: 'Não baixou: explicação', max: 220, linhas: 3 },
+
       erroFormato: { tipo: 'longo', rotulo: 'Erro: formato não suportado', max: 200, linhas: 2 },
       erroPequena: { tipo: 'longo', rotulo: 'Aviso: foto pequena', max: 140, linhas: 2 },
+      erroGerar: { tipo: 'longo', rotulo: 'Erro: não deu para gerar', max: 160, linhas: 2 },
     },
   },
 
