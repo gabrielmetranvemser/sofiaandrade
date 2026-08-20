@@ -248,7 +248,7 @@
 
    Três famílias:
      · revelação simples ... [data-revelar], o padrão
-     · cena da bandeira .... presa na tela, pintada pelo scroll
+     · palco ............... preso na tela, pintado pelo scroll
      · movimento por scroll  animation-timeline, zero JS
    ═══════════════════════════════════════════════════════════════ */
 
@@ -278,62 +278,6 @@
   [data-revelar][data-visivel='true'] { opacity: 1; transform: none; }
 
   .sem-js [data-revelar] { opacity: 1; transform: none; }
-}
-
-/* ───────────────────────────────────────────────────────────────
-   TRILHO HORIZONTAL
-
-   scroll-snap nativo. Funciona no toque, no trackpad e no teclado
-   sem uma linha de JavaScript — o JS do componente só acende os
-   pontinhos e as setas, e a rolagem continua correta se ele falhar.
-   ─────────────────────────────────────────────────────────────── */
-
-/* Três peças: o scroller (nomeado, focável), a pista (a fila em si) e
-   os itens. Separar scroller de pista não é preciosismo — é o que
-   permite pôr role="region" no elemento que rola sem sobrescrever o
-   papel de lista do <ul>, que o leitor de tela usa para anunciar
-   "lista com 5 itens". */
-
-@utility trilho {
-  overflow-x: auto;
-  /* scroll-behavior NÃO é herdado: o smooth do <html> vale só para o
-     scroller da página. Sem esta linha as setas saltam de card em card. */
-  scroll-behavior: smooth;
-  scroll-snap-type: x mandatory;
-  overscroll-behavior-x: contain;
-  -webkit-overflow-scrolling: touch;
-  scrollbar-width: none;
-
-  &::-webkit-scrollbar { display: none; }
-}
-
-@utility trilho-pista {
-  display: flex;
-  /* Bloco dentro de scroller herda a largura do scroller e os itens
-     seriam espremidos. max-content é o que deixa a fila transbordar. */
-  width: max-content;
-}
-
-@utility trilho-item {
-  flex: 0 0 auto;
-  scroll-snap-align: start;
-}
-
-/* Um trilho pode virar grade a partir de um ponto de quebra.
-
-   Estas regras ficam FORA de @layer de propósito: estilo sem camada
-   vence estilo em camada, então elas ganham da utilitária .trilho sem
-   depender da ordem em que o Tailwind resolve compilar as duas. */
-@media (min-width: 768px) {
-  [data-trilho='md'] .trilho { overflow: visible; scroll-snap-type: none; }
-  [data-trilho='md'] .trilho-pista { display: grid; width: auto; }
-  [data-trilho='md'] .trilho-controles { display: none; }
-}
-
-@media (min-width: 1024px) {
-  [data-trilho='lg'] .trilho { overflow: visible; scroll-snap-type: none; }
-  [data-trilho='lg'] .trilho-pista { display: grid; width: auto; }
-  [data-trilho='lg'] .trilho-controles { display: none; }
 }
 
 /* ───────────────────────────────────────────────────────────────
@@ -438,8 +382,6 @@
   }
 
   [data-revelar] { opacity: 1 !important; transform: none !important; }
-
-  .trilho { scroll-behavior: auto; }
 }
 
 /* ═══════════════════════════════════════════════════════════════
@@ -579,15 +521,27 @@
 
     .cena-amarelo {
       --cena-q: clamp(0, calc((var(--palco-p) - 0.10) / 0.32), 1);
-      /* Losango: meia-diagonal de 115% em cada eixo. É o que basta
-         para cobrir a tela pelos quatro cantos quando --cena-q chega
-         a 1 — em 50%/115 + 50%/115 o canto cai dentro do losango. */
-      --cena-r: calc(var(--cena-q) * 115%);
+
+      /* As duas meias-diagonais são diferentes, e é isso que faz o
+         losango parecer o losango.
+
+         Porcentagem em clip-path se resolve contra o eixo dela: 115%
+         nos dois lados, numa tela de 375×812, dá 431px de largura por
+         934px de altura — um fuso em pé, que na tela vira um triângulo
+         alto e fino. O losango da bandeira é o contrário, mais largo
+         que alto (perto de 1,4 : 1).
+
+         215% e 72% devolvem essa proporção em pixels e ainda cobrem a
+         tela pelos quatro cantos quando --cena-q chega a 1: no canto,
+         50/215 + 50/72 = 0,93, que é menos que 1, então ele cai dentro
+         do losango. O bico que sobe fica largo e baixo, como deve. */
+      --cena-rx: calc(var(--cena-q) * 215%);
+      --cena-ry: calc(var(--cena-q) * 72%);
       clip-path: polygon(
-        50% calc(var(--cena-cy) - var(--cena-r)),
-        calc(50% + var(--cena-r)) var(--cena-cy),
-        50% calc(var(--cena-cy) + var(--cena-r)),
-        calc(50% - var(--cena-r)) var(--cena-cy)
+        50% calc(var(--cena-cy) - var(--cena-ry)),
+        calc(50% + var(--cena-rx)) var(--cena-cy),
+        50% calc(var(--cena-cy) + var(--cena-ry)),
+        calc(50% - var(--cena-rx)) var(--cena-cy)
       );
     }
 
