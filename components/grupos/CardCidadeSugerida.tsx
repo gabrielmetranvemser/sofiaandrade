@@ -1,7 +1,7 @@
 'use client'
 
 import { useConteudo } from '@/lib/conteudo/contexto'
-import { idSessao } from '@/lib/eventos'
+import { caminhoDoGrupo, useSessao } from '@/lib/eventos'
 import type { MunicipioComGrupo, OrigemClique } from '@/lib/tipos'
 
 /**
@@ -20,6 +20,7 @@ export function CardCidadeSugerida({
   onNaoEMinha: () => void
 }) {
   const { grupos: copy } = useConteudo()
+  const sessao = useSessao()
   const longe = typeof distanciaKm === 'number' && distanciaKm > 60
 
   return (
@@ -50,7 +51,7 @@ export function CardCidadeSugerida({
       <div className="mt-6 flex flex-col gap-3 sm:flex-row sm:items-center">
         {municipio.disponivel ? (
           <a
-            href={`/g/${municipio.slug}?de=${origem}&s=${idSessao()}`}
+            href={caminhoDoGrupo(municipio.slug, origem, sessao)}
             className="inline-flex min-h-13 items-center justify-center gap-2 rounded-full bg-amarelo px-7 py-3.5 font-semibold text-azul-escuro shadow-media transition-all hover:brightness-105"
           >
             {copy.sugestaoSim}

@@ -819,3 +819,64 @@
   .folha[open],
   .folha::backdrop { animation: none !important; }
 }
+
+/* ═══════════════════════════════════════════════════════════════
+   MAPA DE RONDÔNIA — o relevo e o ponteiro
+   ═══════════════════════════════════════════════════════════════ */
+
+@layer components {
+  .mapa-mun {
+    transition:
+      transform 0.26s var(--ease-mola),
+      opacity 0.2s var(--ease-saida);
+  }
+
+  /* O bloco inteiro sobe: topo e parede juntos, como uma peça só.
+     O deslocamento vem em variável já pré-distorcida pela matriz do
+     mapa — translateY puro sairia torto, seguindo a inclinação da
+     mesa em vez da vertical da tela. */
+  @media (pointer: fine) {
+    .mapa-mun { cursor: pointer; }
+
+    .mapa-mun:hover {
+      transform: translate(var(--erguer-x), var(--erguer-y));
+    }
+
+    .mapa-mun:hover .mapa-topo { filter: brightness(1.08); }
+  }
+
+  .mapa-mun.escolhida {
+    transform: translate(var(--erguer-x), var(--erguer-y));
+  }
+
+  .mapa-mun.escolhida .mapa-topo {
+    stroke: var(--color-amarelo);
+    stroke-opacity: 1;
+    stroke-width: 5;
+  }
+
+  /* Desfoque de área grande é caro em GPU de celular fraco, e a sombra
+     é justamente o detalhe que menos se nota numa tela de 375px. */
+  @media (max-width: 767px) {
+    .mapa-sombra { display: none; }
+  }
+
+  /* Escolhida uma cidade, as outras recuam. O contraste é o que
+     responde "é esta mesma?" sem precisar de texto nenhum. */
+  .mapa-area-toque[data-escolhida] .mapa-mun:not(.escolhida) { opacity: 0.5; }
+}
+
+/* O nome que aparece com o ponteiro. Fora de @layer para não brigar
+   com utilitária nenhuma: ele é posicionado por JavaScript e precisa
+   que estas cinco linhas valham sempre. */
+.mapa-rotulo {
+  position: absolute;
+  z-index: 5;
+  pointer-events: none;
+  transform: translate(-50%, -100%);
+  white-space: nowrap;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .mapa-mun { transition: none !important; }
+}

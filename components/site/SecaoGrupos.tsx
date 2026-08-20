@@ -1,6 +1,7 @@
 import { lerConteudo } from '@/lib/conteudo/ler'
 import { Secao, CabecalhoSecao } from '@/components/ui/Secao'
 import { BuscadorDeGrupo } from '@/components/grupos/BuscadorDeGrupo'
+import { MapaRondonia } from '@/components/grupos/MapaRondonia'
 import type { MunicipioComGrupo } from '@/lib/tipos'
 
 export async function SecaoGrupos({
@@ -20,7 +21,11 @@ export async function SecaoGrupos({
         destaque="grifo"
         intro={copy.intro}
       />
-      <BuscadorDeGrupo municipios={municipios} sugerido={sugerido} />
+      <BuscadorDeGrupo
+        municipios={municipios}
+        sugerido={sugerido}
+        mapa={<MapaRondonia municipios={municipios} destacado={sugerido?.slug} />}
+      />
     </Secao>
   )
 }

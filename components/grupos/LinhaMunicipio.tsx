@@ -1,7 +1,7 @@
 'use client'
 
 import { useConteudo } from '@/lib/conteudo/contexto'
-import { evento, idSessao } from '@/lib/eventos'
+import { evento, caminhoDoGrupo, useSessao } from '@/lib/eventos'
 import type { MunicipioComGrupo, OrigemClique } from '@/lib/tipos'
 
 /**
@@ -31,6 +31,7 @@ export function LinhaMunicipio({
   className?: string
 }) {
   const { grupos: copy } = useConteudo()
+  const sessao = useSessao()
   const { status, disponivel } = municipio
 
   const selo =
@@ -99,7 +100,7 @@ export function LinhaMunicipio({
   return (
     <li className={className}>
       <a
-        href={`/g/${municipio.slug}?de=${origem}&s=${idSessao()}`}
+        href={caminhoDoGrupo(municipio.slug, origem, sessao)}
         className={`${base} hover:bg-areia`}
       >
         {conteudo}
