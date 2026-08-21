@@ -4,7 +4,9 @@ import { useEffect, useRef, useState } from 'react'
 import {
   embedComOpcoes,
   interpretarVideo,
+  larguraDoVideo,
   opcoesValidas,
+  RAZAO,
   type FormatoVideo,
   type OpcoesVideo,
 } from '@/lib/video'
@@ -51,6 +53,20 @@ interface Props {
   aberto?: boolean
   onAbrir?: () => void
   /**
+   * O TETO DE ALTURA do quadro, em CSS.
+   *
+   * ⚠️ EXISTE PORQUE VÍDEO EM PÉ NÃO CABE EM COLUNA LARGA. Com a
+   *    proporção 9/16, um bloco de 768px de largura vira 1365px de
+   *    altura — uma tela e meia de vídeo entre dois parágrafos. Quem
+   *    manda no tamanho aqui é a ALTURA, e a largura é consequência
+   *    dela (ver o cálculo em `medida`, abaixo).
+   *
+   *    Passe um valor quando o lugar pedir outro teto — a fita da
+   *    trilha, por exemplo, iguala a altura de todos os cartões para
+   *    que deitado e em pé convivam na mesma fila.
+   */
+  alturaMax?: string
+  /**
    * Ajustes de player vindos do painel.
    *
    * ⚠️ `unknown` DE PROPÓSITO. O tipo do conteúdo editável alarga todo
@@ -69,6 +85,7 @@ export function Video({
   className = '',
   aberto,
   onAbrir,
+  alturaMax,
   opcoes: opcoesBrutas,
 }: Props) {
   const [abertoLocal, setAbertoLocal] = useState(false)
@@ -110,9 +127,30 @@ export function Video({
   const tocando = (controlado ? aberto : abertoLocal) || (automatico && naTela)
   const abrir = () => (controlado ? onAbrir?.() : setAbertoLocal(true))
 
-  const proporcao = formato === 'em-pe' ? 'aspect-[9/16]' : 'aspect-video'
+  // ── O TAMANHO DO QUADRO ──────────────────────────────────────
+  //
+  // ⚠️ A CONTA COMEÇA NA ALTURA, e não na largura. Só assim os dois
+  //    enquadramentos do acervo cabem no mesmo desenho de página:
+  //
+  //    · deitado, o teto quase nunca pega — a largura do lugar chega
+  //      antes, e o vídeo se comporta como sempre se comportou.
+  //    · em pé, o teto é a única coisa que impede o bloco de virar uma
+  //      torre. 34rem de altura dão 19rem de largura, que é a medida de
+  //      um celular na mão — que é exatamente o que o vídeo mostra.
+  //
+  //    `max-width` traduz o teto de altura em largura porque é a
+  //    largura que o navegador resolve primeiro: com `aspect-ratio`, a
+  //    altura é derivada. Limitar `max-height` direto deixaria a caixa
+  //    larga e o vídeo com tarja dos dois lados dentro dela.
+  //
+  //    `mx-auto` fecha o assunto: sobrando espaço, o vídeo fica no meio
+  //    do lugar que recebeu, em vez de encostado à esquerda.
+  const medida = {
+    aspectRatio: String(RAZAO[formato]),
+    maxWidth: larguraDoVideo(formato, alturaMax),
+  }
   const moldura =
-    `relative isolate overflow-hidden rounded-2xl bg-azul-noite ${proporcao} ${className}`
+    `relative isolate mx-auto w-full overflow-hidden rounded-2xl bg-azul-noite ${className}`
 
   if (tocando) {
     // ── Arquivo próprio (R2 e afins): player do navegador ──
@@ -121,7 +159,7 @@ export function Video({
     // seria trocar algo acessível de fábrica por algo nosso e pior.
     if (video.provedor === 'arquivo') {
       return (
-        <div ref={caixa} className={moldura}>
+        <div ref={caixa} className={moldura} style={medida}>
           {/* eslint-disable-next-line jsx-a11y/media-has-caption */}
           <video
             src={video.embed}
@@ -145,7 +183,7 @@ export function Video({
     }
 
     return (
-      <div ref={caixa} className={moldura}>
+      <div ref={caixa} className={moldura} style={medida}>
         <iframe
           src={embedComOpcoes(video, opcoes)}
           title={titulo ?? 'Vídeo'}
@@ -167,7 +205,8 @@ export function Video({
       ref={caixa as unknown as React.RefObject<HTMLButtonElement>}
       type="button"
       onClick={abrir}
-      className={`group toque block w-full cursor-pointer ${moldura}`}
+      style={medida}
+      className={`group toque block cursor-pointer ${moldura}`}
       aria-label={titulo ? `Assistir: ${titulo}` : 'Assistir ao vídeo'}
     >
       {/* ⚠️ A CAPA DE UM ARQUIVO PRÓPRIO É O PRÓPRIO VÍDEO, parado no

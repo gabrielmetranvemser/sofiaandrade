@@ -3,8 +3,7 @@ import { lerSlots } from '@/lib/midia/ler'
 import { Imagem } from '@/components/ui/Imagem'
 import { TextoComDestaque, Texto } from '@/components/ui/TextoComDestaque'
 import { Video } from '@/components/ui/Video'
-import { formatoValido } from '@/lib/video'
-import { semDestaque } from '@/components/ui/TextoComDestaque'
+import { formatoValido, larguraDoVideo } from '@/lib/video'
 
 /**
  * A prova visual da manchete.
@@ -28,47 +27,78 @@ export async function Rua() {
       className="relative isolate overflow-hidden fundo-azul-profundo py-20 text-white md:py-28"
     >
       <div className="container-lp">
-        <div className="max-w-2xl">
-          <p data-revelar className="etiqueta text-white">
-            <span className="inline-block h-px w-8 bg-amarelo" aria-hidden />
-            {rua.etiqueta}
-          </p>
-          <h2
-            data-revelar
-            style={{ ['--atraso' as string]: '70ms' }}
-            className="mt-4 titulo-secao text-white"
-          >
-            <TextoComDestaque texto={rua.titulo} tom="amarelo" />
-          </h2>
-          <p
-            data-revelar
-            style={{ ['--atraso' as string]: '140ms' }}
-            className="mt-5 text-lg text-white/80 md:text-xl"
-          >
-            <Texto tom="amarelo">{rua.texto}</Texto>
-          </p>
-        </div>
+        {/* ⚠️ O VÍDEO SAIU DE BAIXO DO TEXTO E FOI PARA O LADO DELE.
+            Empilhado, ele caía num vão morto: largo demais para ser
+            legenda do parágrafo, estreito demais para conversar com a
+            faixa de fotos logo abaixo — e a seção passava a ter três
+            blocos de largura diferente, um sob o outro, sem nenhuma
+            borda em comum. Era esse desalinhamento que se lia como "o
+            vídeo ficou estranho com as imagens embaixo", e não o vídeo.
 
-        {/* O vídeo da pandemia vem ANTES das fotos.
-            A seção existe para provar que "eu fui pra rua" é literal, e
-            o vídeo é o registro em movimento do que as fotos mostram
-            parado. Depois das fotos ele lia como anexo; antes, ele é a
-            prova, e a faixa de fotos vira o que sempre foi: quem estava
-            junto.
+            Ao lado, ele vira o par do texto, e a faixa de fotos volta a
+            ser a única coisa que atravessa a seção inteira. É também o
+            que resolve o enquadramento em pé aqui: numa coluna de meia
+            largura, vertical é o que se espera de um vídeo de celular
+            gravado na rua — e não uma exceção a acomodar.
 
-            Largura contida de propósito. Em tela cheia ele competiria
-            com a foto grande logo abaixo, e a seção passaria a ter dois
-            centros. */}
-        {rua.video.url ? (
-          <div data-revelar className="mt-10 max-w-3xl">
-            <Video
-              url={rua.video.url}
-              formato={formatoValido(rua.video.formato)}
-              opcoes={rua.video.opcoes}
-              titulo={rua.video.titulo}
-            />
+            Sem vídeo, nada de coluna vazia esperando: a grade não
+            existe e o texto fica exatamente como sempre esteve. */}
+        <div
+          className={
+            rua.video.url
+              ? 'grid gap-10 lg:grid-cols-[1.05fr_0.95fr] lg:items-center lg:gap-14'
+              : ''
+          }
+        >
+          <div className="max-w-2xl">
+            <p data-revelar className="etiqueta text-white">
+              <span className="inline-block h-px w-8 bg-amarelo" aria-hidden />
+              {rua.etiqueta}
+            </p>
+            <h2
+              data-revelar
+              style={{ ['--atraso' as string]: '70ms' }}
+              className="mt-4 titulo-secao text-white"
+            >
+              <TextoComDestaque texto={rua.titulo} tom="amarelo" />
+            </h2>
+            <p
+              data-revelar
+              style={{ ['--atraso' as string]: '140ms' }}
+              className="mt-5 text-lg text-white/80 md:text-xl"
+            >
+              <Texto tom="amarelo">{rua.texto}</Texto>
+            </p>
           </div>
-        ) : null}
+
+          {/* O vídeo da pandemia vem ANTES das fotos. A seção existe
+              para provar que "eu fui pra rua" é literal, e o vídeo é o
+              registro em movimento do que as fotos mostram parado.
+
+              A moldura de vidro é o que dá borda ao vídeo sobre um
+              fundo que já é escuro. Sem ela o quadro preto do player
+              encosta direto no azul, e antes de alguém apertar play o
+              vídeo parece um buraco na seção. */}
+          {rua.video.url ? (
+            <div
+              data-revelar
+              // A moldura ENCOLHE JUNTO com o vídeo: a largura máxima é
+              // a do próprio quadro mais o `p-3` dos dois lados. Sem
+              // isso, um vídeo em pé viraria uma tira estreita no meio
+              // de um painel largo — a moldura passaria a ser o
+              // elemento maior, e o vídeo, o detalhe dentro dela.
+              style={{ maxWidth: `calc(${larguraDoVideo(formatoValido(rua.video.formato))} + 1.5rem)` }}
+              className="mx-auto w-full rounded-3xl bg-white/5 p-3 ring-1 ring-white/10"
+            >
+              <Video
+                url={rua.video.url}
+                formato={formatoValido(rua.video.formato)}
+                opcoes={rua.video.opcoes}
+                titulo={rua.video.titulo}
+              />
+            </div>
+          ) : null}
+        </div>
 
         <ul className="mt-12 grid gap-4 md:grid-cols-2 md:gap-5">
           {rua.fotos.map((foto, i) => (

@@ -175,6 +175,46 @@
   }
 }
 
+/* ── A fita que desliza no dedo, e nas setas ───────────────────
+   ⚠️ NÃO É A `palco-fita`, E A DIFERENÇA É DE QUEM MANDA.
+
+   A `palco-fita` anda sozinha conforme a página desce: a tela prende,
+   o dedo rola para baixo e os cartões passam de lado. Funciona para
+   três frases curtas (Compromissos), e não funciona para vídeo — quem
+   quer voltar ao segundo vídeo precisa rolar a página PARA CIMA, e
+   quem só quer passar a seção fica preso vendo cartões desfilarem.
+
+   Aqui a fita é uma barra rolável comum: o dedo arrasta, as setas
+   andam de um cartão por vez, e a página desce quando a pessoa quer
+   que ela desça. O `scroll-snap` é o que faz o cartão parar inteiro na
+   tela em vez de cortado no meio.
+
+   As margens negativas sangram a fita até a borda da calha do
+   container e o padding devolve o recuo: assim o primeiro cartão nasce
+   alinhado ao título, e o último tem o mesmo respiro do outro lado.
+   `scroll-padding` repete a conta porque o encaixe do snap ignora o
+   padding do contêiner. */
+@utility fita-desliza {
+  display: flex;
+  overflow-x: auto;
+  scroll-snap-type: x mandatory;
+  /* Sem isto, chegar ao fim da fita continua o gesto no histórico do
+     navegador — no iOS, deslizar o último cartão volta a página. */
+  overscroll-behavior-x: contain;
+  scrollbar-width: none;
+  margin-inline: -1.25rem;
+  padding-inline: 1.25rem;
+  scroll-padding-inline: 1.25rem;
+
+  &::-webkit-scrollbar { display: none; }
+
+  @media (min-width: 768px) {
+    margin-inline: -2rem;
+    padding-inline: 2rem;
+    scroll-padding-inline: 2rem;
+  }
+}
+
 @utility titulo-cartaz {
   font-family: var(--font-titulo);
   font-weight: 700;

@@ -162,6 +162,41 @@ export function formatoValido(v: unknown): FormatoVideo {
   return v === 'em-pe' ? 'em-pe' : 'deitado'
 }
 
+/** Quanto de proporção cada enquadramento tem: largura ÷ altura. */
+export const RAZAO: Record<FormatoVideo, number> = {
+  'em-pe': 9 / 16,
+  deitado: 16 / 9,
+}
+
+/**
+ * O TETO DE ALTURA de cada enquadramento, em CSS.
+ *
+ * ⚠️ SÃO DOIS VALORES DIFERENTES DE PROPÓSITO. Um vídeo em pé pode ser
+ *    mais alto que um deitado sem incomodar — é a forma de um celular
+ *    na mão, e é assim que ele foi gravado. Um deitado alto demais vira
+ *    uma faixa que empurra o resto da seção para fora da tela.
+ *
+ *    `svh` e não `vh`: no celular, `vh` conta a tela COM a barra do
+ *    navegador recolhida, e o vídeo passa a caber só depois que a
+ *    pessoa rola. `rem` no `min` é o teto de tela grande, onde 70% da
+ *    altura já é vídeo demais.
+ */
+export const TETO_ALTURA: Record<FormatoVideo, string> = {
+  'em-pe': 'min(74svh, 34rem)',
+  deitado: 'min(68svh, 30rem)',
+}
+
+/**
+ * A LARGURA QUE O VÍDEO VAI OCUPAR, em CSS, derivada da altura.
+ *
+ * Serve para quem desenha em volta dele: uma moldura que precise
+ * ENCOLHER JUNTO com um vídeo em pé, em vez de virar um painel largo
+ * com uma tira estreita de vídeo no meio. Ver `Rua` e `Problema`.
+ */
+export function larguraDoVideo(formato: FormatoVideo, alturaMax?: string): string {
+  return `calc(${alturaMax ?? TETO_ALTURA[formato]} * ${RAZAO[formato]})`
+}
+
 /**
  * OS AJUSTES DE PLAYER, POR VÍDEO.
  *
