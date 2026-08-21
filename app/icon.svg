@@ -1,0 +1,49 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1000 1000" role="img" aria-label="Sofia Andrade">
+  <!--
+    O SÍMBOLO DA MARCA — o "O" da palavra SOFIA, que é uma bandeira.
+
+    ⚠️ É O MESMO DESENHO DO CABEÇALHO, e isso não é coincidência: ele
+       nasceu em `components/ui/Marca.tsx`, medido coluna por coluna do
+       arquivo original da marca, porque o PNG que existia cortava a
+       bandeira em cima e embaixo — no logotipo as letras vizinhas
+       encostam no símbolo, e qualquer recorte que pegue o anel inteiro
+       leva pedaço do S e do F junto.
+
+    ⚠️ QUADRADO, e não na proporção do símbolo. Todo slot de ícone é
+       quadrado: aba do navegador, atalho da tela inicial, resultado de
+       busca. Entregar o desenho original (1352×1000) faria o navegador
+       encaixotá-lo com tarjas verdes em cima e embaixo. Aqui o verde é
+       o campo inteiro e a bandeira ocupa o centro.
+
+    ⚠️ SVG E NÃO PNG. O ícone da aba é visto com 16 pixels de lado; o da
+       tela inicial do celular, com 180. Um PNG teria de escolher um dos
+       dois e perder no outro. O vetor serve os dois e pesa menos que a
+       menor das versões.
+
+    ⚠️ A FAIXA DESCE da esquerda para a direita, com uma subida leve no
+       primeiro terço, e ATRAVESSA a moldura de ponta a ponta. O traçado
+       saiu de medir o arquivo original, não de olhar: desenhada de
+       memória, ela saiu espelhada.
+
+    Este arquivo é a convenção `app/icon.svg` do Next: vira <link
+    rel="icon"> sozinho, sem ninguém declarar nada. Uma imagem enviada
+    pelo painel no espaço "Ícone do navegador" continua tendo
+    precedência — ver generateMetadata em app/layout.tsx.
+  -->
+  <defs>
+    <clipPath id="caixa">
+      <rect width="1000" height="1000" rx="220" ry="220" />
+    </clipPath>
+  </defs>
+  <g clip-path="url(#caixa)">
+    <rect width="1000" height="1000" fill="#639951" />
+    <g transform="translate(23.4 147.5) scale(0.705)">
+      <path d="M676 52 1300 500 676 948 52 500Z" fill="#f8dc4c" />
+      <circle cx="676" cy="500" r="292" fill="#2c6db3" />
+      <path
+        d="M-400 416 C 180 400, 330 372, 473 372 C 700 372, 900 470, 1800 584 L 1800 772 C 900 658, 700 560, 473 560 C 330 560, 180 588, -400 604 Z"
+        fill="#ffffff"
+      />
+    </g>
+  </g>
+</svg>

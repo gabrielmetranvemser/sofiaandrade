@@ -1,6 +1,7 @@
 import { lerConteudo } from '@/lib/conteudo/ler'
 import { lerSlots } from '@/lib/midia/ler'
 import { Simbolo } from '@/components/ui/Marca'
+import { Texto } from '@/components/ui/TextoComDestaque'
 
 /**
  * A tarja que corre entre a primeira dobra e o resto.
@@ -28,7 +29,7 @@ export async function FaixaCorrida() {
   const fila = (oculta: boolean) =>
     faixa.itens.map((item) => (
       <li key={`${oculta ? 'b' : 'a'}-${item.id}`} className="flex shrink-0 items-center gap-8 px-8">
-        <span className="voz-marca text-lg whitespace-nowrap md:text-xl">{item.texto}</span>
+        <span className="voz-marca text-lg whitespace-nowrap md:text-xl"><Texto>{item.texto}</Texto></span>
         <Simbolo url={simbolo} className="h-5 w-auto shrink-0 opacity-90" />
       </li>
     ))

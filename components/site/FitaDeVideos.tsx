@@ -9,6 +9,7 @@ interface Item {
   titulo: string
   url: string
   formato: string
+  opcoes?: unknown
 }
 
 /**
@@ -36,6 +37,7 @@ export function FitaDeVideos({ itens }: { itens: readonly Item[] }) {
           <Video
             url={item.url}
             formato={formatoValido(item.formato)}
+            opcoes={item.opcoes as never}
             titulo={item.titulo}
             aberto={aberto === item.id}
             onAbrir={() => setAberto(item.id)}

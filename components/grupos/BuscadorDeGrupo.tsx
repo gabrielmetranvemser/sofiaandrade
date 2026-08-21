@@ -5,6 +5,7 @@ import { useConteudo } from '@/lib/conteudo/contexto'
 import { municipiosMaisProximos } from '@/lib/geo'
 import { evento } from '@/lib/eventos'
 import type { MunicipioComGrupo } from '@/lib/tipos'
+import { achatarDestinos } from '@/lib/destinos'
 import { CardCidadeSugerida } from './CardCidadeSugerida'
 import { FolhaDeCidades } from './FolhaDeCidades'
 import { LinhaMunicipio } from './LinhaMunicipio'
@@ -78,7 +79,9 @@ export function BuscadorDeGrupo({ municipios, sugerido = null, mapa = null }: Pr
     )
   }
 
-  const disponiveis = municipios.filter((m) => m.disponivel)
+  // Distrito entra nesta lista igual: o que se promete aqui é "grupo
+  // aberto onde o toque leva a algum lugar", e o do Iata leva.
+  const disponiveis = achatarDestinos(municipios).filter((l) => l.destino.disponivel)
   const abertos = disponiveis.length
   const primeirosAbertos = disponiveis.slice(0, 6)
   const mostrarSugestao = Boolean(sugerido) && !sugestaoDispensada && !proximas
@@ -170,7 +173,7 @@ export function BuscadorDeGrupo({ municipios, sugerido = null, mapa = null }: Pr
               <p className="etiqueta text-azul-escuro">{copy.proximasTitulo}</p>
               <ul className="cartao mt-3 grid gap-1 p-2">
                 {proximas.slice(1).map(({ m, km }) => (
-                  <LinhaMunicipio key={m.slug} municipio={m} origem="geo" distanciaKm={km} />
+                  <LinhaMunicipio key={m.slug} destino={m} origem="geo" distanciaKm={km} />
                 ))}
               </ul>
             </div>
@@ -186,8 +189,13 @@ export function BuscadorDeGrupo({ municipios, sugerido = null, mapa = null }: Pr
             <div className="mt-8">
               <p className="etiqueta text-azul-escuro">{copy.abertosTitulo}</p>
               <ul className="cartao mt-3 grid gap-1 p-2">
-                {primeirosAbertos.map((m) => (
-                  <LinhaMunicipio key={m.slug} municipio={m} origem="lista" />
+                {primeirosAbertos.map(({ destino, dentroDe }) => (
+                  <LinhaMunicipio
+                    key={destino.slug}
+                    destino={destino}
+                    dentroDe={dentroDe}
+                    origem="lista"
+                  />
                 ))}
               </ul>
             </div>

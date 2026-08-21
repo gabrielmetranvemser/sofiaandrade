@@ -1,6 +1,7 @@
 import { lerConteudo } from '@/lib/conteudo/ler'
 import { CabecalhoSecao } from '@/components/ui/Secao'
 import { PalcoMotor } from '@/components/animacao/PalcoMotor'
+import { Texto } from '@/components/ui/TextoComDestaque'
 
 /**
  * Compromissos — palco: a tela prende e a fita de cartões anda de lado
@@ -54,8 +55,8 @@ export async function Futuro() {
                 >
                   {item.numero}
                 </span>
-                <h3 className="mt-6 text-xl text-tinta md:text-2xl">{item.titulo}</h3>
-                <p className="mt-3 text-base text-grafite">{item.texto}</p>
+                <h3 className="mt-6 text-xl text-tinta md:text-2xl"><Texto>{item.titulo}</Texto></h3>
+                <p className="mt-3 text-base text-grafite"><Texto>{item.texto}</Texto></p>
               </li>
             ))}
           </ol>

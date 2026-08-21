@@ -2,6 +2,7 @@ import { lerConteudo } from '@/lib/conteudo/ler'
 import { lerSlots } from '@/lib/midia/ler'
 import { Secao, CabecalhoSecao } from '@/components/ui/Secao'
 import { Imagem } from '@/components/ui/Imagem'
+import { Texto } from '@/components/ui/TextoComDestaque'
 
 /**
  * O acervo de família, mostrado COMO papel.
@@ -60,7 +61,7 @@ export async function Album() {
                 className="w-full rounded-[2px] object-cover"
               />
               <figcaption className="mt-2.5 px-0.5">
-                <span className="block text-sm leading-snug text-tinta">{foto.legenda}</span>
+                <span className="block text-sm leading-snug text-tinta"><Texto>{foto.legenda}</Texto></span>
                 {foto.ano ? (
                   <span className="mt-0.5 block text-xs text-grafite">{foto.ano}</span>
                 ) : null}

@@ -113,15 +113,25 @@ export default async function LayoutRaiz({ children }: { children: React.ReactNo
 
   return (
     <html lang="pt-BR" className={`${titulo.variable} ${corpo.variable} sem-js`}>
-      {/* A textura pontilhada é um atributo, e não uma classe, porque
-          ela tem TRÊS estados e não dois — o CSS lê o valor para
-          escolher a opacidade e o passo da trama. Desligada, o atributo
-          não existe e a camada nem é criada.
+      {/* A textura é um ATRIBUTO com o tipo, e a força vem numa
+          variável de 0 a 1 — dois canais porque são duas perguntas
+          diferentes: qual trama, e quanto dela. O CSS combina a força
+          com o teto de cada tipo (ver .textura em globals.css).
 
-          Mora no <body> e não numa seção porque ela cobre a página
-          inteira, incluindo as páginas internas: filtro, grupos e
-          privacidade herdam daqui sem precisar saber que ela existe. */}
-      <body data-halftone={aparencia.halftone ? aparencia.halftoneForca : undefined}>
+          Desligada — ou em força zero — o atributo não existe e a
+          camada nem chega a ser criada.
+
+          Mora no <body> e não numa seção porque cobre a página inteira,
+          incluindo as internas: filtro, grupos e privacidade herdam
+          daqui sem precisar saber que ela existe. */}
+      <body
+        data-textura={
+          aparencia.textura !== 'nenhuma' && aparencia.texturaForca > 0
+            ? aparencia.textura
+            : undefined
+        }
+        style={{ ['--textura-forca' as string]: aparencia.texturaForca / 100 }}
+      >
         {/* Pular para o conteúdo: leitor de tela e navegação por teclado */}
         <a
           href="#conteudo"

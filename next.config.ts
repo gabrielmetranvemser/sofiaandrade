@@ -17,25 +17,21 @@ const nextConfig: NextConfig = {
     // ⚠️ NUNCA usar pathname: '/**'. Isso deixaria qualquer pessoa usar
     //    o nosso otimizador contra qualquer objeto de qualquer balde,
     //    inclusive privados no futuro.
-    remotePatterns: [
-      // A capa dos vídeos. Sem isto, o cartaz da fachada não passa pelo
-      // otimizador e o componente cai no cartaz desenhado em código.
-      // O `pathname` é o das miniaturas e nada mais.
-      {
-        protocol: 'https' as const,
-        hostname: 'i.ytimg.com',
-        pathname: '/vi/**',
-      },
-      ...(hostSupabase
-        ? [
-            {
-              protocol: 'https' as const,
-              hostname: hostSupabase,
-              pathname: '/storage/v1/object/public/**',
-            },
-          ]
-        : []),
-    ],
+    // ⚠️ SÓ O NOSSO STORAGE. A miniatura de vídeo NÃO entra aqui: ela é
+    //    servida por <img> comum. Domínio de provedor no otimizador
+    //    amarraria o conteúdo do painel à configuração de build — cada
+    //    provedor novo viraria um deploy — e, pior, quando o domínio
+    //    não bate o Next LANÇA em vez de degradar: a página inteira da
+    //    campanha vira tela de erro por causa de uma miniatura.
+    remotePatterns: hostSupabase
+      ? [
+          {
+            protocol: 'https' as const,
+            hostname: hostSupabase,
+            pathname: '/storage/v1/object/public/**',
+          },
+        ]
+      : [],
   },
 
   experimental: {

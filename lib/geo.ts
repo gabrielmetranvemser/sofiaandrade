@@ -40,8 +40,16 @@ export function distanciaTexto(a: string, b: string): number {
 /**
  * Busca tolerante. Ordem de prioridade:
  * 1. começa com o termo   2. contém o termo   3. erro de digitação pequeno
+ *
+ * Pede só um `nome`, e não um município inteiro: a folha de cidades
+ * procura numa lista que tem distrito no meio, e distrito não tem
+ * coordenada de sede.
  */
-export function buscarMunicipios<T extends Municipio>(lista: T[], termo: string, limite = 8): T[] {
+export function buscarMunicipios<T extends { nome: string }>(
+  lista: T[],
+  termo: string,
+  limite = 8,
+): T[] {
   const t = normalizar(termo)
   if (t.length < 2) return []
 

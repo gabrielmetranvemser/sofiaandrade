@@ -3,6 +3,7 @@
 import { useRef, useState, type ReactNode } from 'react'
 import { useConteudo } from '@/lib/conteudo/contexto'
 import { evento, caminhoDoGrupo, useSessao } from '@/lib/eventos'
+import type { Destino } from '@/lib/tipos'
 
 interface Cidade {
   slug: string
@@ -12,6 +13,8 @@ interface Cidade {
 }
 
 interface Rotulo extends Cidade {
+  /** O nome que o balão mostra. Difere de `nome` onde há distrito. */
+  rotulo: string
   x: number
   y: number
 }
@@ -41,7 +44,17 @@ interface Rotulo extends Cidade {
  * erra com facilidade, e mandar alguém para o WhatsApp da cidade errada
  * é pior que pedir uma confirmação.
  */
-export function MapaInterativo({ children }: { children: ReactNode }) {
+export function MapaInterativo({
+  children,
+  opcoes = {},
+}: {
+  children: ReactNode
+  /**
+   * Municípios que têm mais de um destino dentro do mesmo bloco —
+   * a sede e os distritos com grupo próprio. Ver MapaRondonia.
+   */
+  opcoes?: Record<string, Destino[]>
+}) {
   const { grupos: copy } = useConteudo()
   const sessao = useSessao()
   const area = useRef<HTMLDivElement>(null)
@@ -70,6 +83,7 @@ export function MapaInterativo({ children }: { children: ReactNode }) {
     const c = caixa.getBoundingClientRect()
     setRotulo({
       ...lerCidade(bloco),
+      rotulo: bloco.dataset.rotulo || (bloco.dataset.nome ?? ''),
       x: b.left - c.left + b.width / 2,
       y: b.top - c.top - 8,
     })
@@ -122,7 +136,7 @@ export function MapaInterativo({ children }: { children: ReactNode }) {
             style={{ left: rotulo.x, top: rotulo.y }}
             aria-hidden
           >
-            {rotulo.nome}
+            {rotulo.rotulo}
             <span className="mt-0.5 block text-xs font-medium text-white/70">
               {selo(rotulo.status).texto}
             </span>
@@ -153,31 +167,44 @@ export function MapaInterativo({ children }: { children: ReactNode }) {
           não vê o mapa mudar de cor — precisa ouvir o que foi escolhido. */}
       <div aria-live="polite" className="mt-4">
         {escolhida ? (
-          <div className="cartao anima-etapa flex flex-wrap items-center justify-between gap-4 p-5">
-            <p className="min-w-0">
-              <strong className="block truncate font-[family-name:var(--font-titulo)] text-xl font-bold tracking-[-0.02em]">
-                {escolhida.nome}
-              </strong>
-              <span
-                className={`mt-1.5 inline-flex items-center rounded-full px-3 py-1 text-xs font-semibold ${selo(escolhida.status).classe}`}
+          <div className="cartao anima-etapa p-5">
+            {/* Um lugar só, o caso dos 50: nome, selo e o botão, tudo
+                na mesma linha. Dois ou mais (sede + distrito), cada um
+                na sua linha, para que a escolha seja escolha e não
+                um botão que se decide sozinho. */}
+            {(opcoes[escolhida.slug] ?? [escolhida]).map((op, i) => (
+              <div
+                key={op.slug}
+                className={`flex flex-wrap items-center justify-between gap-4${
+                  i > 0 ? ' mt-4 border-t border-linha pt-4' : ''
+                }`}
               >
-                {selo(escolhida.status).texto}
-              </span>
-            </p>
+                <p className="min-w-0">
+                  <strong className="block truncate font-[family-name:var(--font-titulo)] text-xl font-bold tracking-[-0.02em]">
+                    {op.nome}
+                  </strong>
+                  <span
+                    className={`mt-1.5 inline-flex items-center rounded-full px-3 py-1 text-xs font-semibold ${selo(op.status).classe}`}
+                  >
+                    {selo(op.status).texto}
+                  </span>
+                </p>
 
-            {escolhida.disponivel ? (
-              <a
-                href={caminhoDoGrupo(escolhida.slug, 'mapa', sessao)}
-                className="toque inline-flex min-h-13 items-center justify-center gap-2 rounded-full bg-verde px-6 py-3 font-semibold text-white shadow-media transition-all hover:brightness-110"
-              >
-                <svg viewBox="0 0 24 24" className="size-5" fill="currentColor" aria-hidden>
-                  <path d="M12.04 2C6.58 2 2.13 6.45 2.13 11.91c0 1.75.46 3.45 1.32 4.95L2 22l5.25-1.38a9.87 9.87 0 0 0 4.79 1.22c5.46 0 9.91-4.45 9.91-9.91 0-2.65-1.03-5.14-2.9-7.01A9.82 9.82 0 0 0 12.04 2Z" />
-                </svg>
-                {copy.sugestaoSim}
-              </a>
-            ) : (
-              <span className="text-base text-grafite">{copy.avisoEmBreve}</span>
-            )}
+                {op.disponivel ? (
+                  <a
+                    href={caminhoDoGrupo(op.slug, 'mapa', sessao)}
+                    className="toque inline-flex min-h-13 items-center justify-center gap-2 rounded-full bg-verde px-6 py-3 font-semibold text-white shadow-media transition-all hover:brightness-110"
+                  >
+                    <svg viewBox="0 0 24 24" className="size-5" fill="currentColor" aria-hidden>
+                      <path d="M12.04 2C6.58 2 2.13 6.45 2.13 11.91c0 1.75.46 3.45 1.32 4.95L2 22l5.25-1.38a9.87 9.87 0 0 0 4.79 1.22c5.46 0 9.91-4.45 9.91-9.91 0-2.65-1.03-5.14-2.9-7.01A9.82 9.82 0 0 0 12.04 2Z" />
+                    </svg>
+                    {copy.sugestaoSim}
+                  </a>
+                ) : (
+                  <span className="text-base text-grafite">{copy.avisoEmBreve}</span>
+                )}
+              </div>
+            ))}
           </div>
         ) : (
           <p className="text-base text-grafite">{copy.mapaDica}</p>

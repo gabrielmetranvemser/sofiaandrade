@@ -2,6 +2,7 @@ import { lerConteudo } from '@/lib/conteudo/ler'
 import { lerSlots } from '@/lib/midia/ler'
 import { Secao, CabecalhoSecao } from '@/components/ui/Secao'
 import { Imagem } from '@/components/ui/Imagem'
+import { Texto } from '@/components/ui/TextoComDestaque'
 
 const ICONES: Record<string, React.ReactNode> = {
   familia: (
@@ -61,8 +62,8 @@ export async function Valores() {
                 {ICONES[item.chave]}
               </svg>
             </span>
-            <h3 className="mt-5 text-xl text-tinta">{item.titulo}</h3>
-            <p className="mt-2 text-base text-grafite">{item.texto}</p>
+            <h3 className="mt-5 text-xl text-tinta"><Texto>{item.titulo}</Texto></h3>
+            <p className="mt-2 text-base text-grafite"><Texto>{item.texto}</Texto></p>
           </li>
         ))}
       </ul>

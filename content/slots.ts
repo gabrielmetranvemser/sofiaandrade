@@ -253,6 +253,47 @@ export const SLOTS_POR_CHAVE: Record<string, Slot> = Object.fromEntries(
   SLOTS.map((s) => [s.chave, s]),
 )
 
+/**
+ * DE QUAL SEÇÃO DO PAINEL CADA ESPAÇO FAZ PARTE.
+ *
+ * O painel deixou de ser organizado por TIPO (uma aba de textos, outra
+ * de imagens) e passou a ser organizado por SEÇÃO — porque é assim que
+ * quem edita pensa: "quero mexer em Quem é Sofia", e não "quero mexer
+ * numa imagem". Para juntar texto, imagem e vídeo na mesma tela, cada
+ * espaço precisa dizer a que seção pertence.
+ *
+ * ⚠️ POR PREFIXO, e não um campo em cada objeto. A chave do espaço já
+ *    carrega a informação (`origem.retrato` é de `origem`), e repetir
+ *    isso 25 vezes seria 25 oportunidades de divergir. As três exceções
+ *    estão declaradas primeiro, pela chave inteira: a marca e o ícone
+ *    não pertencem a nenhuma seção da página — aparecem em todas — e
+ *    por isso moram nas telas de Identidade.
+ */
+const SECAO_DO_ESPACO: Record<string, string> = {
+  'marca.simbolo': 'candidata',
+  'marca.favicon': 'meta',
+  hero: 'hero',
+  origem: 'origem',
+  album: 'album',
+  rua: 'rua',
+  valores: 'valores',
+  provas: 'provas',
+  social: 'social',
+  cta: 'ctaFinal',
+  moldura: 'filtro',
+}
+
+export function secaoDoEspaco(chave: string): string | null {
+  return SECAO_DO_ESPACO[chave] ?? SECAO_DO_ESPACO[chave.split('.')[0]] ?? null
+}
+
+/** Agrupados pela seção do painel a que pertencem. */
+export const SLOTS_POR_SECAO = SLOTS.reduce<Record<string, Slot[]>>((acc, s) => {
+  const secao = secaoDoEspaco(s.chave)
+  if (secao) (acc[secao] ??= []).push(s)
+  return acc
+}, {})
+
 /** Agrupados por seção da página, para a galeria do painel. */
 export const SLOTS_POR_ONDE = SLOTS.reduce<Record<string, Slot[]>>((acc, s) => {
   ;(acc[s.onde] ??= []).push(s)

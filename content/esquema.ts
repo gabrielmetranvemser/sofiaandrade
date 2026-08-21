@@ -32,9 +32,31 @@ export type Campo =
    * subiu o vídeo. Com o campo em branco, o bloco inteiro some da
    * página — ver components/ui/Video.tsx.
    */
-  | (Base & { tipo: 'video' })
+  | (Base & {
+      tipo: 'video'
+      /**
+       * ONDE ESTE VÍDEO APARECE NA PÁGINA, em uma frase.
+       *
+       * ⚠️ Não é ajuda opcional, é o dado central da tela de Vídeos.
+       *    O pedido que originou isto foi literal: "cada espaço tem que
+       *    dizer EXATAMENTE onde vai o vídeo na página". Quem chega com
+       *    oito arquivos na mão precisa saber qual vai em qual campo
+       *    sem abrir o site em outra aba para adivinhar.
+       */
+      onde: string
+    })
   /** Uma entre opções fixas. Grava o `valor`, mostra o `rotulo`. */
   | (Base & { tipo: 'escolha'; opcoes: readonly { valor: string; rotulo: string }[] })
+  /**
+   * Um número numa faixa, com barra deslizante.
+   *
+   * ⚠️ Existe onde a resposta certa é "um pouco mais" e não um valor
+   *    exato. A força da textura era uma escolha de três nomes —
+   *    sutil, média, forte — e três nomes não cobrem o espaço entre
+   *    "não vejo nada" e "está demais". Arrastar até parecer certo é
+   *    a forma natural de decidir isso.
+   */
+  | (Base & { tipo: 'deslizante'; min: number; max: number; passo?: number; sufixo?: string })
   /** Endereço interno: começa com / ou #. Nunca externo. */
   | (Base & { tipo: 'ancora' })
   /** Existe no dado, não aparece na tela (ids, chaves técnicas). */
@@ -88,12 +110,95 @@ const FORMATO_VIDEO = {
   ajuda: 'Vídeo gravado na vertical, de celular, é "em pé".',
 } as const
 
+/**
+ * OS AJUSTES DE PLAYER, IGUAIS EM TODO VÍDEO DA PÁGINA.
+ *
+ * ⚠️ SÃO POUCOS DE PROPÓSITO. A tentação é expor tudo que um player
+ *    aceita — velocidade, legenda, marca d'água, tempo inicial. Cada
+ *    ajuste desses é uma decisão a mais para quem edita e um caminho a
+ *    mais para a página sair errada. Aqui só entrou o que muda o
+ *    comportamento de verdade e o que a campanha pediu por nome.
+ *
+ * ⚠️ NEM TODO AJUSTE VALE PARA TODO PROVEDOR, e a tela diz isso. Um
+ *    arquivo do R2 toca no player do navegador e obedece a tudo; o
+ *    YouTube atende `controles` e `tela cheia` como pedido, mas nunca
+ *    esconde a própria marca. Prometer o contrário seria mentir.
+ */
+const OPCOES_VIDEO: Record<string, Campo> = {
+  controles: {
+    tipo: 'booleano',
+    rotulo: 'Mostrar os controles do player',
+    ajuda: 'Barra de progresso, volume e pausa. Desligado, o vídeo toca do início ao fim sem interface.',
+  },
+  telaCheia: {
+    tipo: 'booleano',
+    rotulo: 'Permitir tela cheia',
+  },
+  inicio: {
+    tipo: 'escolha',
+    rotulo: 'Como o vídeo começa',
+    opcoes: [
+      { valor: 'clique', rotulo: 'Ao clicar no play' },
+      { valor: 'automatico', rotulo: 'Sozinho, quando aparece na tela' },
+    ],
+    ajuda:
+      'Sozinho: começa MUDO — é regra de todos os navegadores, e não há como contornar. Quem quiser som liga no player. Na trilha de vídeos este ajuste é ignorado: lá só um toca por vez.',
+  },
+  carregamento: {
+    tipo: 'escolha',
+    rotulo: 'Carregamento',
+    opcoes: [
+      { valor: 'ao-clicar', rotulo: 'Só ao clicar (mais leve)' },
+      { valor: 'com-previa', rotulo: 'Adiantar a capa (abre mais rápido)' },
+    ],
+    ajuda:
+      'Só ao clicar: nada é pedido ao provedor antes de a pessoa tocar em play. Adiantar a capa: busca a miniatura junto com a página.',
+  },
+  botaoRotulo: {
+    tipo: 'texto',
+    rotulo: 'Botão sobre o vídeo',
+    max: 30,
+    ajuda: 'Opcional. Fica no canto do vídeo. Vazio, não aparece.',
+  },
+  botaoDestino: {
+    tipo: 'ancora',
+    rotulo: 'Destino do botão',
+    ajuda: 'Um lugar dentro do site. Ex.: /#grupos',
+  },
+}
+
 /** Um vídeo dentro de uma lista: trilha, comentários, processos. */
-const itemVideo = (): Record<string, Campo> => ({
+const itemVideo = (onde: string): Record<string, Campo> => ({
   id: ID,
   titulo: { tipo: 'texto', rotulo: 'Título', max: 60, ajuda: 'Aparece sobre a capa do vídeo.' },
-  url: { tipo: 'video', rotulo: 'Endereço do vídeo' },
+  url: { tipo: 'video', rotulo: 'Endereço do vídeo', onde },
   formato: FORMATO_VIDEO,
+  opcoes: { tipo: 'grupo', rotulo: 'Ajustes do player', campos: OPCOES_VIDEO },
+})
+
+/**
+ * Um vídeo solto numa seção. Mesmos campos de um item de lista, menos o
+ * `id` — que só existe para o repetidor saber reordenar.
+ *
+ * ⚠️ O TÍTULO ESTAVA FALTANDO e o texto ficava fixo no componente:
+ *    "Sofia Andrade conta a própria história" vinha do código, não do
+ *    painel. Quem editava via a legenda na página e não achava onde
+ *    mudar — porque não havia onde.
+ */
+const videoSolto = (rotulo: string, onde: string, ajuda?: string): Campo => ({
+  tipo: 'grupo',
+  rotulo,
+  campos: {
+    titulo: {
+      tipo: 'texto',
+      rotulo: 'Título do vídeo',
+      max: 60,
+      ajuda: 'Aparece sobre a capa, no canto de baixo. Vazio, não aparece.',
+    },
+    url: { tipo: 'video', rotulo: 'Endereço do vídeo', onde, ajuda },
+    formato: FORMATO_VIDEO,
+    opcoes: { tipo: 'grupo', rotulo: 'Ajustes do player', campos: OPCOES_VIDEO },
+  },
 })
 
 /** Item de lista com número, título e texto — o formato mais repetido. */
@@ -156,12 +261,11 @@ export const ESQUEMA: Record<string, SecaoEsquema> = {
         ajuda: 'Um parágrafo por entrada.',
       },
       citacao: { tipo: 'longo', rotulo: 'Frase em destaque', max: 180, linhas: 2 },
-      video: {
-        tipo: 'video',
-        rotulo: 'Vídeo da história dela',
-        ajuda:
-          'Entra no topo da coluna de fotos. Vazio enquanto a gravação não fica pronta — a seção fica como está.',
-      },
+      video: videoSolto(
+        'Vídeo da história dela',
+        'Seção "Quem é Sofia" — logo abaixo do título, antes do primeiro parágrafo. É a primeira coisa depois do título.',
+        'É o vídeo em que ela conta a própria história.',
+      ),
     },
   },
 
@@ -199,7 +303,11 @@ export const ESQUEMA: Record<string, SecaoEsquema> = {
       etiqueta: { tipo: 'texto', rotulo: 'Etiqueta', max: 40, ajuda: 'Costuma ser o ano. Ex.: 2020' },
       titulo: { tipo: 'texto', rotulo: 'Título', max: 70, destaque: true },
       texto: { tipo: 'longo', rotulo: 'Texto', max: 300, linhas: 3 },
-      video: { tipo: 'video', rotulo: 'Vídeo da pandemia', ajuda: 'Aparece antes das fotos.' },
+      video: videoSolto(
+        'Vídeo da pandemia',
+        'Seção "A rua" — logo abaixo do texto de abertura e ANTES das três fotos de 2020.',
+        'É o registro do que a seção descreve; as fotos ficam como apoio.',
+      ),
       fotos: {
         tipo: 'lista',
         rotulo: 'Legendas das fotos',
@@ -233,7 +341,10 @@ export const ESQUEMA: Record<string, SecaoEsquema> = {
         max: 8,
         item: itemNumerado(260),
       },
-      video: { tipo: 'video', rotulo: 'Vídeo', ajuda: 'Fecha a seção, abaixo dos cartões.' },
+      video: videoSolto(
+        'Vídeo',
+        'Seção "O que está errado" — fecha a seção, centralizado abaixo dos quatro cartões de problema.',
+      ),
     },
   },
 
@@ -319,11 +430,10 @@ export const ESQUEMA: Record<string, SecaoEsquema> = {
       etiqueta: { tipo: 'texto', rotulo: 'Etiqueta', max: 40 },
       titulo: { tipo: 'texto', rotulo: 'Título', max: 70, destaque: true },
       intro: { tipo: 'longo', rotulo: 'Introdução', max: 300, linhas: 3 },
-      video: {
-        tipo: 'video',
-        rotulo: 'Vídeo da prestação de contas',
-        ajuda: 'Fica ao lado da introdução, no lugar onde ficava a faixa de números.',
-      },
+      video: videoSolto(
+        'Vídeo da prestação de contas',
+        'Seção "O que já foi feito" — ao lado direito da introdução, no lugar onde ficava a faixa de números.',
+      ),
       entregas: {
         tipo: 'lista',
         rotulo: 'Entregas',
@@ -383,7 +493,9 @@ export const ESQUEMA: Record<string, SecaoEsquema> = {
         min: 0,
         max: 2,
         ajuda: 'Aparecem logo abaixo dos prints. Sem endereço, não aparecem.',
-        item: itemVideo(),
+        item: itemVideo(
+          'Seção "Aqui não sou eu falando de mim" — em dois, logo abaixo da grade de prints de comentário.',
+        ),
       },
       ataques: {
         tipo: 'grupo',
@@ -415,7 +527,9 @@ export const ESQUEMA: Record<string, SecaoEsquema> = {
             titulo: 'titulo',
             min: 0,
             max: 2,
-            item: itemVideo(),
+            item: itemVideo(
+              'Seção "E o que a esquerda diz de mim?" — DENTRO do cartão deste processo, abaixo da pílula amarela de resultado.',
+            ),
           },
         },
       },
@@ -441,7 +555,9 @@ export const ESQUEMA: Record<string, SecaoEsquema> = {
         min: 0,
         max: 12,
         ajuda: 'A ordem aqui é a ordem da fita.',
-        item: itemVideo(),
+        item: itemVideo(
+          'Seção "A trilha" — na fita que corre de lado, logo acima de "O que eu levo pra Brasília".',
+        ),
       },
     },
   },
@@ -676,7 +792,11 @@ export const ESQUEMA: Record<string, SecaoEsquema> = {
 
   rodape: {
     rotulo: 'Rodapé',
-    grupo: 'Página',
+    // ⚠️ Fica em Identidade, e não em Página, porque o que ele carrega
+    //    é identificação — assinatura, CNPJ, coligação, o bloco legal
+    //    exigido por lei. É o mesmo tipo de dado do nome e do número,
+    //    não um bloco de conteúdo editorial.
+    grupo: 'Identidade',
     nota: 'O bloco legal é obrigatório por lei e a peça não pode ir ao ar sem ele. Confira com quem cuida da parte jurídica antes de mexer — e lembre que toda alteração fica no histórico.',
     campos: {
       assinatura: { tipo: 'texto', rotulo: 'Assinatura', max: 40 },
@@ -810,32 +930,43 @@ export const ESQUEMA: Record<string, SecaoEsquema> = {
     rotulo: 'Aparência',
     grupo: 'Identidade',
     nota:
-      'Três ajustes visuais que valem para a página inteira. Mudar aqui vale na hora, sem publicar de novo.',
+      'Ajustes visuais que valem para a página inteira. Mudar aqui vale na hora, sem publicar de novo.',
     campos: {
       heroCor: {
         tipo: 'escolha',
         rotulo: 'Cores da primeira dobra',
         opcoes: [
-          { valor: 'capa', rotulo: 'Da capa (verde e amarelo)' },
-          { valor: 'azul', rotulo: 'Só azul' },
+          { valor: 'azul', rotulo: 'Azul' },
+          { valor: 'verde', rotulo: 'Verde' },
+          { valor: 'amarelo', rotulo: 'Amarelo' },
+          { valor: 'verde-amarelo', rotulo: 'Verde e amarelo (a capa oficial)' },
+          { valor: 'azul-verde', rotulo: 'Azul e verde' },
+          { valor: 'amarelo-azul', rotulo: 'Amarelo e azul' },
         ],
         ajuda:
-          'Na opção da capa, o verde e o amarelo entram pela borda de cima, atrás da foto. O texto continua sobre o azul nas duas.',
+          'Em todos, o lado escuro fica sob o texto e o claro atrás das fotos — é o que mantém o título legível. A cor do destaque e a do botão mudam sozinhas para continuar saltando do fundo.',
       },
-      halftone: {
-        tipo: 'booleano',
-        rotulo: 'Textura pontilhada',
-        ajuda: 'Uma trama de pontos quase invisível sobre a página, para tirar o ar de gradiente liso.',
-      },
-      halftoneForca: {
+      textura: {
         tipo: 'escolha',
-        rotulo: 'Força da textura',
+        rotulo: 'Textura de fundo',
         opcoes: [
-          { valor: 'sutil', rotulo: 'Sutil' },
-          { valor: 'media', rotulo: 'Média' },
-          { valor: 'forte', rotulo: 'Forte' },
+          { valor: 'nenhuma', rotulo: 'Nenhuma' },
+          { valor: 'halftone', rotulo: 'Halftone — trama de pontos' },
+          { valor: 'ruido', rotulo: 'Ruído — grão de papel' },
+          { valor: 'tracejado', rotulo: 'Tracejado — linhas diagonais' },
         ],
-        ajuda: 'Só vale com a textura ligada. Comece em sutil — ela deve ser sentida, não vista.',
+        ajuda:
+          'Cobre a página inteira e serve para tirar o ar de gradiente digital liso. O halftone lembra impressão; o ruído, papel; o tracejado, serigrafia.',
+      },
+      texturaForca: {
+        tipo: 'deslizante',
+        rotulo: 'Força da textura',
+        min: 0,
+        max: 100,
+        passo: 5,
+        sufixo: '%',
+        ajuda:
+          'Comece baixo. A régua: se der para contar os pontos, está alto — ela deve ser sentida, não vista.',
       },
     },
   },

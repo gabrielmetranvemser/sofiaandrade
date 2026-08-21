@@ -5,6 +5,7 @@ import { resolverMolduras } from '@/lib/molduras'
 import { Secao, CabecalhoSecao } from '@/components/ui/Secao'
 import { BotaoLink } from '@/components/ui/Botao'
 import { Silhueta } from '@/components/ui/Silhueta'
+import { Texto } from '@/components/ui/TextoComDestaque'
 
 /**
  * Chamada para o gerador de moldura.
@@ -52,8 +53,8 @@ export async function SecaoFiltro() {
                   {p.numero}
                 </span>
                 <span className="min-w-0">
-                  <strong className="block font-semibold">{p.titulo}</strong>
-                  <span className="text-base text-white/75">{p.texto}</span>
+                  <strong className="block font-semibold"><Texto tom="amarelo">{p.titulo}</Texto></strong>
+                  <span className="text-base text-white/75"><Texto tom="amarelo">{p.texto}</Texto></span>
                 </span>
               </li>
             ))}

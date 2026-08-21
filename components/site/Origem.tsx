@@ -3,6 +3,8 @@ import { lerSlots } from '@/lib/midia/ler'
 import { Secao, CabecalhoSecao } from '@/components/ui/Secao'
 import { Imagem } from '@/components/ui/Imagem'
 import { Video } from '@/components/ui/Video'
+import { formatoValido } from '@/lib/video'
+import { Texto } from '@/components/ui/TextoComDestaque'
 
 /**
  * De onde ela vem.
@@ -27,6 +29,25 @@ export async function Origem() {
         <div>
           <CabecalhoSecao etiqueta={origem.etiqueta} titulo={origem.titulo} />
 
+          {/* ⚠️ O VÍDEO MUDOU DE COLUNA, e a razão é de leitura, não de
+              layout. Ele estava no alto da coluna de fotos, do lado
+              direito — visualmente separado do texto que ele conta.
+
+              É o vídeo em que ela narra a própria história: pertence ao
+              lugar onde a história é contada, logo depois do título e
+              antes do primeiro parágrafo. Quem chega na seção encontra
+              a versão em voz dela antes da versão escrita, e escolhe. */}
+          {origem.video.url ? (
+            <div data-revelar className="mt-8">
+              <Video
+                url={origem.video.url}
+                formato={formatoValido(origem.video.formato)}
+                opcoes={origem.video.opcoes}
+                titulo={origem.video.titulo}
+              />
+            </div>
+          ) : null}
+
           <div className="mt-8 space-y-5">
             {origem.paragrafos.map((p, i) => (
               <p
@@ -35,7 +56,7 @@ export async function Origem() {
                 style={{ ['--atraso' as string]: `${i * 80}ms` }}
                 className="max-w-2xl text-lg text-grafite"
               >
-                {p}
+                <Texto>{p}</Texto>
               </p>
             ))}
           </div>
@@ -48,17 +69,12 @@ export async function Origem() {
               <path d="M9.5 5C6.5 6.6 5 9 5 12.2c0 .6.1 1.2.2 1.8h.3c.5-.5 1.2-.8 2.1-.8 1.7 0 3 1.3 3 3.1S9.2 19.5 7.4 19.5C5 19.5 3.2 17.4 3.2 14c0-4.3 2.3-7.6 6.3-9.7L9.5 5Zm10 0C16.5 6.6 15 9 15 12.2c0 .6.1 1.2.2 1.8h.3c.5-.5 1.2-.8 2.1-.8 1.7 0 3 1.3 3 3.1s-1.4 3.2-3.2 3.2c-2.4 0-4.2-2.1-4.2-5.5 0-4.3 2.3-7.6 6.3-9.7l.2.7Z" />
             </svg>
             <p className="mt-4 font-[family-name:var(--font-titulo)] text-xl font-semibold leading-snug tracking-[-0.02em] md:text-2xl">
-              {origem.citacao}
+              <Texto tom="amarelo">{origem.citacao}</Texto>
             </p>
           </blockquote>
         </div>
 
         <div data-revelar className="space-y-4">
-          <Video
-            url={origem.video}
-            titulo={`${candidata.nome} conta a própria história`}
-            className="w-full"
-          />
           <Imagem
             slot="origem.retrato"
             slots={slots}

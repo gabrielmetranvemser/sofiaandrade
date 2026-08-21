@@ -1,8 +1,13 @@
 'use client'
 
-import Image from 'next/image'
-import { useState } from 'react'
-import { interpretarVideo, type FormatoVideo } from '@/lib/video'
+import { useEffect, useRef, useState } from 'react'
+import {
+  embedComOpcoes,
+  interpretarVideo,
+  opcoesValidas,
+  type FormatoVideo,
+  type OpcoesVideo,
+} from '@/lib/video'
 
 /**
  * UM VÍDEO, COM FACHADA.
@@ -45,6 +50,16 @@ interface Props {
   /** Controlado: quem manda é o pai. Ver a trilha. */
   aberto?: boolean
   onAbrir?: () => void
+  /**
+   * Ajustes de player vindos do painel.
+   *
+   * ⚠️ `unknown` DE PROPÓSITO. O tipo do conteúdo editável alarga todo
+   *    literal para `string` — `'ao-clicar'` chega aqui como `string`,
+   *    e um tipo estreito recusaria o próprio dado do painel. Quem
+   *    aperta a forma é `opcoesValidas`, em tempo de execução, que é
+   *    onde a garantia vale: o valor vem do banco, e banco não tem tipo.
+   */
+  opcoes?: unknown
 }
 
 export function Video({
@@ -54,14 +69,45 @@ export function Video({
   className = '',
   aberto,
   onAbrir,
+  opcoes: opcoesBrutas,
 }: Props) {
   const [abertoLocal, setAbertoLocal] = useState(false)
+  const [naTela, setNaTela] = useState(false)
+  const [mudo, setMudo] = useState(true)
+  const caixa = useRef<HTMLDivElement>(null)
 
   const video = interpretarVideo(url)
+  const opcoes = opcoesValidas(opcoesBrutas)
+  const controlado = aberto !== undefined
+  // ⚠️ AUTOPLAY NÃO VALE NA TRILHA. Lá o pai decide quem toca, e só um
+  //    por vez; vários vídeos pedindo o palco ao mesmo tempo fariam a
+  //    fita trocar sozinha enquanto a pessoa lê.
+  const automatico = opcoes.inicio === 'automatico' && !controlado
+
+  // ⚠️ SÓ QUANDO ENTRA NA TELA, e não no carregamento da página. Um
+  //    vídeo tocando três dobras abaixo consome rede e bateria sem
+  //    ninguém ver — e na trilha seriam oito ao mesmo tempo.
+  useEffect(() => {
+    if (!automatico) return
+    const el = caixa.current
+    if (!el) return
+    const observador = new IntersectionObserver(
+      ([entrada]) => {
+        if (entrada.isIntersecting) {
+          setNaTela(true)
+          observador.disconnect()
+        }
+      },
+      { threshold: 0.4 },
+    )
+    observador.observe(el)
+    return () => observador.disconnect()
+  }, [automatico])
+
   if (!video) return null
 
-  const controlado = aberto !== undefined
-  const tocando = controlado ? aberto : abertoLocal
+  const temBotao = Boolean(opcoes.botaoRotulo && opcoes.botaoDestino)
+  const tocando = (controlado ? aberto : abertoLocal) || (automatico && naTela)
   const abrir = () => (controlado ? onAbrir?.() : setAbertoLocal(true))
 
   const proporcao = formato === 'em-pe' ? 'aspect-[9/16]' : 'aspect-video'
@@ -69,39 +115,104 @@ export function Video({
     `relative isolate overflow-hidden rounded-2xl bg-azul-noite ${proporcao} ${className}`
 
   if (tocando) {
+    // ── Arquivo próprio (R2 e afins): player do navegador ──
+    // Sem iframe e sem biblioteca. `controls` porque é o player nativo
+    // e ele já traz barra, volume e tela cheia — reimplementar isso
+    // seria trocar algo acessível de fábrica por algo nosso e pior.
+    if (video.provedor === 'arquivo') {
+      return (
+        <div ref={caixa} className={moldura}>
+          {/* eslint-disable-next-line jsx-a11y/media-has-caption */}
+          <video
+            src={video.embed}
+            title={titulo ?? 'Vídeo'}
+            className="absolute inset-0 size-full bg-black object-contain"
+            controls={opcoes.controles}
+            controlsList={opcoes.telaCheia ? undefined : 'nofullscreen'}
+            disablePictureInPicture={!opcoes.telaCheia}
+            autoPlay
+            // Autoplay com som é recusado pelo navegador e a chamada
+            // falha calada — o vídeo ficaria parado no primeiro quadro.
+            muted={automatico && mudo}
+            loop={automatico}
+            playsInline
+            preload="metadata"
+          />
+          {automatico && mudo ? <BotaoDeSom onLigar={() => setMudo(false)} /> : null}
+          {temBotao ? <BotaoNoVideo opcoes={opcoes} /> : null}
+        </div>
+      )
+    }
+
     return (
-      <div className={moldura}>
+      <div ref={caixa} className={moldura}>
         <iframe
-          src={video.embed}
+          src={embedComOpcoes(video, opcoes)}
           title={titulo ?? 'Vídeo'}
           className="absolute inset-0 size-full"
-          allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture; fullscreen"
-          allowFullScreen
+          allow={`accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture${
+            opcoes.telaCheia ? '; fullscreen' : ''
+          }`}
+          allowFullScreen={opcoes.telaCheia}
           loading="lazy"
           referrerPolicy="strict-origin-when-cross-origin"
         />
+        {temBotao ? <BotaoNoVideo opcoes={opcoes} /> : null}
       </div>
     )
   }
 
   return (
     <button
+      ref={caixa as unknown as React.RefObject<HTMLButtonElement>}
       type="button"
       onClick={abrir}
       className={`group toque block w-full cursor-pointer ${moldura}`}
       aria-label={titulo ? `Assistir: ${titulo}` : 'Assistir ao vídeo'}
     >
-      {video.capa ? (
-        <Image
+      {/* ⚠️ A CAPA DE UM ARQUIVO PRÓPRIO É O PRÓPRIO VÍDEO, parado no
+          primeiro quadro. YouTube e Vimeo entregam miniatura; o R2
+          entrega bytes. A alternativa seria pedir à campanha uma imagem
+          de capa para cada vídeo — mais um campo, mais um upload, mais
+          uma coisa para esquecer.
+
+          `preload="metadata"` mais o fragmento `#t=0.1` fazem o
+          navegador buscar só o cabeçalho e um quadro por requisição de
+          intervalo: alguns kB, não o arquivo inteiro. `muted` e
+          `playsInline` são o que impede o iOS de assumir o controle da
+          tela ao encostar no elemento. */}
+      {video.provedor === 'arquivo' ? (
+        // eslint-disable-next-line jsx-a11y/media-has-caption
+        <video
+          src={`${video.embed}#t=0.1`}
+          className="absolute inset-0 size-full object-cover"
+          preload={opcoes.carregamento === 'com-previa' ? 'metadata' : 'none'}
+          muted
+          playsInline
+          tabIndex={-1}
+          aria-hidden
+        />
+      ) : video.capa ? (
+        /* ⚠️ <img> COMUM, E NÃO next/image, DE PROPÓSITO.
+           Passar a miniatura pelo otimizador exige declarar o domínio
+           em next.config — e quando não bate, o Next não degrada: ele
+           LANÇA, e a página inteira da campanha vira tela de erro.
+           Foi o que aconteceu no primeiro vídeo do YouTube cadastrado.
+
+           Amarrar o conteúdo do painel à configuração de build é a
+           própria armadilha: cada provedor novo viraria um deploy. E o
+           ganho seria mínimo — a miniatura já chega otimizada, com
+           15 kB, da CDN do provedor.
+
+           `object-cover` com escala corta as barras pretas: a capa do
+           YouTube é 480×360 (4:3) e o quadro é 16:9. */
+        // eslint-disable-next-line @next/next/no-img-element
+        <img
           src={video.capa}
           alt=""
-          fill
-          // A capa do YouTube é 480×360 (4:3) com barras pretas em cima
-          // e embaixo. `object-cover` com escala corta as barras e
-          // devolve o quadro 16:9 real. Sem isso, todo cartaz da página
-          // apareceria com duas tarjas pretas.
-          className="scale-[1.35] object-cover transition-transform duration-500 group-hover:scale-[1.4]"
-          sizes="(max-width: 768px) 100vw, 50vw"
+          loading={opcoes.carregamento === 'com-previa' ? 'eager' : 'lazy'}
+          decoding="async"
+          className="absolute inset-0 size-full scale-[1.35] object-cover transition-transform duration-500 group-hover:scale-[1.4]"
           aria-hidden
         />
       ) : null}
@@ -125,6 +236,65 @@ export function Video({
           {titulo}
         </span>
       ) : null}
+
+      {temBotao ? <BotaoNoVideo opcoes={opcoes} /> : null}
     </button>
+  )
+}
+
+/**
+ * O convite para ligar o som.
+ *
+ * ⚠️ EXISTE PORQUE O AUTOPLAY É MUDO POR LEI DO NAVEGADOR. Sem este
+ *    botão, um vídeo que começa sozinho e sem som parece quebrado — a
+ *    pessoa vê a boca mexendo e não entende. Com ele, o mudo vira uma
+ *    escolha visível em vez de um defeito.
+ *
+ *    Só aparece no arquivo próprio: ali o elemento é nosso e dá para
+ *    tirar o mudo. No YouTube e no Vimeo, quem liga o som é o player
+ *    deles — por isso a tela do painel avisa para não desligar os
+ *    controles quando o início é automático.
+ */
+function BotaoDeSom({ onLigar }: { onLigar: () => void }) {
+  return (
+    <button
+      type="button"
+      onClick={(e) => {
+        e.stopPropagation()
+        onLigar()
+      }}
+      className="toque absolute top-4 left-4 z-10 inline-flex min-h-11 items-center gap-2 rounded-full bg-black/60 px-4 text-sm font-semibold text-white backdrop-blur transition-colors hover:bg-black/80"
+    >
+      <svg viewBox="0 0 24 24" className="size-4" fill="currentColor" aria-hidden>
+        <path d="M4 9v6h4l5 4V5L8 9H4Zm11.5 3a4 4 0 0 0-2-3.46v6.92A4 4 0 0 0 15.5 12Zm-2 8.7a8 8 0 0 0 0-17.4v2.06a6 6 0 0 1 0 13.28v2.06Z" />
+      </svg>
+      Ligar o som
+    </button>
+  )
+}
+
+/**
+ * O botão sobre o vídeo.
+ *
+ * ⚠️ É UM <a> DENTRO DE UM <button> quando o vídeo ainda está fechado —
+ *    aninhamento que o HTML não permite. Por isso ele NÃO é filho do
+ *    botão de play: fica em posição absoluta por cima, com `z-10`, e o
+ *    `stopPropagation` impede que tocar nele também dispare o play.
+ *
+ *    Só destino interno (`/#grupos`). Deixar sair para fora do site
+ *    seria transformar um campo do painel em redirecionamento aberto.
+ */
+function BotaoNoVideo({ opcoes }: { opcoes: OpcoesVideo }) {
+  const destino = opcoes.botaoDestino ?? ''
+  if (!destino.startsWith('/') && !destino.startsWith('#')) return null
+
+  return (
+    <a
+      href={destino}
+      onClick={(e) => e.stopPropagation()}
+      className="toque absolute right-4 bottom-4 z-10 inline-flex min-h-11 items-center rounded-full bg-amarelo px-5 text-sm font-semibold text-azul-escuro shadow-alta transition-transform duration-300 hover:scale-105"
+    >
+      {opcoes.botaoRotulo}
+    </a>
   )
 }

@@ -1,5 +1,5 @@
 import mapa from '@/data/mapa-ro.json'
-import type { MunicipioComGrupo } from '@/lib/tipos'
+import type { Destino, MunicipioComGrupo, StatusGrupo } from '@/lib/tipos'
 import { MapaInterativo } from './MapaInterativo'
 
 /**
@@ -145,10 +145,36 @@ export function MapaRondonia({
   destacado?: string | null
 }) {
   const porSlug = new Map(municipios.map((m) => [m.slug, m]))
-  const abertos = municipios.filter((m) => m.disponivel).length
+  const abertos = municipios.filter(
+    (m) => m.disponivel || m.localidades.some((l) => l.disponivel),
+  ).length
+
+  /**
+   * Os distritos com grupo próprio, por município.
+   *
+   * Distrito não tem contorno na malha — quem desenha os blocos é o
+   * IBGE, e para o IBGE Iata é chão de Guajará-Mirim. Então ele não
+   * ganha bloco: ganha uma segunda opção DENTRO do bloco da sede,
+   * oferecida no cartão depois do toque. É pouca coisa (dois lugares)
+   * e desce como JSON, não como coordenada.
+   */
+  const opcoes: Record<string, Destino[]> = {}
+  for (const m of municipios) {
+    if (m.localidades.length === 0) continue
+    opcoes[m.slug] = [
+      { slug: m.slug, nome: m.nome, status: m.status, disponivel: m.disponivel },
+      ...m.localidades.map((l) => ({
+        slug: l.slug,
+        nome: l.nome,
+        status: l.status,
+        disponivel: l.disponivel,
+        municipioSlug: l.municipioSlug,
+      })),
+    ]
+  }
 
   return (
-    <MapaInterativo>
+    <MapaInterativo opcoes={opcoes}>
       <svg
         viewBox={VIEWBOX}
         role="img"
@@ -201,7 +227,17 @@ export function MapaRondonia({
             const m = porSlug.get(slug)
             if (!m) return null
 
-            const h = ALTURA[m.status] ?? ALTURA.em_breve
+            // O RELEVO É DO LUGAR, NÃO DA SEDE. Guajará-Mirim ainda não
+            // tem grupo próprio, mas Iata tem, e Iata só existe dentro
+            // deste bloco: pintá-lo de cinza esconderia o único grupo
+            // que há ali. Quem diz de quem é o grupo é o cartão, depois
+            // do toque — o bloco só promete que existe algum.
+            const status: StatusGrupo = m.localidades.some((l) => l.disponivel)
+              ? 'aberto'
+              : m.status
+            const disponivel = status === 'aberto'
+
+            const h = ALTURA[status] ?? ALTURA.em_breve
             const escolhida = slug === destacado
 
             return (
@@ -209,13 +245,18 @@ export function MapaRondonia({
                 key={slug}
                 data-slug={slug}
                 data-nome={m.nome}
-                data-status={m.status}
-                data-disponivel={m.disponivel ? '1' : '0'}
+                // O rótulo do toque diz o LUGAR, e o lugar pode ter
+                // dois nomes: "Guajará-Mirim e Iata". Sem isso o
+                // balão promete grupo aberto em Guajará-Mirim e o
+                // cartão logo abaixo desmente, dizendo "em breve".
+                data-rotulo={[m.nome, ...m.localidades.map((l) => l.nome)].join(' e ')}
+                data-status={status}
+                data-disponivel={disponivel ? '1' : '0'}
                 className={`mapa-mun${escolhida ? ' escolhida' : ''}`}
               >
                 {/* A parede, em degraus. O fill vem do <g>: cada degrau
                     custa só o href e o deslocamento. */}
-                <g fill={PAREDE[m.status] ?? PAREDE.em_breve}>
+                <g fill={PAREDE[status] ?? PAREDE.em_breve}>
                   {Array.from({ length: Math.ceil(h / PASSO) }, (_, i) => {
                     const t = i * PASSO
                     return (
@@ -234,14 +275,14 @@ export function MapaRondonia({
                   href={`#ro-${slug}`}
                   x={ELEVACAO.x * h}
                   y={ELEVACAO.y * h}
-                  fill={TOPO[m.status] ?? TOPO.em_breve}
+                  fill={TOPO[status] ?? TOPO.em_breve}
                   // A divisa é da cor da PRÓPRIA parede, fina e
                   // apagada. Branco abria sulcos claros no meio do
                   // verde e o mapa virava um quebra-cabeça; sem divisa
                   // nenhuma, vizinhos do mesmo tom viram um borrão só
                   // e ninguém acha a própria cidade. Da cor da parede,
                   // ela lê como vinco e não como corte.
-                  stroke={PAREDE[m.status] ?? PAREDE.em_breve}
+                  stroke={PAREDE[status] ?? PAREDE.em_breve}
                   strokeOpacity={0.55}
                   strokeWidth={0.9}
                   strokeLinejoin="round"

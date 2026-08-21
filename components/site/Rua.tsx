@@ -1,8 +1,10 @@
 import { lerConteudo } from '@/lib/conteudo/ler'
 import { lerSlots } from '@/lib/midia/ler'
 import { Imagem } from '@/components/ui/Imagem'
-import { TextoComDestaque } from '@/components/ui/TextoComDestaque'
+import { TextoComDestaque, Texto } from '@/components/ui/TextoComDestaque'
 import { Video } from '@/components/ui/Video'
+import { formatoValido } from '@/lib/video'
+import { semDestaque } from '@/components/ui/TextoComDestaque'
 
 /**
  * A prova visual da manchete.
@@ -43,7 +45,7 @@ export async function Rua() {
             style={{ ['--atraso' as string]: '140ms' }}
             className="mt-5 text-lg text-white/80 md:text-xl"
           >
-            {rua.texto}
+            <Texto tom="amarelo">{rua.texto}</Texto>
           </p>
         </div>
 
@@ -57,9 +59,14 @@ export async function Rua() {
             Largura contida de propósito. Em tela cheia ele competiria
             com a foto grande logo abaixo, e a seção passaria a ter dois
             centros. */}
-        {rua.video ? (
+        {rua.video.url ? (
           <div data-revelar className="mt-10 max-w-3xl">
-            <Video url={rua.video} titulo={rua.titulo.replace(/\[\[|\]\]/g, '')} />
+            <Video
+              url={rua.video.url}
+              formato={formatoValido(rua.video.formato)}
+              opcoes={rua.video.opcoes}
+              titulo={rua.video.titulo}
+            />
           </div>
         ) : null}
 
@@ -83,7 +90,7 @@ export async function Rua() {
                     dela, a faixa vira uma lista de cartões com texto e
                     perde a leitura de sequência fotográfica. */}
                 <figcaption className="pointer-events-none absolute inset-x-0 bottom-0 bg-gradient-to-t from-azul-escuro/85 to-transparent p-5 pt-12">
-                  <span className="block font-medium">{foto.legenda}</span>
+                  <span className="block font-medium"><Texto tom="amarelo">{foto.legenda}</Texto></span>
                   {foto.local ? (
                     <span className="mt-0.5 block text-sm text-white/70">{foto.local}</span>
                   ) : null}

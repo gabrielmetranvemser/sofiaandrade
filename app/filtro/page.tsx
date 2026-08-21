@@ -7,7 +7,7 @@ import { resolverMolduras } from '@/lib/molduras'
 import { config, emSilencioEleitoral } from '@/lib/config'
 import { Header } from '@/components/site/Header'
 import { RodapeLegal } from '@/components/site/RodapeLegal'
-import { TextoComDestaque } from '@/components/ui/TextoComDestaque'
+import { TextoComDestaque, Texto } from '@/components/ui/TextoComDestaque'
 import { AvisoWebview } from '@/components/filtro/AvisoWebview'
 import { Fluxo } from '@/components/filtro/Fluxo'
 
@@ -69,7 +69,7 @@ export default async function PaginaFiltro() {
             <h1 className="mt-5 titulo-cartaz">
               <TextoComDestaque texto={copy.titulo} tom="azul" />
             </h1>
-            <p className="mt-4 max-w-2xl text-lg text-grafite">{copy.intro}</p>
+            <p className="mt-4 max-w-2xl text-lg text-grafite"><Texto>{copy.intro}</Texto></p>
           </div>
         </section>
 

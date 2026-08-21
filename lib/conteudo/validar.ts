@@ -1,5 +1,6 @@
 import type { Campo } from '@/content/esquema'
 import { interpretarVideo } from '@/lib/video'
+import { marcacaoQuebrada, tamanhoVisivel } from '@/lib/texto/marcacao'
 
 /**
  * Valida o que veio do formulário contra o descritor.
@@ -20,16 +21,15 @@ interface Resultado<T> {
   erros?: Erros
 }
 
-const MARCACAO_DESTAQUE = /\[\[(.*?)\]\]/g
-
 function limpo(v: unknown): string {
   return typeof v === 'string' ? v.trim() : ''
 }
 
-/** Conta caracteres como a pessoa vê: sem os colchetes da marcação. */
-function tamanhoVisivel(texto: string): number {
-  return texto.replace(MARCACAO_DESTAQUE, '$1').length
-}
+const NOME_DA_MARCA = {
+  destaque: 'destaque',
+  negrito: 'negrito',
+  italico: 'itálico',
+} as const
 
 function validarCampo(
   campo: Campo,
@@ -54,14 +54,14 @@ function validarCampo(
       if (campo.max && tamanhoVisivel(t) > campo.max) {
         erros[caminho] = `Máximo de ${campo.max} caracteres (tem ${tamanhoVisivel(t)}).`
       }
-      if ('destaque' in campo && !campo.destaque && t.includes('[[')) {
-        erros[caminho] = 'Este campo não aceita [[destaque]].'
-      }
-      // Marcação aberta sem fechar deixaria [[ visível na página.
-      const abre = (t.match(/\[\[/g) ?? []).length
-      const fecha = (t.match(/\]\]/g) ?? []).length
-      if (abre !== fecha) {
-        erros[caminho] = 'Há um [[ sem o ]] correspondente.'
+      // ⚠️ Marcação aberta e não fechada deixa os símbolos VISÍVEIS na
+      //    página — o defeito que ninguém enxerga no painel e todo
+      //    mundo enxerga no site.
+      const quebrada = marcacaoQuebrada(t)
+      if (quebrada) {
+        erros[caminho] =
+          `Ficou uma marcação de ${NOME_DA_MARCA[quebrada]} sem fechar. ` +
+          'Use os botões de formatação em vez de digitar os símbolos.'
       }
       return t
     }
@@ -90,6 +90,21 @@ function validarCampo(
           'Não reconheci esse endereço. Cole o link de um vídeo do YouTube ou do Vimeo.'
       }
       return t
+    }
+
+    /**
+     * Número numa faixa.
+     *
+     * ⚠️ Prende dentro dos limites em vez de recusar. O valor vem de
+     *    uma barra que não permite sair da faixa; se chegou fora, ou o
+     *    payload foi adulterado ou o esquema mudou — e nos dois casos o
+     *    certo é o valor mais próximo que existe, não um erro na cara
+     *    de quem só arrastou o controle.
+     */
+    case 'deslizante': {
+      const n = Number(valor)
+      if (!Number.isFinite(n)) return campo.min
+      return Math.min(campo.max, Math.max(campo.min, Math.round(n)))
     }
 
     case 'escolha': {
@@ -125,8 +140,10 @@ function validarCampo(
         if (campo.maxItem && tamanhoVisivel(v) > campo.maxItem) {
           erros[`${caminho}.${i}`] = `Máximo de ${campo.maxItem} caracteres.`
         }
-        if (!campo.destaque && v.includes('[[')) {
-          erros[`${caminho}.${i}`] = 'Este campo não aceita [[destaque]].'
+        const quebrada = marcacaoQuebrada(v)
+        if (quebrada) {
+          erros[`${caminho}.${i}`] =
+            `Ficou uma marcação de ${NOME_DA_MARCA[quebrada]} sem fechar.`
         }
       })
       return lista

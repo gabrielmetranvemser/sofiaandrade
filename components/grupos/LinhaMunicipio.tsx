@@ -2,7 +2,7 @@
 
 import { useConteudo } from '@/lib/conteudo/contexto'
 import { evento, caminhoDoGrupo, useSessao } from '@/lib/eventos'
-import type { MunicipioComGrupo, OrigemClique } from '@/lib/tipos'
+import type { Destino, OrigemClique } from '@/lib/tipos'
 
 /**
  * Uma linha da lista. O href aponta sempre para /g/[slug] — nunca
@@ -16,23 +16,31 @@ import type { MunicipioComGrupo, OrigemClique } from '@/lib/tipos'
  * Município sem grupo aparece desabilitado com selo "em breve".
  * Melhor ver a cidade e entender que ainda não abriu do que não
  * achar e concluir que o site quebrou.
+ *
+ * Serve município e distrito com a mesma forma: os dois são só nome,
+ * slug e estado do grupo. O que distingue é o `dentroDe`, que diz de
+ * quem o distrito é vizinho — sem ele, "Iata" numa lista de cidades
+ * não diz a ninguém onde fica.
  */
 export function LinhaMunicipio({
-  municipio,
+  destino,
   origem,
   distanciaKm,
+  dentroDe,
   className = '',
 }: {
-  municipio: MunicipioComGrupo
+  destino: Destino
   origem: OrigemClique
   /** Distância em km, quando a linha vem da lista das mais próximas. */
   distanciaKm?: number
+  /** Município que ancora este destino. Só os distritos usam. */
+  dentroDe?: string
   /** classes aplicadas no <li>, para a grade desenhar as separações */
   className?: string
 }) {
   const { grupos: copy } = useConteudo()
   const sessao = useSessao()
-  const { status, disponivel } = municipio
+  const { status, disponivel } = destino
 
   const selo =
     status === 'aberto'
@@ -43,7 +51,12 @@ export function LinhaMunicipio({
 
   const conteudo = (
     <>
-      <span className="min-w-0 flex-1 truncate font-medium">{municipio.nome}</span>
+      <span className="min-w-0 flex-1 truncate">
+        <span className="font-medium">{destino.nome}</span>
+        {dentroDe ? (
+          <span className="ml-1.5 text-sm text-grafite">· {dentroDe}</span>
+        ) : null}
+      </span>
       {/* A distância só aparece na lista das mais próximas. É o que
           responde "por que esta cidade e não a minha" sem precisar de
           explicação nenhuma. */}
@@ -85,9 +98,12 @@ export function LinhaMunicipio({
         <button
           type="button"
           onClick={() =>
-            evento('entrou_grupo_indisponivel', { municipio_slug: municipio.slug, origem })
+            evento('entrou_grupo_indisponivel', {
+              municipio_slug: destino.municipioSlug ?? destino.slug,
+              origem,
+            })
           }
-          aria-label={`${municipio.nome} — ${selo.texto}`}
+          aria-label={`${destino.nome} — ${selo.texto}`}
           title={copy.avisoEmBreve}
           className={`${base} cursor-default text-grafite hover:bg-areia`}
         >
@@ -100,7 +116,7 @@ export function LinhaMunicipio({
   return (
     <li className={className}>
       <a
-        href={caminhoDoGrupo(municipio.slug, origem, sessao)}
+        href={caminhoDoGrupo(destino.slug, origem, sessao)}
         className={`${base} hover:bg-areia`}
       >
         {conteudo}

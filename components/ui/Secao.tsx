@@ -112,7 +112,10 @@ export function CabecalhoSecao({
             tom === 'escuro' ? 'text-white/80' : 'text-grafite'
           } ${centro ? 'mx-auto' : ''}`}
         >
-          {intro}
+          {/* O `intro` de TODA seção passa por aqui. Sem o
+              interpretador, negrito aplicado numa introdução aparecia
+              como `**assim**` na página — foi o defeito relatado. */}
+          {typeof intro === 'string' ? <TextoComDestaque texto={intro} tom={tom === 'escuro' ? 'amarelo' : 'azul'} /> : intro}
         </p>
       ) : null}
     </header>

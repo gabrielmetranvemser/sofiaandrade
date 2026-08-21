@@ -3,6 +3,8 @@ import { lerSlots } from '@/lib/midia/ler'
 import { Secao, CabecalhoSecao } from '@/components/ui/Secao'
 import { Imagem } from '@/components/ui/Imagem'
 import { Video } from '@/components/ui/Video'
+import { formatoValido } from '@/lib/video'
+import { Texto } from '@/components/ui/TextoComDestaque'
 
 /**
  * Prestação de contas do mandato de vereadora. As leis vêm do registro
@@ -35,7 +37,7 @@ export async function Provas() {
             coluna vazia esperando. */}
         <div
           className={
-            provas.video
+            provas.video.url
               ? 'grid items-center gap-10 md:grid-cols-[1fr_1fr] md:gap-14'
               : ''
           }
@@ -46,9 +48,14 @@ export async function Provas() {
             intro={provas.intro}
             tom="escuro"
           />
-          {provas.video ? (
+          {provas.video.url ? (
             <div data-revelar className="mt-10 md:mt-0">
-              <Video url={provas.video} titulo={provas.documento.titulo} />
+              <Video
+                url={provas.video.url}
+                formato={formatoValido(provas.video.formato)}
+                opcoes={provas.video.opcoes}
+                titulo={provas.video.titulo}
+              />
             </div>
           ) : null}
         </div>
@@ -81,8 +88,8 @@ export async function Provas() {
               className="flex flex-col rounded-2xl border border-white/10 bg-white/[0.06] p-6"
             >
               <span className="text-sm font-medium text-amarelo">{e.municipio}</span>
-              <h3 className="mt-2 text-xl text-white">{e.titulo}</h3>
-              <p className="mt-2 flex-1 text-base text-white/65">{e.texto}</p>
+              <h3 className="mt-2 text-xl text-white"><Texto tom="amarelo">{e.titulo}</Texto></h3>
+              <p className="mt-2 flex-1 text-base text-white/65"><Texto tom="amarelo">{e.texto}</Texto></p>
               <span className="mt-5 inline-flex self-start rounded-full bg-white/10 px-4 py-1.5 font-[family-name:var(--font-titulo)] text-lg font-bold text-white tabular-nums">
                 {e.valor}
               </span>
@@ -99,7 +106,7 @@ export async function Provas() {
           <svg viewBox="0 0 24 24" className="mt-0.5 size-5 shrink-0 text-amarelo" fill="currentColor" aria-hidden>
             <path d="M4 6h2v2H4V6Zm4 0h12v2H8V6ZM4 11h2v2H4v-2Zm4 0h12v2H8v-2Zm-4 5h2v2H4v-2Zm4 0h12v2H8v-2Z" />
           </svg>
-          <p>{provas.aviso}</p>
+          <p><Texto tom="amarelo">{provas.aviso}</Texto></p>
         </div>
 
         {/* O registro público.
