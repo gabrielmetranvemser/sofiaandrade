@@ -2,9 +2,24 @@ import { lerConteudo } from '@/lib/conteudo/ler'
 import { lerSlots } from '@/lib/midia/ler'
 import { Secao, CabecalhoSecao } from '@/components/ui/Secao'
 import { Imagem } from '@/components/ui/Imagem'
+import { Video } from '@/components/ui/Video'
 
+/**
+ * De onde ela vem.
+ *
+ * ⚠️ A LINHA DO TEMPO SAIU. Eram quatro cartões (2020 · 2022 · 2024 ·
+ *    2026) fechando a seção, e a campanha pediu para tirar. Faz
+ *    sentido: os quatro repetiam, em tópico curto, os mesmos fatos que
+ *    os parágrafos ao lado já contam em primeira pessoa — e o cartão
+ *    de 2022 carregava o número de votos, que era o único dado não
+ *    confirmado da página.
+ *
+ *    No lugar entra o vídeo em que ela conta a história ela mesma, no
+ *    topo da coluna de fotos. Enquanto o endereço não é colado no
+ *    painel, o bloco não existe e a seção fica exatamente como estava.
+ */
 export async function Origem() {
-  const [{ origem }, slots] = await Promise.all([lerConteudo(), lerSlots()])
+  const [{ origem, candidata }, slots] = await Promise.all([lerConteudo(), lerSlots()])
 
   return (
     <Secao id="origem" fundo="branco" espaco="solto">
@@ -39,6 +54,11 @@ export async function Origem() {
         </div>
 
         <div data-revelar className="space-y-4">
+          <Video
+            url={origem.video}
+            titulo={`${candidata.nome} conta a própria história`}
+            className="w-full"
+          />
           <Imagem
             slot="origem.retrato"
             slots={slots}
@@ -51,24 +71,6 @@ export async function Origem() {
           </div>
         </div>
       </div>
-
-      {/* Linha do tempo */}
-      <ol className="mt-16 grid gap-5 sm:grid-cols-2 lg:grid-cols-4">
-        {origem.linhaDoTempo.map((item, i) => (
-          <li
-            key={item.id}
-            data-revelar
-            style={{ ['--atraso' as string]: `${i * 80}ms` }}
-            className="cartao p-6 transition-shadow duration-300 hover:shadow-media"
-          >
-            <span className="inline-flex items-center rounded-full bg-azul-escuro px-3 py-1 text-sm font-semibold text-white tabular-nums">
-              {item.ano}
-            </span>
-            <h3 className="mt-4 text-lg">{item.titulo}</h3>
-            <p className="mt-2 text-base text-grafite">{item.texto}</p>
-          </li>
-        ))}
-      </ol>
     </Secao>
   )
 }

@@ -105,7 +105,76 @@ export function LogoHorizontal({ className = '' }: { className?: string }) {
 }
 
 /**
- * O 2233 na arte oficial da campanha.
+ * A MARCA COM O NÚMERO — o bloco vertical da arte oficial.
+ *
+ * A campanha olhou a primeira dobra e disse: "onde está escrito só
+ * 2233, colocar a logo dela com o número". É literalmente isto: o
+ * lockup em que o nome fica acima dos quatro algarismos, do jeito que
+ * a arte de capa usa.
+ *
+ * ⚠️ O NOME É BRANCO neste arquivo. Ele só existe sobre fundo escuro —
+ *    na primeira dobra, que é azul. Sobre claro, o nome some e sobra o
+ *    número solto, que é justamente o que a campanha pediu para tirar.
+ *    Para fundo claro é preciso outra arte, não outra classe.
+ */
+export function MarcaNumero({
+  className = '',
+  prioridade = false,
+}: {
+  className?: string
+  prioridade?: boolean
+}) {
+  const { candidata } = useConteudo()
+  return (
+    <Image
+      src="/marca/marca-numero.png"
+      alt={`${candidata.nome} — ${candidata.numero}`}
+      width={700}
+      height={500}
+      priority={prioridade}
+      sizes="(max-width: 1024px) 45vw, 300px"
+      className={className}
+    />
+  )
+}
+
+/**
+ * A MESMA MARCA, DEITADA — nome à esquerda, número à direita.
+ *
+ * Existe porque a versão empilhada não cabia em toda parte. Ela é
+ * 700×500: um bloco quase quadrado que, posto embaixo de uma coluna de
+ * texto, lia como um cartão colado no fim da página. Deitada, o lockup
+ * é 6:1 — uma faixa, e faixa atravessa. É a forma certa para
+ * sobrepor uma imagem larga, que é exatamente onde ela é usada: por
+ * cima das duas figuras da primeira dobra, no meio delas.
+ *
+ * ⚠️ O nome é BRANCO e o número tem sombra AZUL. Só sobre fundo
+ *    escuro ou de cor cheia. Sobre claro, o nome some e sobra o
+ *    número solto.
+ */
+export function MarcaNumeroHorizontal({
+  className = '',
+  prioridade = false,
+}: {
+  className?: string
+  prioridade?: boolean
+}) {
+  const { candidata } = useConteudo()
+  return (
+    <Image
+      src="/marca/marca-numero-horizontal.png"
+      alt={`${candidata.nome} — ${candidata.numero}`}
+      width={1400}
+      height={227}
+      priority={prioridade}
+      sizes="(max-width: 1024px) 80vw, 520px"
+      className={className}
+    />
+  )
+}
+
+/**
+ * O 2233 sozinho, na arte oficial.
  *
  * Uma versão só: a variante `cheio` (com sombra azul) nunca foi usada
  * em lugar nenhum, e o PNG dela ficava 62 kB parado no deploy.

@@ -4,7 +4,7 @@ import type { Campo } from '@/content/esquema'
 import { CampoDestaque } from './CampoDestaque'
 
 /**
- * UM componente para os 8 tipos de campo. É a resposta a "17 seções não
+ * UM componente para os 10 tipos de campo. É a resposta a "17 seções não
  * se escreve como 17 telas".
  *
  * O estado é a seção inteira num objeto só, endereçado por caminho.
@@ -173,6 +173,64 @@ export function CampoDinamico({ campo, valor, caminho, erros, onMudar }: Props) 
           aria-invalid={Boolean(erro)}
         />
         {erro ? <p className="mt-1 text-xs font-medium text-red-600">{erro}</p> : null}
+      </div>
+    )
+  }
+
+  // ── vídeo ────────────────────────────────────────────────────
+  // Campo de endereço com uma diferença que importa na tela: ele diz,
+  // ali mesmo, que ficar vazio é uma opção legítima. Sem essa linha,
+  // quem abre o painel e vê oito campos de vídeo em branco acha que a
+  // página está quebrada esperando ser preenchida.
+  if (campo.tipo === 'video') {
+    const v = typeof valor === 'string' ? valor : ''
+    return (
+      <div>
+        <Rotulo para={id}>{campo.rotulo}</Rotulo>
+        <input
+          id={id}
+          type="text"
+          value={v}
+          onChange={(e) => onMudar(caminho, e.target.value)}
+          placeholder="https://youtu.be/…"
+          className={`${ENTRADA} font-mono text-sm ${erro ? 'border-red-400' : ''}`}
+          aria-invalid={Boolean(erro)}
+          aria-describedby={`${id}-ajuda`}
+        />
+        <p id={`${id}-ajuda`} className="mt-1 text-xs text-grafite">
+          {campo.ajuda ??
+            'YouTube ou Vimeo. Deixe vazio enquanto o vídeo não existir — o bloco some da página sozinho.'}
+        </p>
+        {erro ? <p className="mt-1 text-xs font-medium text-red-600">{erro}</p> : null}
+      </div>
+    )
+  }
+
+  // ── escolha entre opções fixas ───────────────────────────────
+  if (campo.tipo === 'escolha') {
+    const v = typeof valor === 'string' ? valor : ''
+    const atual = campo.opcoes.some((o) => o.valor === v) ? v : (campo.opcoes[0]?.valor ?? '')
+    return (
+      <div>
+        <Rotulo para={id}>{campo.rotulo}</Rotulo>
+        <select
+          id={id}
+          value={atual}
+          onChange={(e) => onMudar(caminho, e.target.value)}
+          className={ENTRADA}
+          aria-describedby={campo.ajuda ? `${id}-ajuda` : undefined}
+        >
+          {campo.opcoes.map((o) => (
+            <option key={o.valor} value={o.valor}>
+              {o.rotulo}
+            </option>
+          ))}
+        </select>
+        {campo.ajuda ? (
+          <p id={`${id}-ajuda`} className="mt-1 text-xs text-grafite">
+            {campo.ajuda}
+          </p>
+        ) : null}
       </div>
     )
   }
@@ -407,6 +465,9 @@ function itemVazio(campos: Record<string, Campo>): Record<string, unknown> {
     else if (campo.tipo === 'lista') saida[chave] = []
     else if (campo.tipo === 'listaTexto') saida[chave] = ['']
     else if (campo.tipo === 'grupo') saida[chave] = itemVazio(campo.campos)
+    // Escolha nasce na primeira opção, nunca em branco: string vazia
+    // num <select> mostra um item fantasma que não está na lista.
+    else if (campo.tipo === 'escolha') saida[chave] = campo.opcoes[0]?.valor ?? ''
     else saida[chave] = ''
   }
   return saida

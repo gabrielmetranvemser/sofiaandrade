@@ -123,6 +123,10 @@ export const hero = {
     'Quando o decreto mandou fechar o comércio, eu tinha um carrinho de espetinho na calçada da ' +
     'Avenida Rio Madeira. Fui pra rua e falei o que pensava. Hoje sou vereadora de Porto Velho.',
   numeroLegenda: 'Escreva 2233 na urna',
+  // A assinatura que está na arte oficial da campanha, abaixo do
+  // número. Veio da capa que a campanha mandou junto com os ajustes.
+  // Apagar aqui tira ela da página — não quebra nada.
+  lema: 'Fé, coragem e liberdade.',
   ctaPrimario: ctas.grupo,
   ctaSecundario: 'Conhecer minha história',
   ctaSecundarioHref: '#origem',
@@ -149,12 +153,22 @@ export const origem = {
       'sabia como pagar a conta. Essa gente me encontrou, e eu encontrei o que tinha pra fazer.',
   ],
   citacao: 'Ninguém tem o direito de proibir uma pessoa de trabalhar.',
-  linhaDoTempo: [
-    { id: 'tempo-01', ano: '2020', titulo: 'A pandemia', texto: 'O decreto manda fechar o comércio. Eu vou pra rua e falo o que penso.' },
-    { id: 'tempo-02', ano: '2022', titulo: 'A primeira disputa', texto: '14.634 votos sem estrutura e sem padrinho político.' }, // ⚠️ CONFIRMAR cargo disputado
-    { id: 'tempo-03', ano: '2024', titulo: 'Vereadora', texto: 'Eleita em Porto Velho. Indico a criação da Comissão de Segurança Pública e passo a presidi-la.' },
-    { id: 'tempo-04', ano: '2026', titulo: 'Brasília', texto: 'Candidata a Deputada Federal pelo PL. Número 2233.' },
-  ],
+
+  /**
+   * O vídeo em que ela conta a própria história.
+   *
+   * ⚠️ Vazio de propósito: a gravação não estava finalizada quando esta
+   *    seção foi montada. Com o campo em branco a coluna de fotos fica
+   *    exatamente como está — o bloco de vídeo não reserva espaço nem
+   *    aparece como "em breve". Colar o endereço no painel liga tudo.
+   *
+   * A LINHA DO TEMPO SAIU DAQUI. Eram quatro cartões (2020, 2022, 2024,
+   * 2026) repetindo, em tópico, os mesmos fatos que os parágrafos acima
+   * já contam em primeira pessoa — e um deles carregava o número de
+   * votos de 2022, que era o dado não confirmado da página. A campanha
+   * pediu a remoção; o que ficou no lugar é o vídeo.
+   */
+  video: '',
 } as const
 
 // ─────────────────────────────────────────────────────────────
@@ -200,6 +214,7 @@ export const problema = {
         'alimento sobe — e quem fica com a conta é você.',
     },
   ],
+  video: '',
 } as const
 
 // ─────────────────────────────────────────────────────────────
@@ -306,12 +321,20 @@ export const provas = {
   intro:
     'Qualquer um sobe num palanque e fala bonito. O que separa candidato sério de vendedor de ' +
     'promessa é uma coisa só: o que já está feito e pode ser conferido no registro público.',
-  numeros: [
-    { id: 'num-01', valor: '9', unidade: 'leis', texto: 'de autoria própria, sancionadas e em vigor em Porto Velho' },
-    { id: 'num-02', valor: '1', unidade: 'comissão', texto: 'a de Segurança Pública: indiquei a criação e hoje presido' },
-    { id: 'num-03', valor: '7', unidade: 'projetos', texto: 'em andamento, de Guarda Municipal a transparência nas multas' },
-    { id: 'num-04', valor: '14.634', unidade: 'votos em 2022', texto: 'na primeira disputa, sem estrutura e sem padrinho político' }, // ⚠️ CONFIRMAR
-  ],
+  /**
+   * A FAIXA DE NÚMEROS SAIU DAQUI, a pedido da campanha.
+   *
+   * Eram quatro cartões grandes — 9 leis, 1 comissão, 7 projetos,
+   * 14.634 votos — ocupando a primeira tela da seção. Dois deles já
+   * viviam em outro lugar da página (a faixa corrida diz "9 leis
+   * sancionadas"; a intro diz o que é a comissão), e o quarto era o
+   * único dado da página que ninguém tinha confirmado.
+   *
+   * No lugar entra o vídeo: prestação de contas dita por ela pesa mais
+   * que quatro algarismos grandes, e o registro público lá embaixo
+   * continua sendo a prova que o leitor confere sozinho.
+   */
+  video: '',
   entregas: [
     {
       id: 'entrega-01',
@@ -355,6 +378,44 @@ export const provas = {
     rotuloLink: 'Abrir o registro da Câmara',
     link: 'https://sapl.portovelho.ro.leg.br/', // ⚠️ CONFIRMAR a URL exata da busca por autoria
   },
+} as const
+
+// ─────────────────────────────────────────────────────────────
+// 5.8 TRILHA DE VÍDEOS
+//
+// A campanha pediu, com estas palavras: "ela quer igual na parte que
+// tá escrito 'o que eu levo pra Brasília', que tem uma trilha com as
+// propostas dela". Então é o MESMO mecanismo — a tela prende e a fita
+// anda de lado conforme a página desce — com vídeo no lugar de texto.
+//
+// Fica logo acima de Compromissos de propósito: é o último bloco de
+// prova antes de a página parar de olhar para trás e começar a
+// prometer. Quem chegou até aqui já viu tudo; o que falta é o que ela
+// vai fazer.
+//
+// Todos os itens nascem sem endereço. A seção inteira some enquanto
+// nenhum deles tiver link — não é preciso desligar nada no painel.
+// ─────────────────────────────────────────────────────────────
+export const trilha = {
+  // ⚠️ COPY PROVISÓRIA. Foi escrita a partir do NOME DA PASTA de onde
+  //    os vídeos vieram ("trilha de vídeos da Sofia x PT") — ninguém
+  //    aqui assistiu aos oito. Quem conhece o material reescreve estes
+  //    três campos no painel antes de publicar.
+  etiqueta: 'A trilha',
+  titulo: 'Um por um, [[sem edição.]]',
+  intro:
+    'Cada vídeo é um enfrentamento que aconteceu de verdade, na hora em que aconteceu. ' +
+    'Estão aqui na ordem em que foram ao ar.',
+  itens: [
+    { id: 'trilha-01', titulo: '', url: '', formato: 'deitado' },
+    { id: 'trilha-02', titulo: '', url: '', formato: 'deitado' },
+    { id: 'trilha-03', titulo: '', url: '', formato: 'deitado' },
+    { id: 'trilha-04', titulo: '', url: '', formato: 'deitado' },
+    { id: 'trilha-05', titulo: '', url: '', formato: 'deitado' },
+    { id: 'trilha-06', titulo: '', url: '', formato: 'deitado' },
+    { id: 'trilha-07', titulo: '', url: '', formato: 'deitado' },
+    { id: 'trilha-08', titulo: '', url: '', formato: 'deitado' },
+  ],
 } as const
 
 // ─────────────────────────────────────────────────────────────
@@ -655,8 +716,20 @@ export const privacidade = {
       ],
     },
     {
+      id: 'priv-09',
+      titulo: '5. Os vídeos da página',
+      conteudo: [
+        'Os vídeos desta página são hospedados no YouTube e no Vimeo, e não neste site. ' +
+          'Enquanto você não toca no botão de play, nada é pedido a esses serviços: o que aparece na tela ' +
+          'é apenas uma imagem de capa e um botão, servidos por nós.',
+        'Ao tocar em play, o player do serviço é carregado e, a partir daí, o tratamento dos seus dados ' +
+          'dentro dele segue a política de privacidade do próprio serviço. ' +
+          'Usamos os endereços que não gravam cookie de publicidade, mas não temos como falar pelo que eles fazem.',
+      ],
+    },
+    {
       id: 'priv-05',
-      titulo: '5. Grupos de WhatsApp',
+      titulo: '6. Grupos de WhatsApp',
       conteudo: [
         'Ao entrar num grupo de WhatsApp da campanha, o tratamento dos seus dados dentro do aplicativo ' +
           'passa a seguir a política de privacidade do próprio WhatsApp e as regras do grupo. ' +
@@ -665,7 +738,7 @@ export const privacidade = {
     },
     {
       id: 'priv-06',
-      titulo: '6. Compartilhamento com terceiros',
+      titulo: '7. Compartilhamento com terceiros',
       conteudo: [
         'Não vendemos, alugamos nem cedemos dados de visitantes. ' +
           'Os serviços de hospedagem e de banco de dados utilizados pelo site processam dados ' +
@@ -674,7 +747,7 @@ export const privacidade = {
     },
     {
       id: 'priv-07',
-      titulo: '7. Seus direitos',
+      titulo: '8. Seus direitos',
       conteudo: [
         'Como não coletamos dados que identifiquem você, não há cadastro para consultar, corrigir ou apagar. ' +
           'Ainda assim, se tiver qualquer dúvida sobre esta política ou sobre o tratamento de dados, ' +
@@ -683,7 +756,7 @@ export const privacidade = {
     },
     {
       id: 'priv-08',
-      titulo: '8. Mudanças nesta política',
+      titulo: '9. Mudanças nesta política',
       conteudo: [
         'Se esta política mudar, a data de atualização no topo desta página muda junto. ' +
           'Recomendamos conferir esta página caso tenha alguma dúvida.',
@@ -743,6 +816,9 @@ export const rua = {
   texto:
     'Peguei o celular na calçada e falei o que milhares de pessoas estavam sentindo e não tinham ' +
     'onde dizer. Depois saí de casa. Essas fotos são de quem estava junto.',
+  // O vídeo da pandemia. É o registro do que a seção descreve — vem
+  // antes das fotos porque as fotos são o apoio, não a prova.
+  video: '',
   fotos: [
     { id: 'rua-01', legenda: 'Carreata em Porto Velho', local: 'Av. Rio Madeira' },
     { id: 'rua-02', legenda: 'Ainda no tempo da máscara', local: 'Porto Velho' },
@@ -773,6 +849,15 @@ export const social = {
     { id: 'leg-05', texto: '' },
     { id: 'leg-06', texto: '' },
   ],
+  /**
+   * Os dois vídeos de comentário. Ficam depois dos prints, na mesma
+   * lógica da seção: primeiro o que as pessoas escreveram, depois o que
+   * elas disseram falando.
+   */
+  videos: [
+    { id: 'svid-01', titulo: 'Comentário 1', url: '', formato: 'deitado' },
+    { id: 'svid-02', titulo: 'Comentário 2', url: '', formato: 'deitado' },
+  ],
   ataques: {
     etiqueta: 'O outro lado',
     titulo: 'E o que a esquerda [[diz de mim?]]',
@@ -791,6 +876,12 @@ export const social = {
         'Levaram ao TRE-RO um vídeo em que eu disse o que penso sobre quem vota na esquerda. ' +
         'Queriam me calar.',
       resultado: 'A Justiça rejeitou a ação.',
+      // Dois: o relato do processo e a leitura da decisão. O segundo
+      // foi gravado de celular, na vertical — daí o `formato`.
+      videos: [
+        { id: 'pvid-01', titulo: 'O processo', url: '', formato: 'deitado' },
+        { id: 'pvid-02', titulo: 'A decisão do juiz', url: '', formato: 'em-pe' },
+      ],
     },
     {
       id: 'proc-02',
@@ -799,6 +890,9 @@ export const social = {
         'Durante a luta contra o aumento de impostos em Rondônia, me posicionei publicamente ' +
         'contra o Governador Marcos Rocha. Ele não gostou e me processou.',
       resultado: 'A Justiça decidiu a meu favor.',
+      videos: [
+        { id: 'pvid-03', titulo: 'Ela explica o processo', url: '', formato: 'deitado' },
+      ],
     },
   ],
   // ⚠️ Sem validação do jurídico este bloco não sobe. Ver PLANO-FOTOS.md.
@@ -820,6 +914,32 @@ export const social = {
 //    de campanha sem primeira dobra nem pedido de voto não é uma página
 //    mais curta: é outra coisa.
 // ─────────────────────────────────────────────────────────────
+// ─────────────────────────────────────────────────────────────
+// APARÊNCIA
+//
+// Os poucos ajustes visuais que a campanha decide sem chamar
+// ninguém. Não é um editor de tema: são três chaves, e cada uma
+// existe porque alguém já quis mexer nela.
+// ─────────────────────────────────────────────────────────────
+export const aparencia = {
+  /**
+   * As cores da primeira dobra.
+   *
+   * 'capa' = verde e amarelo da arte oficial entrando pela borda.
+   * 'azul' = só o azul, como era antes da capa chegar.
+   *
+   * A saída existe porque a primeira versão desta dobra foi reprovada
+   * na hora, e trocar uma palavra no painel é caminho de volta melhor
+   * do que abrir um chamado.
+   */
+  heroCor: 'capa',
+
+  /** A trama de pontos sobre a página. */
+  halftone: true,
+  /** sutil · media · forte */
+  halftoneForca: 'sutil',
+} as const
+
 export const exibir = {
   faixa: true,
   origem: true,
@@ -830,6 +950,7 @@ export const exibir = {
   cena: true,
   provas: true,
   social: true,
+  trilha: true,
   futuro: true,
   grupos: true,
   filtro: true,
@@ -838,6 +959,7 @@ export const exibir = {
 
 export const PADRAO = {
   candidata,
+  aparencia,
   meta,
   paginas,
   navegacao,
@@ -852,6 +974,7 @@ export const PADRAO = {
   cena,
   provas,
   social,
+  trilha,
   futuro,
   grupos,
   filtro,

@@ -25,6 +25,16 @@ export type Campo =
   | (Base & { tipo: 'longo'; max?: number; linhas?: number; tokens?: boolean })
   /** Endereço externo (https://). */
   | (Base & { tipo: 'url'; prefixo?: string })
+  /**
+   * Endereço de vídeo do YouTube ou do Vimeo.
+   *
+   * Vazio NÃO é erro: é o estado normal enquanto a campanha ainda não
+   * subiu o vídeo. Com o campo em branco, o bloco inteiro some da
+   * página — ver components/ui/Video.tsx.
+   */
+  | (Base & { tipo: 'video' })
+  /** Uma entre opções fixas. Grava o `valor`, mostra o `rotulo`. */
+  | (Base & { tipo: 'escolha'; opcoes: readonly { valor: string; rotulo: string }[] })
   /** Endereço interno: começa com / ou #. Nunca externo. */
   | (Base & { tipo: 'ancora' })
   /** Existe no dado, não aparece na tela (ids, chaves técnicas). */
@@ -62,6 +72,30 @@ export interface SecaoEsquema {
 
 const ID = { tipo: 'oculto' } as const
 
+/**
+ * O enquadramento do vídeo. Dois valores porque o acervo da campanha
+ * tem dois de verdade: quase tudo foi gravado deitado, e a decisão do
+ * juiz veio em pé, direto do celular. Sem esta escolha, o vídeo em pé
+ * apareceria com duas tarjas pretas ocupando metade do cartão.
+ */
+const FORMATO_VIDEO = {
+  tipo: 'escolha',
+  rotulo: 'Enquadramento',
+  opcoes: [
+    { valor: 'deitado', rotulo: 'Deitado (16:9)' },
+    { valor: 'em-pe', rotulo: 'Em pé (9:16)' },
+  ],
+  ajuda: 'Vídeo gravado na vertical, de celular, é "em pé".',
+} as const
+
+/** Um vídeo dentro de uma lista: trilha, comentários, processos. */
+const itemVideo = (): Record<string, Campo> => ({
+  id: ID,
+  titulo: { tipo: 'texto', rotulo: 'Título', max: 60, ajuda: 'Aparece sobre a capa do vídeo.' },
+  url: { tipo: 'video', rotulo: 'Endereço do vídeo' },
+  formato: FORMATO_VIDEO,
+})
+
 /** Item de lista com número, título e texto — o formato mais repetido. */
 const itemNumerado = (maxTexto: number): Record<string, Campo> => ({
   id: ID,
@@ -98,6 +132,12 @@ export const ESQUEMA: Record<string, SecaoEsquema> = {
       ctaSecundario: { tipo: 'texto', rotulo: 'Botão secundário', max: 32 },
       ctaSecundarioHref: { tipo: 'ancora', rotulo: 'Destino do botão secundário' },
       rodapeHero: { tipo: 'texto', rotulo: 'Linha de apoio', max: 60 },
+      lema: {
+        tipo: 'texto',
+        rotulo: 'Lema da campanha',
+        max: 40,
+        ajuda: 'Fica abaixo da marca com o número, como na arte oficial. Vazio = não aparece.',
+      },
     },
   },
 
@@ -116,19 +156,11 @@ export const ESQUEMA: Record<string, SecaoEsquema> = {
         ajuda: 'Um parágrafo por entrada.',
       },
       citacao: { tipo: 'longo', rotulo: 'Frase em destaque', max: 180, linhas: 2 },
-      linhaDoTempo: {
-        tipo: 'lista',
-        rotulo: 'Linha do tempo',
-        rotuloItem: 'Momento',
-        titulo: 'ano',
-        min: 2,
-        max: 8,
-        item: {
-          id: ID,
-          ano: { tipo: 'texto', rotulo: 'Ano', max: 4 },
-          titulo: { tipo: 'texto', rotulo: 'Título', max: 40 },
-          texto: { tipo: 'longo', rotulo: 'Descrição', max: 120, linhas: 2 },
-        },
+      video: {
+        tipo: 'video',
+        rotulo: 'Vídeo da história dela',
+        ajuda:
+          'Entra no topo da coluna de fotos. Vazio enquanto a gravação não fica pronta — a seção fica como está.',
       },
     },
   },
@@ -167,6 +199,7 @@ export const ESQUEMA: Record<string, SecaoEsquema> = {
       etiqueta: { tipo: 'texto', rotulo: 'Etiqueta', max: 40, ajuda: 'Costuma ser o ano. Ex.: 2020' },
       titulo: { tipo: 'texto', rotulo: 'Título', max: 70, destaque: true },
       texto: { tipo: 'longo', rotulo: 'Texto', max: 300, linhas: 3 },
+      video: { tipo: 'video', rotulo: 'Vídeo da pandemia', ajuda: 'Aparece antes das fotos.' },
       fotos: {
         tipo: 'lista',
         rotulo: 'Legendas das fotos',
@@ -200,6 +233,7 @@ export const ESQUEMA: Record<string, SecaoEsquema> = {
         max: 8,
         item: itemNumerado(260),
       },
+      video: { tipo: 'video', rotulo: 'Vídeo', ajuda: 'Fecha a seção, abaixo dos cartões.' },
     },
   },
 
@@ -285,19 +319,10 @@ export const ESQUEMA: Record<string, SecaoEsquema> = {
       etiqueta: { tipo: 'texto', rotulo: 'Etiqueta', max: 40 },
       titulo: { tipo: 'texto', rotulo: 'Título', max: 70, destaque: true },
       intro: { tipo: 'longo', rotulo: 'Introdução', max: 300, linhas: 3 },
-      numeros: {
-        tipo: 'lista',
-        rotulo: 'Números',
-        rotuloItem: 'Número',
-        titulo: 'valor',
-        min: 2,
-        max: 4,
-        item: {
-          id: ID,
-          valor: { tipo: 'texto', rotulo: 'Número', max: 8, ajuda: 'Só o algarismo. Ex.: 52, 1,2' },
-          unidade: { tipo: 'texto', rotulo: 'Unidade', max: 18 },
-          texto: { tipo: 'longo', rotulo: 'Explicação', max: 120, linhas: 2 },
-        },
+      video: {
+        tipo: 'video',
+        rotulo: 'Vídeo da prestação de contas',
+        ajuda: 'Fica ao lado da introdução, no lugar onde ficava a faixa de números.',
       },
       entregas: {
         tipo: 'lista',
@@ -350,6 +375,16 @@ export const ESQUEMA: Record<string, SecaoEsquema> = {
           texto: { tipo: 'texto', rotulo: 'Legenda', max: 40 },
         },
       },
+      videos: {
+        tipo: 'lista',
+        rotulo: 'Vídeos de comentário',
+        rotuloItem: 'Vídeo',
+        titulo: 'titulo',
+        min: 0,
+        max: 2,
+        ajuda: 'Aparecem logo abaixo dos prints. Sem endereço, não aparecem.',
+        item: itemVideo(),
+      },
       ataques: {
         tipo: 'grupo',
         rotulo: 'O outro lado',
@@ -373,9 +408,41 @@ export const ESQUEMA: Record<string, SecaoEsquema> = {
           titulo: { tipo: 'texto', rotulo: 'Título', max: 60 },
           texto: { tipo: 'longo', rotulo: 'O que aconteceu', max: 260, linhas: 3 },
           resultado: { tipo: 'texto', rotulo: 'Resultado', max: 60, ajuda: 'A frase curta que fecha. Ex.: A Justiça rejeitou a ação.' },
+          videos: {
+            tipo: 'lista',
+            rotulo: 'Vídeos deste processo',
+            rotuloItem: 'Vídeo',
+            titulo: 'titulo',
+            min: 0,
+            max: 2,
+            item: itemVideo(),
+          },
         },
       },
       nota: { tipo: 'longo', rotulo: 'Nota de rodapé da seção', max: 200, linhas: 2 },
+    },
+  },
+
+  trilha: {
+    rotulo: 'Trilha de vídeos',
+    grupo: 'Página',
+    nota:
+      'Mesma mecânica dos Compromissos: a tela prende e a fita de vídeos anda de lado conforme a página desce. ' +
+      'Um vídeo toca por vez. A seção some sozinha enquanto nenhum item tiver endereço.',
+    campos: {
+      etiqueta: { tipo: 'texto', rotulo: 'Etiqueta', max: 40 },
+      titulo: { tipo: 'texto', rotulo: 'Título', max: 70, destaque: true },
+      intro: { tipo: 'longo', rotulo: 'Introdução', max: 300, linhas: 3 },
+      itens: {
+        tipo: 'lista',
+        rotulo: 'Vídeos',
+        rotuloItem: 'Vídeo',
+        titulo: 'titulo',
+        min: 0,
+        max: 12,
+        ajuda: 'A ordem aqui é a ordem da fita.',
+        item: itemVideo(),
+      },
     },
   },
 
@@ -595,6 +662,7 @@ export const ESQUEMA: Record<string, SecaoEsquema> = {
       cena: { tipo: 'booleano', rotulo: 'Cena da bandeira', ajuda: 'A animação de rolagem entre bandeiras e provas.' },
       provas: { tipo: 'booleano', rotulo: 'O que já foi feito' },
       social: { tipo: 'booleano', rotulo: 'Prova social', ajuda: 'Comentários e processos. Desligue enquanto o jurídico não liberar os prints.' },
+      trilha: { tipo: 'booleano', rotulo: 'Trilha de vídeos', ajuda: 'A fita de vídeos acima dos compromissos.' },
       futuro: { tipo: 'booleano', rotulo: 'Compromissos' },
       grupos: {
         tipo: 'booleano',
@@ -735,6 +803,40 @@ export const ESQUEMA: Record<string, SecaoEsquema> = {
       instagram: { tipo: 'url', rotulo: 'Instagram', prefixo: 'https://' },
       instagramHandle: { tipo: 'texto', rotulo: '@ do Instagram', max: 40 },
       whatsapp: { tipo: 'url', rotulo: 'WhatsApp', prefixo: 'https://' },
+    },
+  },
+
+  aparencia: {
+    rotulo: 'Aparência',
+    grupo: 'Identidade',
+    nota:
+      'Três ajustes visuais que valem para a página inteira. Mudar aqui vale na hora, sem publicar de novo.',
+    campos: {
+      heroCor: {
+        tipo: 'escolha',
+        rotulo: 'Cores da primeira dobra',
+        opcoes: [
+          { valor: 'capa', rotulo: 'Da capa (verde e amarelo)' },
+          { valor: 'azul', rotulo: 'Só azul' },
+        ],
+        ajuda:
+          'Na opção da capa, o verde e o amarelo entram pela borda de cima, atrás da foto. O texto continua sobre o azul nas duas.',
+      },
+      halftone: {
+        tipo: 'booleano',
+        rotulo: 'Textura pontilhada',
+        ajuda: 'Uma trama de pontos quase invisível sobre a página, para tirar o ar de gradiente liso.',
+      },
+      halftoneForca: {
+        tipo: 'escolha',
+        rotulo: 'Força da textura',
+        opcoes: [
+          { valor: 'sutil', rotulo: 'Sutil' },
+          { valor: 'media', rotulo: 'Média' },
+          { valor: 'forte', rotulo: 'Forte' },
+        ],
+        ajuda: 'Só vale com a textura ligada. Comece em sutil — ela deve ser sentida, não vista.',
+      },
     },
   },
 

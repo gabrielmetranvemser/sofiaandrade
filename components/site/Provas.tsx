@@ -2,12 +2,24 @@ import { lerConteudo } from '@/lib/conteudo/ler'
 import { lerSlots } from '@/lib/midia/ler'
 import { Secao, CabecalhoSecao } from '@/components/ui/Secao'
 import { Imagem } from '@/components/ui/Imagem'
-import { Aviso } from '@/components/ui/Aviso'
+import { Video } from '@/components/ui/Video'
 
 /**
- * Prestação de contas do mandato de vereadora. Os números e as leis
- * vêm do registro público da Câmara Municipal de Porto Velho — o único
- * item ainda por confirmar está marcado em content/copy.ts.
+ * Prestação de contas do mandato de vereadora. As leis vêm do registro
+ * público da Câmara Municipal de Porto Velho.
+ *
+ * ⚠️ A FAIXA DE NÚMEROS SAIU, a pedido da campanha. Eram quatro
+ *    cartões grandes — 9 leis, 1 comissão, 7 projetos, 14.634 votos —
+ *    ocupando a primeira tela da seção. Dois deles já viviam em outro
+ *    lugar da página (a faixa corrida diz "9 leis sancionadas", a
+ *    introdução explica a comissão), e o quarto era o único dado da
+ *    página que ninguém tinha confirmado.
+ *
+ *    Tirar quatro cartões grandes do topo deixaria a seção abrindo em
+ *    texto puro, então o peso visual não some: ele passa para o vídeo,
+ *    que sobe para o lado da introdução. Prestação de contas dita por
+ *    ela vale mais que quatro algarismos — e a prova que o leitor
+ *    confere sozinho continua sendo o registro público, lá no fim.
  */
 export async function Provas() {
   const [{ provas }, slots] = await Promise.all([lerConteudo(), lerSlots()])
@@ -16,30 +28,30 @@ export async function Provas() {
     <Secao id="provas" fundo="azul-profundo" espaco="solto" className="overflow-hidden">
 
       <div className="relative">
-        <CabecalhoSecao
-          etiqueta={provas.etiqueta}
-          titulo={provas.titulo}
-          intro={provas.intro}
-          tom="escuro"
-        />
-
-        {/* Números */}
-        <ul className="mt-14 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-          {provas.numeros.map((n, i) => (
-            <li
-              key={n.id}
-              data-revelar
-              style={{ ['--atraso' as string]: `${i * 80}ms` }}
-              className="rounded-2xl border border-white/10 bg-white/[0.06] p-7"
-            >
-              <span className="block font-[family-name:var(--font-titulo)] text-5xl font-bold tracking-[-0.04em] text-amarelo tabular-nums">
-                {n.valor}
-              </span>
-              <span className="mt-1 block text-sm font-medium text-white/70">{n.unidade}</span>
-              <p className="mt-3 text-base leading-relaxed text-white/65">{n.texto}</p>
-            </li>
-          ))}
-        </ul>
+        {/* Sem o vídeo, isto é uma coluna só e o cabeçalho ocupa a
+            largura inteira, como em toda outra seção. Com o vídeo, a
+            grade abre em duas. É o `grid` com `md:grid-cols-2` só
+            quando há o que pôr do lado — daí o ternário, e não uma
+            coluna vazia esperando. */}
+        <div
+          className={
+            provas.video
+              ? 'grid items-center gap-10 md:grid-cols-[1fr_1fr] md:gap-14'
+              : ''
+          }
+        >
+          <CabecalhoSecao
+            etiqueta={provas.etiqueta}
+            titulo={provas.titulo}
+            intro={provas.intro}
+            tom="escuro"
+          />
+          {provas.video ? (
+            <div data-revelar className="mt-10 md:mt-0">
+              <Video url={provas.video} titulo={provas.documento.titulo} />
+            </div>
+          ) : null}
+        </div>
 
         {/* Entregas — grade simples, sem barra rolável.
             Já foi trilho horizontal e voltou atrás: barra rolável
@@ -60,7 +72,7 @@ export async function Provas() {
             que é o bloco que separa candidata de vendedor de promessa.
             O número da lei virou o elemento visual, e a prova de
             verdade desceu para o registro público, logo abaixo. */}
-        <ul className="mt-6 grid gap-5 md:grid-cols-3">
+        <ul className="mt-12 grid gap-5 md:grid-cols-3">
           {provas.entregas.map((e, i) => (
             <li
               key={e.id}

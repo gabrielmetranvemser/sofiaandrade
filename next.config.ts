@@ -17,15 +17,25 @@ const nextConfig: NextConfig = {
     // ⚠️ NUNCA usar pathname: '/**'. Isso deixaria qualquer pessoa usar
     //    o nosso otimizador contra qualquer objeto de qualquer balde,
     //    inclusive privados no futuro.
-    remotePatterns: hostSupabase
-      ? [
-          {
-            protocol: 'https' as const,
-            hostname: hostSupabase,
-            pathname: '/storage/v1/object/public/**',
-          },
-        ]
-      : [],
+    remotePatterns: [
+      // A capa dos vídeos. Sem isto, o cartaz da fachada não passa pelo
+      // otimizador e o componente cai no cartaz desenhado em código.
+      // O `pathname` é o das miniaturas e nada mais.
+      {
+        protocol: 'https' as const,
+        hostname: 'i.ytimg.com',
+        pathname: '/vi/**',
+      },
+      ...(hostSupabase
+        ? [
+            {
+              protocol: 'https' as const,
+              hostname: hostSupabase,
+              pathname: '/storage/v1/object/public/**',
+            },
+          ]
+        : []),
+    ],
   },
 
   experimental: {

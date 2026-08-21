@@ -2,6 +2,7 @@ import { lerConteudo } from '@/lib/conteudo/ler'
 import { lerSlots } from '@/lib/midia/ler'
 import { Imagem } from '@/components/ui/Imagem'
 import { TextoComDestaque } from '@/components/ui/TextoComDestaque'
+import { Video } from '@/components/ui/Video'
 
 /**
  * A prova visual da manchete.
@@ -45,6 +46,22 @@ export async function Rua() {
             {rua.texto}
           </p>
         </div>
+
+        {/* O vídeo da pandemia vem ANTES das fotos.
+            A seção existe para provar que "eu fui pra rua" é literal, e
+            o vídeo é o registro em movimento do que as fotos mostram
+            parado. Depois das fotos ele lia como anexo; antes, ele é a
+            prova, e a faixa de fotos vira o que sempre foi: quem estava
+            junto.
+
+            Largura contida de propósito. Em tela cheia ele competiria
+            com a foto grande logo abaixo, e a seção passaria a ter dois
+            centros. */}
+        {rua.video ? (
+          <div data-revelar className="mt-10 max-w-3xl">
+            <Video url={rua.video} titulo={rua.titulo.replace(/\[\[|\]\]/g, '')} />
+          </div>
+        ) : null}
 
         <ul className="mt-12 grid gap-4 md:grid-cols-2 md:gap-5">
           {rua.fotos.map((foto, i) => (

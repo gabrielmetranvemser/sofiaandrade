@@ -53,8 +53,29 @@ export default async function PainelInicio() {
   }
   if (semLink > 0)
     pendencias.push({ texto: `${semLink} município${semLink === 1 ? '' : 's'} sem link de grupo`, onde: '/painel/grupos' })
-  if (conteudo.provas.numeros.some((n) => n.valor === '00'))
-    pendencias.push({ texto: 'Seção "O que já foi feito" ainda com números de exemplo', onde: '/painel/textos/provas' })
+  // A pendência de "números de exemplo" em "O que já foi feito" saiu
+  // junto com os números: a campanha pediu a remoção da faixa de
+  // 9 leis / 1 comissão / 7 projetos / 14.634 votos, e sem o campo a
+  // conferência ficou apontando para `undefined` — que era o que
+  // derrubava esta página inteira.
+  //
+  // No lugar entram os vídeos: oito espaços que não quebram nada
+  // vazios, mas que a campanha precisa lembrar de preencher.
+  const videosVazios = [
+    conteudo.origem.video,
+    conteudo.rua.video,
+    conteudo.problema.video,
+    conteudo.provas.video,
+    ...conteudo.social.videos.map((v) => v.url),
+    ...conteudo.social.processos.flatMap((p) => p.videos.map((v) => v.url)),
+    ...conteudo.trilha.itens.map((v) => v.url),
+  ].filter((url) => !url.trim()).length
+
+  if (videosVazios > 0)
+    pendencias.push({
+      texto: `${videosVazios} espaço${videosVazios === 1 ? '' : 's'} de vídeo ainda sem endereço`,
+      onde: '/painel/textos/origem',
+    })
 
   return (
     <>

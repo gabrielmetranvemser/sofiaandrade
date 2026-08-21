@@ -243,6 +243,262 @@
   background-image: linear-gradient(168deg, #0a7ac9 0%, var(--color-azul) 30%, var(--color-azul-escuro) 78%, var(--color-azul-noite) 100%);
 }
 
+/* A PRIMEIRA DOBRA, NAS CORES DA CAPA OFICIAL.
+
+   ⚠️ TERCEIRA VERSÃO, e as duas anteriores ensinaram o mesmo:
+   verde e azul NÃO convivem no mesmo gradiente. A primeira tentativa
+   atravessou a tela com uma faixa amarela e o amarelo venceu o azul.
+   A segunda usou brilhos suaves de verde sobre a base azul e o
+   encontro dos dois virou verde-água — a cor que o comentário lá em
+   cima já avisava que ia aparecer.
+
+   A resposta veio da campanha, e é a mais simples: TIRAR O AZUL.
+   A capa dela não tem azul no fundo — tem verde à esquerda abrindo
+   para amarelo à direita, e é só isso. Sem azul, não há mistura
+   possível, não há verde-água, e a dobra passa a ser a mesma peça que
+   está no material impresso.
+
+   A GEOMETRIA É O QUE PROTEGE A LEITURA. O verde escuro fica à
+   esquerda, embaixo — exatamente sob a coluna de texto — e o amarelo
+   fica à direita, atrás das fotos. Branco sobre amarelo é ilegível, e
+   o único motivo pelo qual isso não é problema aqui é que nenhum texto
+   chega no amarelo. Se um dia a coluna de texto mudar de lado, este
+   gradiente precisa virar junto.
+
+   Quem não quiser nada disso troca para 'azul' no painel, em
+   Identidade → Aparência. */
+@utility fundo-capa {
+  background-color: var(--color-verde-escuro);
+  background-image:
+    /* O brilho atrás das figuras. É o que existe na arte dela: o
+       amarelo não é chapado, é luz saindo de trás das pessoas. */
+    radial-gradient(
+      54% 62% at 74% 34%,
+      color-mix(in srgb, #ffe27a 72%, transparent) 0%,
+      color-mix(in srgb, var(--color-amarelo) 46%, transparent) 44%,
+      transparent 74%
+    ),
+    /* A diagonal: verde fechado no canto de baixo à esquerda, abrindo
+       para amarelo no alto à direita. */
+    linear-gradient(
+      104deg,
+      #0f4c2e 0%,
+      var(--color-verde-escuro) 18%,
+      var(--color-verde) 46%,
+      #8cbf3f 68%,
+      var(--color-amarelo) 92%,
+      #f7d63a 100%
+    );
+}
+
+/* Só o azul. O que a dobra era antes da capa chegar. */
+@utility fundo-capa-azul {
+  background-image: linear-gradient(168deg, #0a7ac9 0%, var(--color-azul) 30%, var(--color-azul-escuro) 78%, var(--color-azul-noite) 100%);
+}
+
+/* No celular a coluna de texto ocupa a largura inteira e as figuras
+   ficam embaixo, não ao lado. A diagonal fica quase vertical: verde
+   fechado em cima, atrás do texto; amarelo embaixo, atrás delas. */
+@media (max-width: 1023px) {
+  .fundo-capa {
+    background-image:
+      radial-gradient(
+        84% 34% at 62% 88%,
+        color-mix(in srgb, #ffe98a 78%, transparent) 0%,
+        transparent 72%
+      ),
+      linear-gradient(
+        168deg,
+        #0f4c2e 0%,
+        var(--color-verde-escuro) 22%,
+        var(--color-verde) 52%,
+        #8cbf3f 74%,
+        var(--color-amarelo) 100%
+      );
+  }
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   O SLIDER DE FUNDO DA PRIMEIRA DOBRA
+
+   Duas fitas de fotos de rua correndo por trás das figuras, em
+   sentidos opostos. Mesma mecânica da faixa amarela da página: a lista
+   aparece duas vezes e a animação desloca metade da largura, então o
+   laço é invisível. Sem JavaScript.
+
+   ⚠️ ISTO JÁ FOI UM CROSSFADE EM TELA CHEIA e estava errado por dois
+   motivos. Um: a 42% de opacidade e em soft-light, trocar a foto
+   inteira não lê como troca, lê como PISCA — o olho registra a
+   luminância do fundo mudando sem entender o quê. Dois: em tela cheia
+   cada foto virava textura abstrata, e não dava para identificar que
+   era gente na rua, que era a única coisa que elas precisavam dizer.
+   Cartão pequeno tem BORDA, e é a borda que faz o olho ler "foto".
+
+   ⚠️ `soft-light` E NÃO SÓ OPACIDADE. Foto sobre gradiente, com
+   opacidade sozinha, continua sendo uma foto POR CIMA: dá para ver a
+   borda do retângulo e o cinza dela briga com o verde. No soft-light a
+   luminância da foto MODULA a cor que já está lá — o claro clareia o
+   verde, o escuro escurece, e o matiz continua sendo o da campanha.
+
+   ⚠️ A MÁSCARA É O QUE PROTEGE A LEITURA, e não é enfeite. Sem ela as
+   fitas correm por baixo do parágrafo de 260 caracteres e o contraste
+   do texto passa a depender de qual foto está passando — ou seja,
+   muda sozinho o tempo inteiro.
+   ═══════════════════════════════════════════════════════════════ */
+
+/* Um TERÇO, e não metade: a fita tem três passadas da mesma lista, e
+   deslocar um terço é deslocar exatamente uma passada. Ao fim do ciclo
+   a segunda passada está no lugar onde a primeira começou e o salto de
+   volta é invisível. As outras duas passadas são a reserva que impede
+   a fita de aparecer vazia em tela larga — ver o comentário em
+   components/site/FundoVivo.tsx. */
+@keyframes fundo-vivo-corre {
+  to { transform: translate3d(-33.3333%, 0, 0); }
+}
+
+@layer components {
+  .fundo-vivo {
+    display: flex;
+    flex-direction: column;
+    /* Celular: as fitas descem para o pé da dobra, atrás das figuras.
+       Centradas, a de cima corria na altura do parágrafo e a máscara
+       tinha de apagá-la — sobrava uma fita e meia visível. Encostadas
+       embaixo, as três aparecem inteiras no espaço que é delas. */
+    justify-content: flex-end;
+    gap: 0.6rem;
+    padding-bottom: 0.75rem;
+
+    /* ⚠️ 0.46 ERA POUCO. Em soft-light a camada já perde muito
+       contraste contra o gradiente; somado a 46% de opacidade, dava
+       para ver que havia ALGO ali sem dar para ver o quê — e o ponto
+       destas fotos é justamente serem reconhecíveis como gente na rua. */
+    opacity: 0.62;
+    mix-blend-mode: soft-light;
+
+    /* Celular: o texto está EM CIMA, então a máscara é vertical. */
+    mask-image: linear-gradient(
+      to bottom,
+      transparent 0%,
+      transparent 42%,
+      rgb(0 0 0 / 0.5) 56%,
+      #000 70%
+    );
+  }
+
+  @media (min-width: 1024px) {
+    .fundo-vivo {
+      /* No desktop as figuras ficam à direita e ocupam a altura toda,
+         então as fitas voltam a ser centradas. */
+      justify-content: center;
+      padding-bottom: 0;
+      gap: 0.9rem;
+      /* Desktop: o texto está À ESQUERDA, e a máscara acompanha.
+         A coluna de texto termina em ~49% da largura. */
+      mask-image: linear-gradient(
+        to right,
+        transparent 0%,
+        transparent 46%,
+        rgb(0 0 0 / 0.45) 60%,
+        #000 74%
+      );
+    }
+  }
+
+  .fundo-vivo-fita {
+    display: flex;
+    width: max-content;
+    gap: 0.6rem;
+    animation: fundo-vivo-corre var(--fita-duracao) linear infinite;
+    will-change: transform;
+  }
+
+  @media (min-width: 1024px) {
+    .fundo-vivo-fita { gap: 0.9rem; }
+  }
+
+  /* O tamanho é a decisão de projeto aqui, não o enquadramento.
+     Grande demais e volta a ser textura; pequeno demais e vira
+     miniatura de galeria. Nesta medida dá para ver que são pessoas na
+     rua sem que a foto dispute atenção com o rosto da candidata. */
+  .fundo-vivo-quadro {
+    position: relative;
+    flex: none;
+    width: 8.5rem;
+    height: 10.5rem;
+    overflow: hidden;
+    border-radius: 0.75rem;
+  }
+
+  @media (min-width: 1024px) {
+    .fundo-vivo-quadro {
+      width: 13rem;
+      height: 16rem;
+      border-radius: 1rem;
+    }
+  }
+
+  /* Quem pediu menos movimento fica com as fitas paradas, não com o
+     fundo vazio: a foto é conteúdo, o deslocamento é que é movimento. */
+  @media (prefers-reduced-motion: reduce) {
+    .fundo-vivo-fita { animation: none; }
+  }
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   TEXTURA PONTILHADA (halftone)
+
+   Uma trama de pontos sobre a página inteira. Serve para tirar o ar
+   de gradiente digital liso — dá a superfície de material impresso,
+   que é o registro certo para peça de campanha.
+
+   Três decisões que fazem ela funcionar em vez de sujar:
+
+   · `position: fixed`. A trama não rola junto com o conteúdo. Se
+     rolasse, o olho a leria como parte da página e ela viraria
+     ruído em movimento; parada, ela é o papel por baixo.
+
+   · `mix-blend-mode: overlay` com pontos BRANCOS. Ponto escuro
+     sumiria no azul-noite da dobra e apareceria só nas seções
+     claras — a textura existiria em metade da página. Overlay
+     clareia o que é escuro e quase não toca o que é claro, então a
+     mesma camada serve as duas.
+
+   · `pointer-events: none`. Camada fixa cobrindo a tela inteira é a
+     maneira mais fácil de matar TODOS os cliques da página. Sem
+     esta linha, nenhum botão da campanha funcionaria.
+
+   O z-index fica abaixo do cabeçalho (50) e do botão flutuante (40):
+   os dois são interface, e interface não recebe textura de papel.
+   ═══════════════════════════════════════════════════════════════ */
+[data-halftone]::after {
+  content: '';
+  position: fixed;
+  inset: 0;
+  z-index: 30;
+  pointer-events: none;
+  mix-blend-mode: overlay;
+  background-image: radial-gradient(
+    rgb(255 255 255 / var(--halftone-alfa)) 0.8px,
+    transparent 1px
+  );
+  background-size: var(--halftone-passo) var(--halftone-passo);
+}
+
+/* ⚠️ ESTES NÚMEROS JÁ FORAM O DOBRO e a trama aparecia. O pedido é
+   que ela seja SENTIDA e não vista: no sutil, quem olha a página não
+   consegue apontar o que mudou, só percebe que o fundo deixou de ser
+   um gradiente digital liso. Se der para contar os pontos, está alto. */
+[data-halftone='sutil'] { --halftone-alfa: 0.09; --halftone-passo: 5px; }
+[data-halftone='media'] { --halftone-alfa: 0.20; --halftone-passo: 4px; }
+[data-halftone='forte'] { --halftone-alfa: 0.38; --halftone-passo: 4px; }
+
+/* Quem pediu menos movimento não pediu menos textura — ela é estática.
+   Mas em tela de baixa densidade a trama de 3px vira moiré, e aí ela
+   deixa de ser textura e vira defeito. */
+@media (max-resolution: 1x) {
+  [data-halftone='forte'] { --halftone-passo: 4px; }
+}
+
 @utility fundo-azul-profundo {
   background-image: linear-gradient(168deg, var(--color-azul-escuro) 0%, var(--color-azul-noite) 100%);
 }
@@ -774,31 +1030,45 @@
 /* ═══════════════════════════════════════════════════════════════
    PRIMEIRA DOBRA — profundidade pela rolagem
 
-   O quadro encolhe pelo TOPO enquanto a página desce, e a foto cresce
-   um pouco. Duas coisas fazem isso ler como profundidade: as duas
-   animações partem da mesma âncora embaixo (transform-origin 50% 100%),
-   então a foto parece plantada no chão do quadro; e elas andam em
-   sentidos opostos, o que é o que o olho lê como uma coisa vindo para
-   frente enquanto a outra recua.
+   ⚠️ O QUADRO SAIU. Era um retângulo arredondado atrás da foto que
+   encolhia pelo topo enquanto a foto crescia — duas animações em
+   sentidos opostos, ancoradas no mesmo pé, e o olho lia isso como uma
+   coisa vindo para frente enquanto a outra recuava.
 
-   Presas à rolagem da página inteira, e não à entrada do elemento em
+   A campanha pediu a dobra sem retângulo, com as figuras recortadas
+   plantadas direto no fundo. Sem o quadro não há par, e uma animação
+   sozinha não é profundidade — é só uma foto que cresce. Ficou só o
+   avanço leve da figura da frente, o suficiente para a dobra não ser
+   uma imagem parada.
+
+   Presa à rolagem da página inteira, e não à entrada do elemento em
    tela: a primeira dobra JÁ está visível quando a página abre, então
    uma linha do tempo de "entrada" começaria com o efeito no meio.
    ═══════════════════════════════════════════════════════════════ */
 
-@keyframes hero-encolhe { to { transform: scaleY(0.8); } }
+/* ⚠️ AS DUAS CRESCEM, e não uma cresce enquanto a outra recua.
+   A primeira versão fazia a de trás encolher para simular perspectiva,
+   e o efeito era o contrário do pretendido: quem está atrás sumindo
+   enquanto quem está na frente avança lê como duas coisas separadas se
+   afastando, não como um grupo se aproximando.
+
+   Crescendo as duas, com a da frente crescendo MAIS, o grupo inteiro
+   parece vir na direção de quem lê — e a diferença entre 1.07 e 1.03
+   é o que mantém a profundidade entre elas. */
 @keyframes hero-cresce  { to { transform: scale(1.07); } }
+@keyframes hero-cresce-atras { to { transform: scale(1.03); } }
 
 @layer components {
-  .hero-quadro,
-  .hero-foto {
+  .hero-foto,
+  .hero-fundo {
+    /* Plantadas no chão: o pé não se mexe, só o topo. */
     transform-origin: 50% 100%;
   }
 
   @supports (animation-timeline: scroll()) {
     @media (prefers-reduced-motion: no-preference) {
-      .hero-quadro,
-      .hero-foto {
+      .hero-foto,
+      .hero-fundo {
         animation-timing-function: linear;
         animation-fill-mode: both;
         animation-timeline: scroll(root block);
@@ -806,8 +1076,8 @@
         will-change: transform;
       }
 
-      .hero-quadro { animation-name: hero-encolhe; }
-      .hero-foto { animation-name: hero-cresce; }
+      .hero-foto  { animation-name: hero-cresce; }
+      .hero-fundo { animation-name: hero-cresce-atras; }
     }
   }
 }
