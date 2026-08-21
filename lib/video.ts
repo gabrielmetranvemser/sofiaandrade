@@ -19,7 +19,7 @@
  *    quando ela clica, o domínio é o que não escreve cookie de anúncio.
  */
 
-export type Provedor = 'youtube' | 'vimeo'
+export type Provedor = 'youtube' | 'vimeo' | 'arquivo'
 
 export interface Video {
   provedor: Provedor
@@ -32,6 +32,24 @@ export interface Video {
   /** Para onde mandar quem preferir assistir na fonte. */
   assistir: string
 }
+
+/**
+ * ARQUIVO PRÓPRIO (Cloudflare R2, S3, ou qualquer endereço público).
+ *
+ * O provedor `arquivo` não tem player de terceiro: é um `<video>` do
+ * próprio navegador apontando para o arquivo. Vale a pena quando a
+ * campanha quer o vídeo sob domínio próprio, sem YouTube no meio —
+ * e o R2 é a escolha certa para isso porque não cobra saída de dados,
+ * que é justamente o custo que estoura numa página de campanha.
+ *
+ * ⚠️ SÓ MP4 E WEBM. `.m3u8` (HLS) é recusado de propósito: o Safari
+ *    toca nativo, o Chrome não toca sem uma biblioteca de 40 kB, e um
+ *    vídeo que funciona no telefone de quem cadastrou e não funciona
+ *    no de quem vota é pior que uma recusa clara na hora de salvar.
+ *    MP4 com faststart toca em todo lugar e o R2 serve por intervalo
+ *    (range), então o navegador começa antes de baixar o arquivo todo.
+ */
+const EXTENSOES_DE_ARQUIVO = ['.mp4', '.webm'] as const
 
 /**
  * Aceita as formas que uma pessoa realmente cola:
@@ -70,6 +88,25 @@ export function interpretarVideo(bruto: unknown): Video | null {
       return youtube(partes[1])
     }
     return null
+  }
+
+  // ── Arquivo próprio (R2 e afins) ─────────────────────────────
+  // Vem por último entre as tentativas de reconhecimento porque é a
+  // mais permissiva: qualquer domínio serve, desde que o caminho
+  // termine numa extensão que o navegador saiba tocar.
+  const caminho = url.pathname.toLowerCase()
+  if (EXTENSOES_DE_ARQUIVO.some((ext) => caminho.endsWith(ext))) {
+    return {
+      provedor: 'arquivo',
+      // O nome do arquivo serve de identificador: é estável, é legível
+      // no painel, e não expõe o caminho inteiro do balde.
+      id: partes[partes.length - 1] ?? texto,
+      embed: url.toString(),
+      // Sem capa de provedor. O componente resolve mostrando o primeiro
+      // quadro do próprio vídeo — ver components/ui/Video.tsx.
+      capa: null,
+      assistir: url.toString(),
+    }
   }
 
   // ── Vimeo ────────────────────────────────────────────────────
@@ -123,4 +160,75 @@ export type FormatoVideo = 'deitado' | 'em-pe'
 
 export function formatoValido(v: unknown): FormatoVideo {
   return v === 'em-pe' ? 'em-pe' : 'deitado'
+}
+
+/**
+ * OS AJUSTES DE PLAYER, POR VÍDEO.
+ *
+ * ⚠️ NEM TODO PROVEDOR OBEDECE A TUDO, e é honesto dizer onde a
+ *    promessa vale:
+ *
+ *    · arquivo próprio (R2) — toca no player do navegador e obedece a
+ *      todos: controles, tela cheia e carregamento.
+ *    · YouTube — aceita `controls=0` e `fs=0`, mas continua mostrando o
+ *      próprio nome e o menu de contexto. Não existe modo "sem marca".
+ *    · Vimeo — aceita os dois pelos mesmos parâmetros.
+ *
+ *    O botão sobre o vídeo é nosso, desenhado por cima do quadro, e por
+ *    isso funciona igual nos três.
+ */
+export interface OpcoesVideo {
+  controles?: boolean
+  telaCheia?: boolean
+  /**
+   * 'automatico' toca sozinho ao entrar na tela — e SEMPRE mudo.
+   *
+   * ⚠️ Não é escolha nossa: desde 2018 todo navegador de peso recusa
+   *    autoplay com som, e a chamada falha em silêncio. Fingir que dá
+   *    para tocar com áudio produziria um vídeo que simplesmente não
+   *    começa, sem erro nenhum para investigar.
+   */
+  inicio?: 'clique' | 'automatico'
+  /** 'ao-clicar' não pede nada ao provedor antes do play. */
+  carregamento?: 'ao-clicar' | 'com-previa'
+  botaoRotulo?: string
+  botaoDestino?: string
+}
+
+export const OPCOES_PADRAO: Required<
+  Pick<OpcoesVideo, 'controles' | 'telaCheia' | 'carregamento' | 'inicio'>
+> = {
+  controles: true,
+  telaCheia: true,
+  carregamento: 'ao-clicar',
+  inicio: 'clique',
+}
+
+/** Acrescenta ao endereço de embed o que o provedor sabe respeitar. */
+export function embedComOpcoes(video: Video, opcoes: OpcoesVideo): string {
+  if (video.provedor === 'arquivo') return video.embed
+
+  const url = new URL(video.embed)
+  const controles = opcoes.controles ?? OPCOES_PADRAO.controles
+  const telaCheia = opcoes.telaCheia ?? OPCOES_PADRAO.telaCheia
+
+  if (!controles) url.searchParams.set('controls', '0')
+  if (!telaCheia) url.searchParams.set('fs', '0')
+  // Autoplay sem `mute=1` é recusado pelo navegador e o vídeo fica
+  // parado numa tela preta. Os dois andam juntos, sempre.
+  if (opcoes.inicio === 'automatico') url.searchParams.set('mute', '1')
+  return url.toString()
+}
+
+/** Lê o que veio do painel sem confiar no formato. */
+export function opcoesValidas(bruto: unknown): OpcoesVideo {
+  const o = (bruto ?? {}) as Record<string, unknown>
+  return {
+    controles: o.controles !== false,
+    telaCheia: o.telaCheia !== false,
+    carregamento: o.carregamento === 'com-previa' ? 'com-previa' : 'ao-clicar',
+    inicio: o.inicio === 'automatico' ? 'automatico' : 'clique',
+    botaoRotulo: typeof o.botaoRotulo === 'string' ? o.botaoRotulo.trim() : '',
+    botaoDestino: typeof o.botaoDestino === 'string' ? o.botaoDestino.trim() : '',
+  }
 }

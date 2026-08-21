@@ -1,6 +1,8 @@
 import { lerConteudo } from '@/lib/conteudo/ler'
 import { Secao, CabecalhoSecao } from '@/components/ui/Secao'
 import { Video } from '@/components/ui/Video'
+import { formatoValido } from '@/lib/video'
+import { semDestaque, Texto } from '@/components/ui/TextoComDestaque'
 
 export async function Problema() {
   const { problema } = await lerConteudo()
@@ -27,8 +29,8 @@ export async function Problema() {
             >
               {item.numero}
             </span>
-            <h3 className="mt-5 text-xl md:text-2xl">{item.titulo}</h3>
-            <p className="mt-3 text-base text-grafite">{item.texto}</p>
+            <h3 className="mt-5 text-xl md:text-2xl"><Texto>{item.titulo}</Texto></h3>
+            <p className="mt-3 text-base text-grafite"><Texto>{item.texto}</Texto></p>
           </li>
         ))}
       </ul>
@@ -38,9 +40,14 @@ export async function Problema() {
           isso. Centralizado e contido — a seção é uma grade de dois, e
           um vídeo de largura total viraria uma quinta caixa maior que
           as outras quatro. */}
-      {problema.video ? (
+      {problema.video.url ? (
         <div data-revelar className="mx-auto mt-8 max-w-3xl">
-          <Video url={problema.video} titulo={problema.titulo.replace(/\[\[|\]\]/g, '')} />
+          <Video
+            url={problema.video.url}
+            formato={formatoValido(problema.video.formato)}
+            opcoes={problema.video.opcoes}
+            titulo={problema.video.titulo}
+          />
         </div>
       ) : null}
     </Secao>

@@ -1,29 +1,29 @@
 import type { ReactNode } from 'react'
+import { interpretar, semMarcacao, type Marca } from '@/lib/texto/marcacao'
 
 /**
- * Renderiza texto com trechos em destaque, marcados com [[colchetes duplos]].
+ * O RENDERIZADOR DE TEXTO DO SITE.
  *
- * O PROBLEMA QUE ISTO RESOLVE
- * Oito títulos do site estavam reescritos em JSX para poder aplicar
- * <span> de cor — e as chaves correspondentes em content/copy.ts
- * ficavam mortas, ignoradas. Com o painel entrando, editar o título
- * pelo admin não mudaria nada na tela.
+ * Toda string que a campanha pode editar passa por aqui. As três marcas
+ * — destaque, negrito e itálico — combinam entre si.
  *
- * POR QUE MARCAÇÃO NA STRING, E NÃO DOIS CAMPOS
- * "titulo" + "tituloDestaque" assume que o destaque está sempre no fim.
- * Falha em "Coloque o [[2233]] na sua foto.", onde ele está no meio.
- * Um array de segmentos seria correto, mas o formulário fica horrível.
- * A marcação resolve os dois: um campo, um input, destaque em qualquer
- * posição, quantos forem precisos.
+ * ⚠️ TODO TEXTO EDITÁVEL, e não só os títulos. Na primeira versão só os
+ *    títulos passavam pelo interpretador, e o resultado foi um defeito
+ *    reportado no mesmo dia: negrito aplicado num parágrafo aparecia
+ *    como `**negrito**` na página, com os asteriscos e tudo. O painel
+ *    oferecia uma formatação que metade da página não sabia desenhar.
  *
- * [[…]] porque nunca aparece na copy real — * colidiria com pontuação.
+ *    A regra agora é simples: se o campo é editável, o texto passa por
+ *    este componente. Sem marca nenhuma ele devolve a string intacta,
+ *    então usar não custa nada.
  *
  * ⚠️ NUNCA usar dangerouslySetInnerHTML aqui. Este texto vem do banco,
  *    e uma sessão de admin comprometida não pode virar script na página
- *    pública. O split devolve nós de React, não HTML.
+ *    pública da campanha. O interpretador devolve nós de React — o que
+ *    não for uma das três marcas é texto literal.
  */
 
-type Tom = 'amarelo' | 'azul' | 'grifo' | 'verde' | 'branco'
+type Tom = 'amarelo' | 'azul' | 'grifo' | 'verde' | 'branco' | 'capa'
 
 const CLASSES: Record<Tom, string> = {
   amarelo: 'text-amarelo',
@@ -31,9 +31,11 @@ const CLASSES: Record<Tom, string> = {
   verde: 'text-verde-escuro',
   branco: 'text-white',
   grifo: 'grifo',
+  // A primeira dobra tem seis esquemas de cor, e o realce muda com
+  // eles. `realce-capa` lê a variável que o esquema define — assim o
+  // componente não precisa saber quantos esquemas existem.
+  capa: 'realce-capa',
 }
-
-const MARCACAO = /\[\[(.+?)\]\]/g
 
 export function TextoComDestaque({
   texto,
@@ -43,28 +45,42 @@ export function TextoComDestaque({
   /** Cor do trecho destacado. Sobre fundo escuro use 'amarelo'. */
   tom?: Tom
 }): ReactNode {
-  if (!texto.includes('[[')) return texto
+  const trechos = interpretar(texto)
+  // Nada marcado: devolve a string, sem embrulhar em nó nenhum.
+  if (trechos.length === 1 && trechos[0].marcas.length === 0) return trechos[0].texto
+  if (trechos.length === 0) return texto
 
-  const partes: ReactNode[] = []
-  let ultimo = 0
-  let n = 0
+  return trechos.map((t, i) => <span key={i}>{vestir(t.texto, t.marcas, tom)}</span>)
+}
 
-  for (const achado of texto.matchAll(MARCACAO)) {
-    const inicio = achado.index ?? 0
-    if (inicio > ultimo) partes.push(texto.slice(ultimo, inicio))
-    partes.push(
-      <span key={`d${n++}`} className={CLASSES[tom]}>
-        {achado[1]}
-      </span>,
-    )
-    ultimo = inicio + achado[0].length
+/**
+ * Embrulha o texto nas etiquetas das marcas, de fora para dentro.
+ *
+ * <strong> e <em>, e não <b>/<i>: a diferença é semântica e chega ao
+ * leitor de tela, que muda a ênfase da voz.
+ */
+function vestir(texto: string, marcas: Marca[], tom: Tom): ReactNode {
+  let no: ReactNode = texto
+  // De dentro para fora, para o destaque (que carrega a cor) terminar
+  // por último e valer sobre o conjunto.
+  for (const marca of [...marcas].reverse()) {
+    if (marca === 'italico') no = <em>{no}</em>
+    else if (marca === 'negrito') no = <strong>{no}</strong>
+    else no = <span className={CLASSES[tom]}>{no}</span>
   }
-  if (ultimo < texto.length) partes.push(texto.slice(ultimo))
-
-  return partes
+  return no
 }
 
 /** Tira a marcação. Para <title>, alt, aria-label e OG. */
-export function semDestaque(texto: string): string {
-  return texto.replace(MARCACAO, '$1')
+export const semDestaque = semMarcacao
+
+/**
+ * Atalho para texto de corpo — parágrafo, descrição, legenda.
+ *
+ * É o mesmo renderizador com um nome que diz onde usar. Existe para
+ * não haver desculpa: interpolar `{item.texto}` cru é o que produzia
+ * asterisco visível na página.
+ */
+export function Texto({ children, tom }: { children: string; tom?: Tom }): ReactNode {
+  return <TextoComDestaque texto={children} tom={tom} />
 }

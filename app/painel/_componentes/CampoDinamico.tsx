@@ -1,10 +1,11 @@
 'use client'
 
 import type { Campo } from '@/content/esquema'
-import { CampoDestaque } from './CampoDestaque'
+import { tamanhoVisivel } from '@/lib/texto/marcacao'
+import { EditorTexto } from './EditorTexto'
 
 /**
- * UM componente para os 10 tipos de campo. É a resposta a "17 seções não
+ * UM componente para os 11 tipos de campo. É a resposta a "17 seções não
  * se escreve como 17 telas".
  *
  * O estado é a seção inteira num objeto só, endereçado por caminho.
@@ -24,15 +25,30 @@ export interface Props {
   onMudar: (caminho: string, valor: Valor) => void
 }
 
+/**
+ * O contador de caracteres.
+ *
+ * ⚠️ SÓ APARECE PERTO DO LIMITE. Antes ele estava sempre lá, com um
+ *    número em cinza ao lado de todo rótulo — vinte e poucos números
+ *    numa tela, nenhum deles urgente, todos disputando atenção com o
+ *    texto que se está escrevendo. Um contador que grita o tempo todo
+ *    é um contador que ninguém lê quando importa.
+ *
+ *    Agora ele fica calado até sobrarem 20% do limite, avisa em âmbar
+ *    na reta final e vira vermelho quando passou. Silêncio é a
+ *    informação de que está tudo bem.
+ */
 const RESTANTE = (texto: string, max?: number) => {
   if (!max) return null
-  const visivel = texto.replace(/\[\[(.*?)\]\]/g, '$1').length
-  const sobra = max - visivel
+  const sobra = max - tamanhoVisivel(texto)
+  if (sobra > max * 0.2) return null
   return (
     <span
-      className={`text-xs tabular-nums ${sobra < 0 ? 'font-semibold text-red-600' : 'text-grafite'}`}
+      className={`rounded-full px-2 py-0.5 text-xs font-medium tabular-nums ${
+        sobra < 0 ? 'bg-red-50 text-red-700' : 'bg-amarelo-suave text-tinta/70'
+      }`}
     >
-      {sobra < 0 ? `${-sobra} a mais` : `${sobra}`}
+      {sobra < 0 ? `${-sobra} a mais` : `restam ${sobra}`}
     </span>
   )
 }
@@ -110,42 +126,37 @@ export function CampoDinamico({ campo, valor, caminho, erros, onMudar }: Props) 
   }
 
   // ── texto e parágrafo ────────────────────────────────────────
+  // ⚠️ UM EDITOR SÓ PARA OS DOIS, e com botões em vez de símbolos.
+  //    Antes eram um <input> e um <textarea>, e a marcação de destaque
+  //    aparecia crua no campo: `[[colchetes duplos]]`. Quem escreve a
+  //    copy de uma campanha não tem por que saber o que é isso.
+  //
+  //    O destaque só é oferecido onde a página sabe DESENHAR destaque
+  //    (`campo.destaque`). Negrito e itálico valem em qualquer texto.
+  //    Oferecer uma marca que a página ignora seria prometer o que não
+  //    se cumpre — ver EditorTexto.
   if (campo.tipo === 'texto' || campo.tipo === 'longo') {
     const v = typeof valor === 'string' ? valor : ''
-    const comum = {
-      id,
-      value: v,
-      onChange: (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) =>
-        onMudar(caminho, e.target.value),
-      className: `${ENTRADA} ${erro ? 'border-red-400' : ''}`,
-      'aria-invalid': Boolean(erro),
-      'aria-describedby': campo.ajuda ? `${id}-ajuda` : undefined,
-    }
     const temDestaque = 'destaque' in campo && campo.destaque
+    const linhas = campo.tipo === 'longo' ? (campo.linhas ?? 3) : 1
 
     return (
       <div>
-        <Rotulo para={id} extra={RESTANTE(v, campo.max)}>
+        <Rotulo para={id} ajuda={campo.ajuda} extra={RESTANTE(v, campo.max)}>
           {campo.rotulo}
         </Rotulo>
 
-        {/* Campo com destaque ganha botão e prévia. A marcação
-            [[colchetes]] deixa de ser algo que a pessoa precisa saber
-            que existe — ela seleciona a palavra e toca em Destacar. */}
-        {temDestaque ? (
-          <CampoDestaque
-            id={id}
-            valor={v}
-            onMudar={(novo) => onMudar(caminho, novo)}
-            invalido={Boolean(erro)}
-            descreve={campo.ajuda ? `${id}-ajuda` : undefined}
-            className={comum.className}
-          />
-        ) : campo.tipo === 'longo' ? (
-          <textarea {...comum} rows={campo.linhas ?? 3} />
-        ) : (
-          <input type="text" {...comum} />
-        )}
+        <EditorTexto
+          id={id}
+          valor={v}
+          onMudar={(novo) => onMudar(caminho, novo)}
+          invalido={Boolean(erro)}
+          descreve={campo.ajuda ? `${id}-ajuda` : undefined}
+          rotuloAcessivel={campo.rotulo}
+          marcas={temDestaque ? ['destaque', 'negrito', 'italico'] : ['negrito', 'italico']}
+          className={`${ENTRADA} ${erro ? 'border-red-400' : ''}`}
+          minAltura={`${linhas * 1.6 + 1.2}rem`}
+        />
 
         {campo.ajuda ? (
           <p id={`${id}-ajuda`} className="mt-1 text-xs text-grafite">
@@ -187,21 +198,86 @@ export function CampoDinamico({ campo, valor, caminho, erros, onMudar }: Props) 
     return (
       <div>
         <Rotulo para={id}>{campo.rotulo}</Rotulo>
+
+        {/* ⚠️ O "ONDE" VEM ANTES DO CAMPO, e com destaque próprio.
+            Era ajuda em cinza embaixo do input, e quem chegava com os
+            arquivos na mão não sabia qual vídeo ia em qual lugar. A
+            frase é o dado mais útil deste campo — mais que o rótulo,
+            mais que o endereço — então ela ocupa o lugar de dado, não
+            o de rodapé. */}
+        <p className="mb-2 flex gap-2.5 rounded-xl bg-azul-suave px-4 py-3 text-[0.9375rem] leading-relaxed">
+          <svg viewBox="0 0 24 24" className="mt-0.5 size-4 shrink-0 text-azul" fill="currentColor" aria-hidden>
+            <path d="M12 2a7 7 0 0 0-7 7c0 5.2 7 13 7 13s7-7.8 7-13a7 7 0 0 0-7-7Zm0 9.5A2.5 2.5 0 1 1 12 6.5a2.5 2.5 0 0 1 0 5Z" />
+          </svg>
+          <span>{campo.onde}</span>
+        </p>
+
         <input
           id={id}
           type="text"
           value={v}
           onChange={(e) => onMudar(caminho, e.target.value)}
-          placeholder="https://youtu.be/…"
+          placeholder="https://youtu.be/… ou https://…/video.mp4"
           className={`${ENTRADA} font-mono text-sm ${erro ? 'border-red-400' : ''}`}
           aria-invalid={Boolean(erro)}
           aria-describedby={`${id}-ajuda`}
         />
         <p id={`${id}-ajuda`} className="mt-1 text-xs text-grafite">
-          {campo.ajuda ??
-            'YouTube ou Vimeo. Deixe vazio enquanto o vídeo não existir — o bloco some da página sozinho.'}
+          {campo.ajuda ? campo.ajuda + ' ' : ''}
+          YouTube, Vimeo ou o endereço de um arquivo .mp4/.webm. Vazio, o bloco não aparece na
+          página.
         </p>
         {erro ? <p className="mt-1 text-xs font-medium text-red-600">{erro}</p> : null}
+      </div>
+    )
+  }
+
+  // ── deslizante ───────────────────────────────────────────────
+  // O número aparece ao lado da barra, e não só na ponta: quem arrasta
+  // precisa ver onde parou, e quem volta depois precisa saber onde
+  // estava sem ter que estimar pela posição do botão.
+  if (campo.tipo === 'deslizante') {
+    const n = typeof valor === 'number' ? valor : Number(valor) || campo.min
+    return (
+      <div>
+        <Rotulo
+          para={id}
+          ajuda={campo.ajuda}
+          extra={
+            <span className="rounded-full bg-areia px-2.5 py-0.5 text-xs font-medium tabular-nums">
+              {n}
+              {campo.sufixo ?? ''}
+            </span>
+          }
+        >
+          {campo.rotulo}
+        </Rotulo>
+        <input
+          id={id}
+          type="range"
+          min={campo.min}
+          max={campo.max}
+          step={campo.passo ?? 1}
+          value={n}
+          onChange={(e) => onMudar(caminho, Number(e.target.value))}
+          className="mt-1 h-2 w-full cursor-pointer appearance-none rounded-full bg-linha accent-azul"
+          aria-describedby={campo.ajuda ? `${id}-ajuda` : undefined}
+        />
+        <div className="mt-1 flex justify-between text-[0.6875rem] text-grafite tabular-nums">
+          <span>
+            {campo.min}
+            {campo.sufixo ?? ''}
+          </span>
+          <span>
+            {campo.max}
+            {campo.sufixo ?? ''}
+          </span>
+        </div>
+        {campo.ajuda ? (
+          <p id={`${id}-ajuda`} className="mt-1 text-xs text-grafite">
+            {campo.ajuda}
+          </p>
+        ) : null}
       </div>
     )
   }
@@ -250,35 +326,21 @@ export function CampoDinamico({ campo, valor, caminho, erros, onMudar }: Props) 
           {lista.map((linha, i) => (
             <div key={i} className="flex items-start gap-2">
               <div className="min-w-0 flex-1">
-                {/* Cada linha ganha o seu próprio Destacar: numa lista
-                    de linhas de título, o realce é por linha. */}
-                {campo.destaque ? (
-                  <CampoDestaque
-                    valor={linha}
-                    multilinha
-                    linhas={linha.length > 90 ? 3 : 1}
-                    rotuloAcessivel={`${campo.rotulo} ${i + 1}`}
-                    invalido={Boolean(erros[`${caminho}.${i}`])}
-                    className={`${ENTRADA} ${erros[`${caminho}.${i}`] ? 'border-red-400' : ''}`}
-                    onMudar={(novoTexto) => {
-                      const novo = [...lista]
-                      novo[i] = novoTexto
-                      onMudar(caminho, novo)
-                    }}
-                  />
-                ) : (
-                  <textarea
-                    value={linha}
-                    rows={linha.length > 90 ? 3 : 1}
-                    onChange={(e) => {
-                      const novo = [...lista]
-                      novo[i] = e.target.value
-                      onMudar(caminho, novo)
-                    }}
-                    className={`${ENTRADA} ${erros[`${caminho}.${i}`] ? 'border-red-400' : ''}`}
-                    aria-label={`${campo.rotulo} ${i + 1}`}
-                  />
-                )}
+                {/* Cada linha tem a própria barra: numa lista de linhas
+                    de título, o realce é por linha. */}
+                <EditorTexto
+                  valor={linha}
+                  rotuloAcessivel={`${campo.rotulo} ${i + 1}`}
+                  invalido={Boolean(erros[`${caminho}.${i}`])}
+                  marcas={campo.destaque ? ['destaque', 'negrito', 'italico'] : ['negrito', 'italico']}
+                  className={`${ENTRADA} ${erros[`${caminho}.${i}`] ? 'border-red-400' : ''}`}
+                  minAltura={linha.length > 90 ? '4.4rem' : '2.8rem'}
+                  onMudar={(novoTexto) => {
+                    const novo = [...lista]
+                    novo[i] = novoTexto
+                    onMudar(caminho, novo)
+                  }}
+                />
               </div>
               <div className="flex shrink-0 gap-1 pt-1">
                 <BotaoIcone
@@ -468,6 +530,7 @@ function itemVazio(campos: Record<string, Campo>): Record<string, unknown> {
     // Escolha nasce na primeira opção, nunca em branco: string vazia
     // num <select> mostra um item fantasma que não está na lista.
     else if (campo.tipo === 'escolha') saida[chave] = campo.opcoes[0]?.valor ?? ''
+    else if (campo.tipo === 'deslizante') saida[chave] = campo.min
     else saida[chave] = ''
   }
   return saida

@@ -2,12 +2,29 @@ import Image from 'next/image'
 import { lerConteudo } from '@/lib/conteudo/ler'
 import { lerSlots } from '@/lib/midia/ler'
 import { Imagem } from '@/components/ui/Imagem'
-import { TextoComDestaque } from '@/components/ui/TextoComDestaque'
+import { TextoComDestaque, Texto } from '@/components/ui/TextoComDestaque'
 import { MarcaNumero, MarcaNumeroHorizontal } from '@/components/ui/Marca'
 import { BotaoLink } from '@/components/ui/Botao'
 import { BrilhoCursor } from '@/components/animacao/BrilhoCursor'
 import { destinoGrupo } from '@/lib/conteudo/secoes'
 import { CliqueGrupo } from './CliqueGrupo'
+
+/**
+ * Os esquemas que o CSS conhece. Ver `.capa` em globals.css.
+ *
+ * ⚠️ ESTA LISTA EXISTE PARA APARAR VALOR ANTIGO, e a lição custou uma
+ *    dobra sem fundo nenhum. O esquema "verde e amarelo" já se chamou
+ *    `capa`; quando ganhou nome próprio, o valor salvo no banco
+ *    continuou sendo `capa` — e `[data-capa='capa']` não casa com regra
+ *    alguma. Resultado: nenhum degradê, as fotos de fundo a 100% e o
+ *    título branco sobre branco.
+ *
+ *    O ponto geral: valor gravado sobrevive a renomeação de código. A
+ *    validação do painel só conserta o que passa por ela, e ninguém
+ *    reabre uma seção só para salvá-la de novo.
+ */
+const ESQUEMAS = ['azul', 'verde', 'amarelo', 'verde-amarelo', 'azul-verde', 'amarelo-azul']
+const ESQUEMA_PADRAO = 'verde-amarelo'
 import { FundoVivo } from './FundoVivo'
 
 /**
@@ -47,13 +64,18 @@ export async function Hero({ silencio = false }: { silencio?: boolean }) {
     lerSlots(),
   ])
   const paraOsGrupos = destinoGrupo(exibir)
-  const capa = aparencia.heroCor !== 'azul'
+  const esquema = ESQUEMAS.includes(aparencia.heroCor) ? aparencia.heroCor : ESQUEMA_PADRAO
 
   return (
     <section
-      className={`brilho-cursor relative isolate overflow-hidden pt-[5.5rem] text-white md:pt-32 ${
-        capa ? 'fundo-capa' : 'fundo-capa-azul'
-      }`}
+      // ⚠️ O ESQUEMA É UM ATRIBUTO, e a cor do realce e do botão saem
+      //    de variáveis CSS que ele define. Não é indireção à toa: são
+      //    seis esquemas, e a alternativa seria seis condicionais em
+      //    JavaScript espalhadas por este arquivo — uma para o fundo,
+      //    outra para o destaque, outra para cada botão. Com variável,
+      //    esquema novo é um bloco no CSS e nada aqui.
+      data-capa={esquema}
+      className="capa brilho-cursor relative isolate overflow-hidden pt-[5.5rem] text-white md:pt-32"
     >
       {/* Só monta listener onde existe ponteiro de verdade. No celular
           este componente devolve sem registrar nada. */}
@@ -84,7 +106,7 @@ export async function Hero({ silencio = false }: { silencio?: boolean }) {
             <p className="anima-hero flex items-center justify-center gap-3 lg:justify-start">
               <span className="flex items-end gap-[3px]" aria-hidden>
                 <span className="block h-3.5 w-[3px] rounded-full bg-white/70" />
-                <span className="block h-5 w-[3px] rounded-full bg-amarelo" />
+                <span className="block h-5 w-[3px] rounded-full bg-(--capa-realce)" />
                 <span className="block h-3.5 w-[3px] rounded-full bg-white" />
               </span>
               <span className="text-[0.8125rem] font-semibold tracking-[0.16em] text-white uppercase">
@@ -104,7 +126,7 @@ export async function Hero({ silencio = false }: { silencio?: boolean }) {
                   className="anima-hero block"
                   style={{ animationDelay: `${100 + i * 80}ms` }}
                 >
-                  <TextoComDestaque texto={linha} tom="amarelo" />
+                  <TextoComDestaque texto={linha} tom="capa" />
                 </span>
               ))}
             </h1>
@@ -113,7 +135,7 @@ export async function Hero({ silencio = false }: { silencio?: boolean }) {
               className="anima-hero mx-auto mt-4 max-w-xl text-base text-white/90 [text-shadow:0_1px_10px_rgba(6,48,26,0.3)] sm:text-lg md:text-xl lg:mx-0"
               style={{ animationDelay: '440ms' }}
             >
-              {hero.subtitulo}
+              <Texto tom="capa">{hero.subtitulo}</Texto>
             </p>
 
             {!silencio ? (
@@ -134,7 +156,7 @@ export async function Hero({ silencio = false }: { silencio?: boolean }) {
                     próprio link, e não só no miolo, senão sobra um alvo
                     de toque invisível no meio da coluna. */}
                 <CliqueGrupo origem="hero" href={paraOsGrupos} className="hidden lg:contents">
-                  <span className="toque inline-flex min-h-14 items-center justify-center gap-2.5 rounded-full bg-azul-escuro px-8 text-lg font-semibold text-white shadow-alta transition-all duration-300 hover:brightness-125 sm:whitespace-nowrap">
+                  <span className="toque inline-flex min-h-14 items-center justify-center gap-2.5 rounded-full bg-(--capa-botao) px-8 text-lg font-semibold text-(--capa-botao-texto) shadow-alta transition-all duration-300 hover:brightness-110 sm:whitespace-nowrap">
                     {ctas.grupo}
                     <svg viewBox="0 0 24 24" className="hidden size-5 shrink-0 sm:block" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" aria-hidden>
                       <path d="M5 12h14M13 6l6 6-6 6" />
@@ -160,7 +182,7 @@ export async function Hero({ silencio = false }: { silencio?: boolean }) {
               className="anima-hero mt-5 hidden items-center gap-2 text-sm text-white/85 lg:flex"
               style={{ animationDelay: '600ms' }}
             >
-              <svg viewBox="0 0 24 24" className="size-4 text-amarelo" fill="currentColor" aria-hidden>
+              <svg viewBox="0 0 24 24" className="size-4 text-(--capa-realce)" fill="currentColor" aria-hidden>
                 <path d="M12 2a7 7 0 0 0-7 7c0 5.2 7 13 7 13s7-7.8 7-13a7 7 0 0 0-7-7Zm0 9.5A2.5 2.5 0 1 1 12 6.5a2.5 2.5 0 0 1 0 5Z" />
               </svg>
               {hero.rodapeHero}
@@ -395,7 +417,7 @@ export async function Hero({ silencio = false }: { silencio?: boolean }) {
                         que empurrava a altura do botão e desalinhava a
                         faixa inteira. Melhor encolher a letra do que
                         deixar o rótulo virar parágrafo. */}
-                    <span className="toque flex min-h-[3.25rem] items-center justify-center rounded-full bg-azul-escuro px-4 text-[0.9375rem] font-semibold whitespace-nowrap text-white shadow-alta transition-all duration-300 hover:brightness-125 sm:px-5 sm:text-base">
+                    <span className="toque flex min-h-[3.25rem] items-center justify-center rounded-full bg-(--capa-botao) px-4 text-[0.9375rem] font-semibold whitespace-nowrap text-(--capa-botao-texto) shadow-alta transition-all duration-300 hover:brightness-110 sm:px-5 sm:text-base">
                       {ctas.grupoCurto}
                     </span>
                   </CliqueGrupo>

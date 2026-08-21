@@ -1,6 +1,6 @@
 import Link from 'next/link'
 import { PADRAO } from '@/content/copy'
-import { ESQUEMA } from '@/content/esquema'
+import { SECOES_DO_PAINEL } from '@/content/mapa'
 import { config } from '@/lib/config'
 import { listarGrupos, MUNICIPIOS } from '@/lib/dados'
 import { lerConteudoFresco } from '@/lib/conteudo/ler'
@@ -48,7 +48,7 @@ export default async function PainelInicio() {
   for (const [nome] of faltaLegal) {
     pendencias.push({
       texto: `${nome} não preenchido na identificação eleitoral`,
-      onde: '/painel/textos/rodape',
+      onde: '/painel/secoes/rodape',
     })
   }
   if (semLink > 0)
@@ -62,10 +62,10 @@ export default async function PainelInicio() {
   // No lugar entram os vídeos: oito espaços que não quebram nada
   // vazios, mas que a campanha precisa lembrar de preencher.
   const videosVazios = [
-    conteudo.origem.video,
-    conteudo.rua.video,
-    conteudo.problema.video,
-    conteudo.provas.video,
+    conteudo.origem.video.url,
+    conteudo.rua.video.url,
+    conteudo.problema.video.url,
+    conteudo.provas.video.url,
     ...conteudo.social.videos.map((v) => v.url),
     ...conteudo.social.processos.flatMap((p) => p.videos.map((v) => v.url)),
     ...conteudo.trilha.itens.map((v) => v.url),
@@ -74,7 +74,7 @@ export default async function PainelInicio() {
   if (videosVazios > 0)
     pendencias.push({
       texto: `${videosVazios} espaço${videosVazios === 1 ? '' : 's'} de vídeo ainda sem endereço`,
-      onde: '/painel/textos/origem',
+      onde: '/painel/videos',
     })
 
   return (
@@ -134,27 +134,31 @@ export default async function PainelInicio() {
         ))}
       </dl>
 
+      {/* Atalho para as seções, na ORDEM DA PÁGINA — a mesma da tela
+          de Seções. Já foi a ordem do objeto do esquema, que é a ordem
+          em que alguém escreveu o arquivo: útil para quem programa,
+          inútil para quem edita. */}
       <section className="mt-6 rounded-2xl border border-linha bg-white p-6">
         <div className="flex flex-wrap items-baseline justify-between gap-2">
-          <h2 className="text-lg">Textos</h2>
+          <h2 className="text-lg">Seções</h2>
           <p className="text-sm text-grafite">
-            {Object.keys(ESQUEMA).length - naoTocadas.size} de {Object.keys(ESQUEMA).length} seções
-            editadas
+            {SECOES_DO_PAINEL.length - naoTocadas.size} de {SECOES_DO_PAINEL.length} editadas
           </p>
         </div>
         <p className="mt-1 text-sm text-grafite">
-          Seções ainda com o texto original de fábrica aparecem sem marca.
+          Textos, imagens e vídeos de cada bloco da página. Seções ainda com o conteúdo de fábrica
+          aparecem sem marca.
         </p>
 
         <ul className="mt-4 grid gap-1 sm:grid-cols-2">
-          {Object.entries(ESQUEMA).map(([chave, s]) => (
-            <li key={chave}>
+          {SECOES_DO_PAINEL.map((s) => (
+            <li key={s.chave}>
               <Link
-                href={`/painel/textos/${chave}`}
+                href={`/painel/secoes/${s.chave}`}
                 className="flex min-h-11 items-center justify-between gap-3 rounded-xl px-3 text-[0.9375rem] transition-colors hover:bg-areia"
               >
                 <span className="truncate">{s.rotulo}</span>
-                {!naoTocadas.has(chave) ? (
+                {!naoTocadas.has(s.chave) ? (
                   <span className="shrink-0 rounded-full bg-verde-suave px-2.5 py-0.5 text-xs font-medium text-verde">
                     editada
                   </span>

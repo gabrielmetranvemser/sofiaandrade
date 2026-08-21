@@ -8,9 +8,20 @@ import { sair } from '../acoes'
 /**
  * Menu lateral do painel.
  *
- * Cinco destinos, não mais. O antigo tinha três abas horizontais e
- * NENHUM indicador de onde você estava — nenhum `usePathname`, nenhum
- * `aria-current`. Aqui o item ativo é visível e anunciado.
+ * ⚠️ OS DESTINOS MUDARAM DE EIXO. Eram "Textos" e "Imagens" — o
+ *    painel organizado por TIPO de coisa. Quem edita não pensa assim:
+ *    pensa "quero mexer no bloco da rua", e tinha de visitar duas telas
+ *    para isso. Agora a porta de entrada é "Seções", e dentro de cada
+ *    uma estão os textos, as imagens e os vídeos dela.
+ *
+ *    "Vídeos" ganhou destino próprio mesmo já existindo dentro de cada
+ *    seção, e a duplicação é deliberada: as duas telas servem tarefas
+ *    diferentes. Editar uma seção é trabalho de redação; subir os
+ *    dezessete vídeos de uma vez, com os arquivos na mão, é trabalho de
+ *    produção — e forçar quem faz o segundo a percorrer seis seções
+ *    seria devolver a ele um problema de arrumação que é nosso.
+ *
+ * O item ativo é visível e anunciado (`aria-current`).
  *
  * No celular vira uma gaveta: o painel é usado no telefone de um
  * coordenador em carreata, não só no desktop do escritório.
@@ -24,8 +35,9 @@ export interface ItemMenu {
 
 export const ITENS: ItemMenu[] = [
   { href: '/painel', rotulo: 'Início', icone: 'M4 12 12 4l8 8v8a1 1 0 0 1-1 1h-4v-6H9v6H5a1 1 0 0 1-1-1v-8Z' },
-  { href: '/painel/textos', rotulo: 'Textos', icone: 'M4 5h16v2H4V5Zm0 4h16v2H4V9Zm0 4h11v2H4v-2Zm0 4h11v2H4v-2Z' },
-  { href: '/painel/imagens', rotulo: 'Imagens', icone: 'M5 4h14a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2Zm0 2v9.6l3.7-3.4a1 1 0 0 1 1.36 0L13 15l2.4-2.2a1 1 0 0 1 1.35 0L19 14.8V6H5Zm4.5 1.5a1.75 1.75 0 1 1 0 3.5 1.75 1.75 0 0 1 0-3.5Z' },
+  { href: '/painel/secoes', rotulo: 'Seções', icone: 'M4 4h16v4H4V4Zm0 6h16v4H4v-4Zm0 6h16v4H4v-4Z' },
+  { href: '/painel/videos', rotulo: 'Vídeos', icone: 'M4 5h11a2 2 0 0 1 2 2v2.4l4-2.6v10.4l-4-2.6V17a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V7a2 2 0 0 1 2-2Zm0 2v10h11V7H4Z' },
+  { href: '/painel/identidade', rotulo: 'Identidade', icone: 'M12 2 3 6v6c0 5 3.8 9.4 9 10 5.2-.6 9-5 9-10V6l-9-4Zm0 2.2 7 3.1V12c0 4-2.9 7.6-7 8.2-4.1-.6-7-4.2-7-8.2V7.3l7-3.1ZM12 7a2.5 2.5 0 1 1 0 5 2.5 2.5 0 0 1 0-5Zm0 6.2c1.9 0 4.5.9 4.5 2.1V17h-9v-1.7c0-1.2 2.6-2.1 4.5-2.1Z' },
   { href: '/painel/grupos', rotulo: 'Grupos', icone: 'M12 2a10 10 0 1 0 0 20 10 10 0 0 0 0-20Zm0 2a8 8 0 0 1 6.3 12.9l-2.1-2.1a5 5 0 1 0-8.4 0l-2.1 2.1A8 8 0 0 1 12 4Zm0 5a3 3 0 1 1 0 6 3 3 0 0 1 0-6Z' },
   { href: '/painel/metricas', rotulo: 'Métricas', icone: 'M4 20V10h4v10H4Zm6 0V4h4v16h-4Zm6 0v-7h4v7h-4Z' },
 ]

@@ -1,6 +1,7 @@
 import Link from 'next/link'
 import { lerConteudo } from '@/lib/conteudo/ler'
 import { LogoHorizontal } from '@/components/ui/Marca'
+import { Texto } from '@/components/ui/TextoComDestaque'
 
 /**
  * RODAPÉ DE IDENTIFICAÇÃO ELEITORAL.
@@ -39,7 +40,7 @@ export async function RodapeLegal() {
           {/* Marca — versão branca, que é a que existe para fundo escuro */}
           <div>
             <LogoHorizontal className="h-auto w-56 md:w-64" />
-            <p className="mt-6 max-w-xs text-base text-white/60">{rodape.aviso}</p>
+            <p className="mt-6 max-w-xs text-base text-white/60"><Texto tom="amarelo">{rodape.aviso}</Texto></p>
           </div>
 
           <nav aria-label="Rodapé">

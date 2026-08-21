@@ -243,88 +243,223 @@
   background-image: linear-gradient(168deg, #0a7ac9 0%, var(--color-azul) 30%, var(--color-azul-escuro) 78%, var(--color-azul-noite) 100%);
 }
 
-/* A PRIMEIRA DOBRA, NAS CORES DA CAPA OFICIAL.
+/* ═══════════════════════════════════════════════════════════════
+   A PRIMEIRA DOBRA — SEIS ESQUEMAS DE COR
 
-   ⚠️ TERCEIRA VERSÃO, e as duas anteriores ensinaram o mesmo:
-   verde e azul NÃO convivem no mesmo gradiente. A primeira tentativa
-   atravessou a tela com uma faixa amarela e o amarelo venceu o azul.
-   A segunda usou brilhos suaves de verde sobre a base azul e o
-   encontro dos dois virou verde-água — a cor que o comentário lá em
-   cima já avisava que ia aparecer.
+   ⚠️ A REGRA QUE SUSTENTA TODOS ELES: o lado do TEXTO é sempre o lado
+   ESCURO do degradê.
 
-   A resposta veio da campanha, e é a mais simples: TIRAR O AZUL.
-   A capa dela não tem azul no fundo — tem verde à esquerda abrindo
-   para amarelo à direita, e é só isso. Sem azul, não há mistura
-   possível, não há verde-água, e a dobra passa a ser a mesma peça que
-   está no material impresso.
+   Não é preferência estética, é o que torna o sistema possível. Com
+   essa garantia, o texto é branco nos seis esquemas, a foto recortada
+   tem sempre fundo com contraste, e a única coisa que precisa mudar de
+   esquema para esquema é o REALCE e o BOTÃO. Sem ela, cada esquema
+   precisaria de uma versão escura da marca, de outra cor de texto e de
+   outra sombra — seis desenhos em vez de um sistema.
 
-   A GEOMETRIA É O QUE PROTEGE A LEITURA. O verde escuro fica à
-   esquerda, embaixo — exatamente sob a coluna de texto — e o amarelo
-   fica à direita, atrás das fotos. Branco sobre amarelo é ilegível, e
-   o único motivo pelo qual isso não é problema aqui é que nenhum texto
-   chega no amarelo. Se um dia a coluna de texto mudar de lado, este
-   gradiente precisa virar junto.
+   Em números: o lado do texto fica sempre abaixo de ~25% de
+   luminância, o que dá pelo menos 8:1 contra branco. O teto da WCAG
+   para texto grande é 3:1, e para corpo é 4,5:1.
 
-   Quem não quiser nada disso troca para 'azul' no painel, em
-   Identidade → Aparência. */
-@utility fundo-capa {
-  background-color: var(--color-verde-escuro);
-  background-image:
-    /* O brilho atrás das figuras. É o que existe na arte dela: o
-       amarelo não é chapado, é luz saindo de trás das pessoas. */
-    radial-gradient(
-      54% 62% at 74% 34%,
-      color-mix(in srgb, #ffe27a 72%, transparent) 0%,
-      color-mix(in srgb, var(--color-amarelo) 46%, transparent) 44%,
-      transparent 74%
-    ),
-    /* A diagonal: verde fechado no canto de baixo à esquerda, abrindo
-       para amarelo no alto à direita. */
-    linear-gradient(
+   ⚠️ O REALCE E O BOTÃO SÃO COR AUSENTE DO PRÓPRIO DEGRADÊ. É a regra
+   que faz os dois saltarem em vez de afundar: amarelo sobre um fundo
+   que termina em amarelo vira camuflagem. Por isso o botão é azul nos
+   esquemas com amarelo, e amarelo nos que não têm.
+
+   ⚠️ VERDE E AZUL NUNCA SE ENCOSTAM sem o amarelo no meio. O caminho
+   direto entre os dois passa por verde-água, que não existe na marca —
+   é o erro que esta dobra já cometeu duas vezes. No esquema
+   "azul e verde" os dois ficam em pontas opostas, com a transição
+   acontecendo no escuro, onde o matiz intermediário não aparece.
+   ═══════════════════════════════════════════════════════════════ */
+
+@layer components {
+  .capa {
+    /* Padrões, sobrescritos por cada esquema abaixo.
+
+       ⚠️ O FUNDO TAMBÉM TEM PADRÃO, e não é zelo: se o valor gravado
+       não casar com nenhum esquema — nome antigo, dado adulterado — a
+       dobra ficaria sem degradê nenhum, com título branco sobre branco.
+       Melhor cair na capa oficial do que sumir. */
+    --capa-realce: var(--color-amarelo);
+    --capa-botao: var(--color-azul-escuro);
+    --capa-botao-texto: #fff;
+    background-color: var(--color-verde-escuro);
+    background-image: linear-gradient(
       104deg,
       #0f4c2e 0%,
       var(--color-verde-escuro) 18%,
       var(--color-verde) 46%,
-      #8cbf3f 68%,
+      #8cbf3f 66%,
       var(--color-amarelo) 92%,
       #f7d63a 100%
     );
+  }
+
+  /* O trecho em destaque do título, na cor que o esquema pede. */
+  .realce-capa {
+    color: var(--capa-realce);
+  }
 }
 
-/* Só o azul. O que a dobra era antes da capa chegar. */
-@utility fundo-capa-azul {
-  background-image: linear-gradient(168deg, #0a7ac9 0%, var(--color-azul) 30%, var(--color-azul-escuro) 78%, var(--color-azul-noite) 100%);
+/* ── 1. Azul ──────────────────────────────────────────────── */
+[data-capa='azul'] {
+  --capa-realce: var(--color-amarelo);
+  --capa-botao: var(--color-amarelo);
+  --capa-botao-texto: var(--color-azul-escuro);
+  background-color: var(--color-azul-noite);
+  background-image: linear-gradient(
+    104deg,
+    var(--color-azul-noite) 0%,
+    var(--color-azul-escuro) 30%,
+    var(--color-azul) 66%,
+    #0a7ac9 100%
+  );
 }
 
-/* No celular a coluna de texto ocupa a largura inteira e as figuras
-   ficam embaixo, não ao lado. A diagonal fica quase vertical: verde
-   fechado em cima, atrás do texto; amarelo embaixo, atrás delas. */
+/* ── 2. Verde ─────────────────────────────────────────────── */
+[data-capa='verde'] {
+  --capa-realce: var(--color-amarelo);
+  --capa-botao: var(--color-amarelo);
+  --capa-botao-texto: var(--color-azul-escuro);
+  background-color: #0f4c2e;
+  background-image: linear-gradient(
+    104deg,
+    #0b3a23 0%,
+    var(--color-verde-escuro) 28%,
+    var(--color-verde) 68%,
+    #6cb35f 100%
+  );
+}
+
+/* ── 3. Amarelo ───────────────────────────────────────────────
+   Do âmbar fechado ao amarelo da bandeira. O âmbar É amarelo, só
+   escuro: mantém a família da cor e devolve o contraste que o
+   amarelo puro não tem. O realce vira AZUL — única cor viva que não
+   está no degradê. */
+[data-capa='amarelo'] {
+  --capa-realce: #4db8ff;
+  --capa-botao: var(--color-azul-escuro);
+  --capa-botao-texto: #fff;
+  background-color: #5c4200;
+  background-image: linear-gradient(
+    104deg,
+    #4a3400 0%,
+    #7d5a00 26%,
+    #c99e12 62%,
+    var(--color-amarelo) 88%,
+    #ffe98a 100%
+  );
+}
+
+/* ── 4. Verde e amarelo — a capa oficial ──────────────────── */
+[data-capa='verde-amarelo'] {
+  --capa-realce: var(--color-amarelo);
+  --capa-botao: var(--color-azul-escuro);
+  --capa-botao-texto: #fff;
+  background-color: var(--color-verde-escuro);
+  background-image: linear-gradient(
+    104deg,
+    #0f4c2e 0%,
+    var(--color-verde-escuro) 18%,
+    var(--color-verde) 46%,
+    #8cbf3f 66%,
+    var(--color-amarelo) 92%,
+    #f7d63a 100%
+  );
+}
+
+/* ── 5. Azul e verde ──────────────────────────────────────────
+   Os dois em pontas opostas e a transição no escuro: é onde o
+   verde-água do meio do caminho não aparece. */
+[data-capa='azul-verde'] {
+  --capa-realce: var(--color-amarelo);
+  --capa-botao: var(--color-amarelo);
+  --capa-botao-texto: var(--color-azul-escuro);
+  background-color: var(--color-azul-noite);
+  background-image: linear-gradient(
+    104deg,
+    var(--color-azul-noite) 0%,
+    var(--color-azul-escuro) 26%,
+    #0a5a6b 48%,
+    var(--color-verde-escuro) 66%,
+    var(--color-verde) 90%,
+    #6cb35f 100%
+  );
+}
+
+/* ── 6. Amarelo e azul ────────────────────────────────────────
+   Invertido em relação ao nome, e de propósito: o azul fica onde o
+   texto está. Amarelo à esquerda deixaria o título ilegível. */
+[data-capa='amarelo-azul'] {
+  --capa-realce: var(--color-amarelo);
+  --capa-botao: var(--color-amarelo);
+  --capa-botao-texto: var(--color-azul-escuro);
+  background-color: var(--color-azul-noite);
+  background-image: linear-gradient(
+    104deg,
+    var(--color-azul-noite) 0%,
+    var(--color-azul-escuro) 24%,
+    var(--color-azul) 46%,
+    #7ca82a 72%,
+    var(--color-amarelo) 92%,
+    #ffe98a 100%
+  );
+}
+
+/* ── O brilho atrás das figuras ───────────────────────────────
+   Existe na arte oficial: o claro do fundo não é chapado, é luz
+   saindo de trás das pessoas. Vale para os seis. */
+.capa {
+  position: relative;
+}
+.capa::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  background-image: radial-gradient(
+    52% 60% at 76% 36%,
+    rgb(255 255 255 / 0.16) 0%,
+    transparent 72%
+  );
+}
+
+/* ── Celular ──────────────────────────────────────────────────
+   A coluna de texto ocupa a largura inteira, então não existe canto
+   para onde empurrar a cor clara. A diagonal vira quase vertical: o
+   escuro em cima, atrás do texto; o claro embaixo, atrás delas. */
 @media (max-width: 1023px) {
-  .fundo-capa {
-    background-image:
-      radial-gradient(
-        84% 34% at 62% 88%,
-        color-mix(in srgb, #ffe98a 78%, transparent) 0%,
-        transparent 72%
-      ),
-      linear-gradient(
-        168deg,
-        #0f4c2e 0%,
-        var(--color-verde-escuro) 22%,
-        var(--color-verde) 52%,
-        #8cbf3f 74%,
-        var(--color-amarelo) 100%
-      );
+  [data-capa] {
+    background-image: linear-gradient(
+      168deg,
+      var(--capa-topo, #0b2d1c) 0%,
+      var(--capa-meio, #16603b) 42%,
+      var(--capa-pe, #f7d63a) 100%
+    );
+  }
+  [data-capa='azul'] { --capa-topo: #01243f; --capa-meio: #01518f; --capa-pe: #0a7ac9; }
+  [data-capa='verde'] { --capa-topo: #0b3a23; --capa-meio: #16603b; --capa-pe: #6cb35f; }
+  [data-capa='amarelo'] { --capa-topo: #4a3400; --capa-meio: #7d5a00; --capa-pe: #ffe98a; }
+  [data-capa='verde-amarelo'] { --capa-topo: #0f4c2e; --capa-meio: #16603b; --capa-pe: #f7d63a; }
+  [data-capa='azul-verde'] { --capa-topo: #01243f; --capa-meio: #0a5a6b; --capa-pe: #6cb35f; }
+  [data-capa='amarelo-azul'] { --capa-topo: #01243f; --capa-meio: #066db9; --capa-pe: #ffe98a; }
+
+  .capa::before {
+    background-image: radial-gradient(
+      80% 26% at 62% 88%,
+      rgb(255 255 255 / 0.14) 0%,
+      transparent 74%
+    );
   }
 }
 
 /* ═══════════════════════════════════════════════════════════════
    O SLIDER DE FUNDO DA PRIMEIRA DOBRA
 
-   Duas fitas de fotos de rua correndo por trás das figuras, em
+   Três fitas de fotos de rua correndo por trás das figuras, em
    sentidos opostos. Mesma mecânica da faixa amarela da página: a lista
-   aparece duas vezes e a animação desloca metade da largura, então o
-   laço é invisível. Sem JavaScript.
+   aparece três vezes e a animação desloca um terço, então o laço é
+   invisível. Sem JavaScript.
 
    ⚠️ ISTO JÁ FOI UM CROSSFADE EM TELA CHEIA e estava errado por dois
    motivos. Um: a 42% de opacidade e em soft-light, trocar a foto
@@ -350,8 +485,7 @@
    deslocar um terço é deslocar exatamente uma passada. Ao fim do ciclo
    a segunda passada está no lugar onde a primeira começou e o salto de
    volta é invisível. As outras duas passadas são a reserva que impede
-   a fita de aparecer vazia em tela larga — ver o comentário em
-   components/site/FundoVivo.tsx. */
+   a fita de aparecer vazia em tela larga. */
 @keyframes fundo-vivo-corre {
   to { transform: translate3d(-33.3333%, 0, 0); }
 }
@@ -362,8 +496,7 @@
     flex-direction: column;
     /* Celular: as fitas descem para o pé da dobra, atrás das figuras.
        Centradas, a de cima corria na altura do parágrafo e a máscara
-       tinha de apagá-la — sobrava uma fita e meia visível. Encostadas
-       embaixo, as três aparecem inteiras no espaço que é delas. */
+       tinha de apagá-la — sobrava uma fita e meia visível. */
     justify-content: flex-end;
     gap: 0.6rem;
     padding-bottom: 0.75rem;
@@ -375,7 +508,7 @@
     opacity: 0.62;
     mix-blend-mode: soft-light;
 
-    /* Celular: o texto está EM CIMA, então a máscara é vertical. */
+    /* O texto ocupa a metade de cima da dobra no celular. */
     mask-image: linear-gradient(
       to bottom,
       transparent 0%,
@@ -392,8 +525,7 @@
       justify-content: center;
       padding-bottom: 0;
       gap: 0.9rem;
-      /* Desktop: o texto está À ESQUERDA, e a máscara acompanha.
-         A coluna de texto termina em ~49% da largura. */
+      /* A coluna de texto termina em ~49% da largura. */
       mask-image: linear-gradient(
         to right,
         transparent 0%,
@@ -445,58 +577,88 @@
 }
 
 /* ═══════════════════════════════════════════════════════════════
-   TEXTURA PONTILHADA (halftone)
+   A TEXTURA DE FUNDO
 
-   Uma trama de pontos sobre a página inteira. Serve para tirar o ar
-   de gradiente digital liso — dá a superfície de material impresso,
-   que é o registro certo para peça de campanha.
+   Uma camada sobre a página inteira. Serve para tirar o ar de gradiente
+   digital liso — dá a superfície de material impresso, que é o registro
+   certo para peça de campanha.
 
-   Três decisões que fazem ela funcionar em vez de sujar:
+   Três tipos, e a diferença é de referência: o halftone lembra
+   impressão em rotativa, o ruído lembra papel, o tracejado lembra
+   serigrafia.
+
+   ⚠️ ERAM TRÊS NOMES — sutil, média, forte — e três nomes não cobrem o
+   espaço entre "não vejo nada" e "está demais". Agora a força é um
+   número de 0 a 100 vindo do painel, e cada tipo tem o próprio TETO:
+   a mesma opacidade que some no halftone berra no tracejado. O 100 de
+   cada um é o limite em que ele ainda é textura, e não assunto.
+
+   Quatro decisões que fazem isso funcionar em vez de sujar:
 
    · `position: fixed`. A trama não rola junto com o conteúdo. Se
-     rolasse, o olho a leria como parte da página e ela viraria
-     ruído em movimento; parada, ela é o papel por baixo.
+     rolasse, o olho a leria como parte da página e ela viraria ruído
+     em movimento; parada, ela é o papel por baixo.
 
-   · `mix-blend-mode: overlay` com pontos BRANCOS. Ponto escuro
-     sumiria no azul-noite da dobra e apareceria só nas seções
-     claras — a textura existiria em metade da página. Overlay
-     clareia o que é escuro e quase não toca o que é claro, então a
-     mesma camada serve as duas.
+   · `mix-blend-mode: overlay`. Marca escura sumiria no azul-noite da
+     dobra e apareceria só nas seções claras — a textura existiria em
+     metade da página. Overlay clareia o escuro e quase não toca o
+     claro, então a mesma camada serve as duas.
 
    · `pointer-events: none`. Camada fixa cobrindo a tela inteira é a
-     maneira mais fácil de matar TODOS os cliques da página. Sem
-     esta linha, nenhum botão da campanha funcionaria.
+     maneira mais fácil de matar TODOS os cliques da página. Sem esta
+     linha, nenhum botão da campanha funcionaria.
 
-   O z-index fica abaixo do cabeçalho (50) e do botão flutuante (40):
-   os dois são interface, e interface não recebe textura de papel.
+   · z-index abaixo do cabeçalho (50) e do botão flutuante (40): os
+     dois são interface, e interface não recebe textura de papel.
    ═══════════════════════════════════════════════════════════════ */
-[data-halftone]::after {
+
+[data-textura]::after {
   content: '';
   position: fixed;
   inset: 0;
   z-index: 30;
   pointer-events: none;
   mix-blend-mode: overlay;
-  background-image: radial-gradient(
-    rgb(255 255 255 / var(--halftone-alfa)) 0.8px,
-    transparent 1px
-  );
-  background-size: var(--halftone-passo) var(--halftone-passo);
+  /* --textura-forca chega do painel, de 0 a 1. O teto é por tipo. */
+  opacity: calc(var(--textura-forca, 0) * var(--textura-teto, 1));
 }
 
-/* ⚠️ ESTES NÚMEROS JÁ FORAM O DOBRO e a trama aparecia. O pedido é
-   que ela seja SENTIDA e não vista: no sutil, quem olha a página não
-   consegue apontar o que mudou, só percebe que o fundo deixou de ser
-   um gradiente digital liso. Se der para contar os pontos, está alto. */
-[data-halftone='sutil'] { --halftone-alfa: 0.09; --halftone-passo: 5px; }
-[data-halftone='media'] { --halftone-alfa: 0.20; --halftone-passo: 4px; }
-[data-halftone='forte'] { --halftone-alfa: 0.38; --halftone-passo: 4px; }
+/* Trama de pontos. O passo curto é o que lê como impressão em vez de
+   como bolinhas: acima de 6px o olho separa os pontos um a um. */
+[data-textura='halftone']::after {
+  --textura-teto: 0.5;
+  background-image: radial-gradient(#fff 0.8px, transparent 1px);
+  background-size: 4px 4px;
+}
 
-/* Quem pediu menos movimento não pediu menos textura — ela é estática.
-   Mas em tela de baixa densidade a trama de 3px vira moiré, e aí ela
-   deixa de ser textura e vira defeito. */
+/* Grão de papel. O ruído é gerado pelo próprio navegador com
+   feTurbulence — nenhuma imagem baixada, nenhum arquivo no deploy.
+   `numOctaves=1` mantém o grão fino; mais oitavas viram nuvem. */
+[data-textura='ruido']::after {
+  --textura-teto: 0.75;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='140' height='140'%3E%3Cfilter id='r'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='1' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='140' height='140' filter='url(%23r)'/%3E%3C/svg%3E");
+  background-size: 140px 140px;
+}
+
+/* Linhas diagonais. Teto mais baixo que os outros dois: linha contínua
+   tem muito mais área pintada que ponto, então a mesma opacidade pesa
+   o dobro. */
+[data-textura='tracejado']::after {
+  --textura-teto: 0.28;
+  background-image: repeating-linear-gradient(
+    45deg,
+    #fff 0 1px,
+    transparent 1px 7px
+  );
+}
+
+/* Em tela de baixa densidade a trama fina vira moiré, e aí ela deixa
+   de ser textura e vira defeito. */
 @media (max-resolution: 1x) {
-  [data-halftone='forte'] { --halftone-passo: 4px; }
+  [data-textura='halftone']::after { background-size: 5px 5px; }
+  [data-textura='tracejado']::after {
+    background-image: repeating-linear-gradient(45deg, #fff 0 1px, transparent 1px 9px);
+  }
 }
 
 @utility fundo-azul-profundo {

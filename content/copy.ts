@@ -168,7 +168,14 @@ export const origem = {
    * votos de 2022, que era o dado não confirmado da página. A campanha
    * pediu a remoção; o que ficou no lugar é o vídeo.
    */
-  video: '',
+  video: { titulo: '', url: '', formato: 'deitado', opcoes: {
+    controles: true,
+    inicio: 'clique',
+    telaCheia: true,
+    carregamento: 'ao-clicar',
+    botaoRotulo: '',
+    botaoDestino: '',
+  } },
 } as const
 
 // ─────────────────────────────────────────────────────────────
@@ -214,7 +221,14 @@ export const problema = {
         'alimento sobe — e quem fica com a conta é você.',
     },
   ],
-  video: '',
+  video: { titulo: '', url: '', formato: 'deitado', opcoes: {
+    controles: true,
+    inicio: 'clique',
+    telaCheia: true,
+    carregamento: 'ao-clicar',
+    botaoRotulo: '',
+    botaoDestino: '',
+  } },
 } as const
 
 // ─────────────────────────────────────────────────────────────
@@ -334,7 +348,14 @@ export const provas = {
    * que quatro algarismos grandes, e o registro público lá embaixo
    * continua sendo a prova que o leitor confere sozinho.
    */
-  video: '',
+  video: { titulo: '', url: '', formato: 'deitado', opcoes: {
+    controles: true,
+    inicio: 'clique',
+    telaCheia: true,
+    carregamento: 'ao-clicar',
+    botaoRotulo: '',
+    botaoDestino: '',
+  } },
   entregas: [
     {
       id: 'entrega-01',
@@ -407,14 +428,70 @@ export const trilha = {
     'Cada vídeo é um enfrentamento que aconteceu de verdade, na hora em que aconteceu. ' +
     'Estão aqui na ordem em que foram ao ar.',
   itens: [
-    { id: 'trilha-01', titulo: '', url: '', formato: 'deitado' },
-    { id: 'trilha-02', titulo: '', url: '', formato: 'deitado' },
-    { id: 'trilha-03', titulo: '', url: '', formato: 'deitado' },
-    { id: 'trilha-04', titulo: '', url: '', formato: 'deitado' },
-    { id: 'trilha-05', titulo: '', url: '', formato: 'deitado' },
-    { id: 'trilha-06', titulo: '', url: '', formato: 'deitado' },
-    { id: 'trilha-07', titulo: '', url: '', formato: 'deitado' },
-    { id: 'trilha-08', titulo: '', url: '', formato: 'deitado' },
+    { id: 'trilha-01', titulo: '', url: '', formato: 'deitado', opcoes: {
+      controles: true,
+      inicio: 'clique',
+      telaCheia: true,
+      carregamento: 'ao-clicar',
+      botaoRotulo: '',
+      botaoDestino: '',
+    } },
+    { id: 'trilha-02', titulo: '', url: '', formato: 'deitado', opcoes: {
+      controles: true,
+      inicio: 'clique',
+      telaCheia: true,
+      carregamento: 'ao-clicar',
+      botaoRotulo: '',
+      botaoDestino: '',
+    } },
+    { id: 'trilha-03', titulo: '', url: '', formato: 'deitado', opcoes: {
+      controles: true,
+      inicio: 'clique',
+      telaCheia: true,
+      carregamento: 'ao-clicar',
+      botaoRotulo: '',
+      botaoDestino: '',
+    } },
+    { id: 'trilha-04', titulo: '', url: '', formato: 'deitado', opcoes: {
+      controles: true,
+      inicio: 'clique',
+      telaCheia: true,
+      carregamento: 'ao-clicar',
+      botaoRotulo: '',
+      botaoDestino: '',
+    } },
+    { id: 'trilha-05', titulo: '', url: '', formato: 'deitado', opcoes: {
+      controles: true,
+      inicio: 'clique',
+      telaCheia: true,
+      carregamento: 'ao-clicar',
+      botaoRotulo: '',
+      botaoDestino: '',
+    } },
+    { id: 'trilha-06', titulo: '', url: '', formato: 'deitado', opcoes: {
+      controles: true,
+      inicio: 'clique',
+      telaCheia: true,
+      carregamento: 'ao-clicar',
+      botaoRotulo: '',
+      botaoDestino: '',
+    } },
+    { id: 'trilha-07', titulo: '', url: '', formato: 'deitado', opcoes: {
+      controles: true,
+      inicio: 'clique',
+      telaCheia: true,
+      carregamento: 'ao-clicar',
+      botaoRotulo: '',
+      botaoDestino: '',
+    } },
+    { id: 'trilha-08', titulo: '', url: '', formato: 'deitado', opcoes: {
+      controles: true,
+      inicio: 'clique',
+      telaCheia: true,
+      carregamento: 'ao-clicar',
+      botaoRotulo: '',
+      botaoDestino: '',
+    } },
   ],
 } as const
 
@@ -818,7 +895,14 @@ export const rua = {
     'onde dizer. Depois saí de casa. Essas fotos são de quem estava junto.',
   // O vídeo da pandemia. É o registro do que a seção descreve — vem
   // antes das fotos porque as fotos são o apoio, não a prova.
-  video: '',
+  video: { titulo: '', url: '', formato: 'deitado', opcoes: {
+    controles: true,
+    inicio: 'clique',
+    telaCheia: true,
+    carregamento: 'ao-clicar',
+    botaoRotulo: '',
+    botaoDestino: '',
+  } },
   fotos: [
     { id: 'rua-01', legenda: 'Carreata em Porto Velho', local: 'Av. Rio Madeira' },
     { id: 'rua-02', legenda: 'Ainda no tempo da máscara', local: 'Porto Velho' },
@@ -855,8 +939,22 @@ export const social = {
    * elas disseram falando.
    */
   videos: [
-    { id: 'svid-01', titulo: 'Comentário 1', url: '', formato: 'deitado' },
-    { id: 'svid-02', titulo: 'Comentário 2', url: '', formato: 'deitado' },
+    { id: 'svid-01', titulo: 'Comentário 1', url: '', formato: 'deitado', opcoes: {
+      controles: true,
+      inicio: 'clique',
+      telaCheia: true,
+      carregamento: 'ao-clicar',
+      botaoRotulo: '',
+      botaoDestino: '',
+    } },
+    { id: 'svid-02', titulo: 'Comentário 2', url: '', formato: 'deitado', opcoes: {
+      controles: true,
+      inicio: 'clique',
+      telaCheia: true,
+      carregamento: 'ao-clicar',
+      botaoRotulo: '',
+      botaoDestino: '',
+    } },
   ],
   ataques: {
     etiqueta: 'O outro lado',
@@ -879,8 +977,22 @@ export const social = {
       // Dois: o relato do processo e a leitura da decisão. O segundo
       // foi gravado de celular, na vertical — daí o `formato`.
       videos: [
-        { id: 'pvid-01', titulo: 'O processo', url: '', formato: 'deitado' },
-        { id: 'pvid-02', titulo: 'A decisão do juiz', url: '', formato: 'em-pe' },
+        { id: 'pvid-01', titulo: 'O processo', url: '', formato: 'deitado', opcoes: {
+      controles: true,
+      inicio: 'clique',
+      telaCheia: true,
+      carregamento: 'ao-clicar',
+      botaoRotulo: '',
+      botaoDestino: '',
+    } },
+        { id: 'pvid-02', titulo: 'A decisão do juiz', url: '', formato: 'em-pe', opcoes: {
+      controles: true,
+      inicio: 'clique',
+      telaCheia: true,
+      carregamento: 'ao-clicar',
+      botaoRotulo: '',
+      botaoDestino: '',
+    } },
       ],
     },
     {
@@ -891,7 +1003,14 @@ export const social = {
         'contra o Governador Marcos Rocha. Ele não gostou e me processou.',
       resultado: 'A Justiça decidiu a meu favor.',
       videos: [
-        { id: 'pvid-03', titulo: 'Ela explica o processo', url: '', formato: 'deitado' },
+        { id: 'pvid-03', titulo: 'Ela explica o processo', url: '', formato: 'deitado', opcoes: {
+      controles: true,
+      inicio: 'clique',
+      telaCheia: true,
+      carregamento: 'ao-clicar',
+      botaoRotulo: '',
+      botaoDestino: '',
+    } },
       ],
     },
   ],
@@ -925,19 +1044,21 @@ export const aparencia = {
   /**
    * As cores da primeira dobra.
    *
-   * 'capa' = verde e amarelo da arte oficial entrando pela borda.
-   * 'azul' = só o azul, como era antes da capa chegar.
+   * Seis: azul · verde · amarelo · verde-amarelo · azul-verde ·
+   * amarelo-azul. Ver .capa em globals.css — cada um define a própria
+   * cor de realce e de botão, para os dois continuarem saltando do
+   * fundo em vez de afundar nele.
    *
-   * A saída existe porque a primeira versão desta dobra foi reprovada
+   * A escolha existe porque a primeira versão desta dobra foi reprovada
    * na hora, e trocar uma palavra no painel é caminho de volta melhor
    * do que abrir um chamado.
    */
-  heroCor: 'capa',
+  heroCor: 'verde-amarelo',
 
-  /** A trama de pontos sobre a página. */
-  halftone: true,
-  /** sutil · media · forte */
-  halftoneForca: 'sutil',
+  /** nenhuma · halftone · ruido · tracejado */
+  textura: 'halftone',
+  /** De 0 a 100. Ver .textura em globals.css: 100 é o teto do tipo. */
+  texturaForca: 20,
 } as const
 
 export const exibir = {

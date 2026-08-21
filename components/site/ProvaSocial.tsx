@@ -3,7 +3,7 @@ import { lerConteudo } from '@/lib/conteudo/ler'
 import { lerSlots } from '@/lib/midia/ler'
 import { Secao, CabecalhoSecao } from '@/components/ui/Secao'
 import { Imagem } from '@/components/ui/Imagem'
-import { TextoComDestaque } from '@/components/ui/TextoComDestaque'
+import { TextoComDestaque, Texto } from '@/components/ui/TextoComDestaque'
 import { Video } from '@/components/ui/Video'
 
 /**
@@ -68,7 +68,7 @@ export async function ProvaSocial() {
             />
             {legenda.texto ? (
               <figcaption className="border-t border-linha px-4 py-2.5 text-xs text-grafite">
-                {legenda.texto}
+                <Texto>{legenda.texto}</Texto>
               </figcaption>
             ) : null}
           </figure>
@@ -81,7 +81,13 @@ export async function ProvaSocial() {
       {social.videos.some((v) => v.url) ? (
         <div className="mt-5 grid items-start gap-5 sm:grid-cols-2">
           {social.videos.map((v) => (
-            <Video key={v.id} url={v.url} formato={formatoValido(v.formato)} titulo={v.titulo} />
+            <Video
+              key={v.id}
+              url={v.url}
+              formato={formatoValido(v.formato)}
+              opcoes={v.opcoes}
+              titulo={v.titulo}
+            />
           ))}
         </div>
       ) : null}
@@ -138,13 +144,13 @@ export async function ProvaSocial() {
                 style={{ ['--atraso' as string]: `${i * 80}ms` }}
                 className="rounded-2xl border border-white/10 bg-white/[0.06] p-6"
               >
-                <h4 className="text-lg text-white">{p.titulo}</h4>
-                <p className="mt-2 text-base text-white/65">{p.texto}</p>
+                <h4 className="text-lg text-white"><Texto tom="amarelo">{p.titulo}</Texto></h4>
+                <p className="mt-2 text-base text-white/65"><Texto tom="amarelo">{p.texto}</Texto></p>
                 <p className="mt-4 inline-flex items-center gap-2 rounded-full bg-amarelo px-4 py-1.5 text-sm font-semibold text-azul-escuro">
                   <svg viewBox="0 0 24 24" className="size-4" fill="currentColor" aria-hidden>
                     <path d="M9.6 16.2 5.4 12l-1.4 1.4 5.6 5.6L20.4 8.2 19 6.8 9.6 16.2Z" />
                   </svg>
-                  {p.resultado}
+                  <Texto tom="azul">{p.resultado}</Texto>
                 </p>
 
                 {/* Os vídeos do processo, dentro do cartão dele.
@@ -169,6 +175,7 @@ export async function ProvaSocial() {
                         key={v.id}
                         url={v.url}
                         formato={formatoValido(v.formato)}
+                        opcoes={v.opcoes}
                         titulo={v.titulo}
                       />
                     ))}
@@ -187,7 +194,7 @@ export async function ProvaSocial() {
         </p>
       </div>
 
-      {social.nota ? <p className="mt-6 text-xs text-grafite">{social.nota}</p> : null}
+      {social.nota ? <p className="mt-6 text-xs text-grafite"><Texto>{social.nota}</Texto></p> : null}
     </Secao>
   )
 }

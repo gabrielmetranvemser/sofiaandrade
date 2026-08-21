@@ -1,16 +1,32 @@
 'use client'
 
-import Link from 'next/link'
-import { useActionState, useState } from 'react'
-import type { SecaoEsquema } from '@/content/esquema'
+import { useActionState, useEffect } from 'react'
+import type { Campo } from '@/content/esquema'
 import { salvarSecao, restaurarPadrao, type EstadoConteudo } from '../acoes-conteudo'
 import { CampoDinamico } from './CampoDinamico'
 
 /**
+ * O formulário de uma seção — textos e vídeos.
+ *
  * O estado é a seção INTEIRA num objeto, endereçada por caminho
  * ("itens.2.titulo"). No submit vai um JSON só, num input escondido —
  * o que preserva a assinatura `(estado, FormData)` que o projeto já usa
  * com useActionState.
+ *
+ * ⚠️ O ESTADO MORA NO PAI, e não aqui, desde que a prévia existe. A
+ *    maquete ao lado precisa do mesmo rascunho que os campos, atualizado
+ *    à mesma tecla. Dois estados sincronizados por efeito seria a versão
+ *    frágil da mesma coisa.
+ *
+ * ⚠️ AS DUAS ABAS SÃO UM FORMULÁRIO SÓ, e isso não é detalhe de
+ *    implementação: texto e vídeo da mesma seção moram no MESMO
+ *    registro do banco. Se fossem dois formulários, salvar um
+ *    sobrescreveria o rascunho não salvo do outro — e a pessoa
+ *    perderia trabalho sem receber nenhum aviso.
+ *
+ *    Por isso a aba inativa é escondida com CSS, e não desmontada: o
+ *    estado é um só, o botão de salvar é um só, e trocar de aba nunca
+ *    apaga o que foi digitado na outra.
  *
  * Custo consciente: sem JavaScript o formulário não funciona. É um
  * painel de duas ou três pessoas; registro a escolha em vez de fingir
@@ -18,18 +34,26 @@ import { CampoDinamico } from './CampoDinamico'
  */
 export function FormularioSecao({
   secao,
-  esquema,
-  inicial,
+  camposDeTexto,
+  camposDeVideo,
+  dados,
+  onMudar,
   baseHash,
   editavel,
+  aba,
+  aoSalvar,
 }: {
   secao: string
-  esquema: SecaoEsquema
-  inicial: Record<string, unknown>
+  camposDeTexto: [string, Campo][]
+  camposDeVideo: [string, Campo][]
+  dados: Record<string, unknown>
+  onMudar: (caminho: string, valor: unknown) => void
   baseHash: string
   editavel: boolean
+  aba: 'textos' | 'videos'
+  /** Avisa o pai que o site mudou — é o que recarrega a prévia. */
+  aoSalvar?: () => void
 }) {
-  const [dados, setDados] = useState<Record<string, unknown>>(inicial)
   const [estado, acao, pendente] = useActionState<EstadoConteudo, FormData>(salvarSecao, null)
   const [, acaoRestaurar, restaurando] = useActionState<EstadoConteudo, FormData>(
     restaurarPadrao,
@@ -38,9 +62,26 @@ export function FormularioSecao({
 
   const erros = estado?.erros ?? {}
 
-  function mudar(caminho: string, valor: unknown) {
-    setDados((atual) => escrever(atual, caminho.split('.'), valor))
-  }
+  // O `salvoEm` muda a cada gravação, inclusive quando duas seguidas
+  // gravam o mesmo valor — `ok: true` sozinho não dispararia a segunda.
+  useEffect(() => {
+    if (estado?.ok) aoSalvar?.()
+  }, [estado?.ok, estado?.salvoEm, aoSalvar])
+
+  const grupo = (lista: [string, Campo][]) => (
+    <div className="space-y-5">
+      {lista.map(([chave, campo]) => (
+        <CampoDinamico
+          key={chave}
+          campo={campo}
+          valor={dados[chave]}
+          caminho={chave}
+          erros={erros}
+          onMudar={onMudar}
+        />
+      ))}
+    </div>
+  )
 
   return (
     <form action={acao}>
@@ -48,46 +89,20 @@ export function FormularioSecao({
       <input type="hidden" name="baseHash" value={baseHash} />
       <input type="hidden" name="dados" value={JSON.stringify(dados)} />
 
-      <header className="mb-8">
-        <Link
-          href="/painel/textos"
-          className="inline-flex min-h-11 items-center gap-2 text-sm font-medium text-grafite transition-colors hover:text-azul"
-        >
-          <svg viewBox="0 0 24 24" className="size-4" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden>
-            <path d="M15 6l-6 6 6 6" />
-          </svg>
-          Todos os textos
-        </Link>
-        <div className="mt-4 flex flex-wrap items-center justify-between gap-3">
-          <h1 className="titulo-secao">{esquema.rotulo}</h1>
-          <Link
-            href={`/painel/textos/${secao}/historico`}
-            className="inline-flex min-h-10 items-center gap-2 rounded-full border border-linha bg-white px-4 text-sm font-medium transition-colors hover:border-azul/30 hover:text-azul"
-          >
-            <svg viewBox="0 0 24 24" className="size-4" fill="currentColor" aria-hidden>
-              <path d="M13 3a9 9 0 1 0 8.5 12h-2.1A7 7 0 1 1 13 5v4l5-5-5-5v4Zm-1 5v5l4 2 .7-1.3L13.5 12V8H12Z" />
-            </svg>
-            Histórico
-          </Link>
-        </div>
-        {esquema.nota ? (
-          <p className="mt-3 max-w-2xl rounded-xl bg-azul-suave px-4 py-3 text-[0.9375rem]">
-            {esquema.nota}
-          </p>
-        ) : null}
-      </header>
+      <div className={aba === 'textos' ? undefined : 'hidden'}>
+        {camposDeTexto.length > 0 ? (
+          grupo(camposDeTexto)
+        ) : (
+          <Vazio>Esta seção não tem texto editável — só vídeos.</Vazio>
+        )}
+      </div>
 
-      <div className="space-y-5">
-        {Object.entries(esquema.campos).map(([chave, campo]) => (
-          <CampoDinamico
-            key={chave}
-            campo={campo}
-            valor={dados[chave]}
-            caminho={chave}
-            erros={erros}
-            onMudar={mudar}
-          />
-        ))}
+      <div className={aba === 'videos' ? undefined : 'hidden'}>
+        {camposDeVideo.length > 0 ? (
+          grupo(camposDeVideo)
+        ) : (
+          <Vazio>Esta seção não tem espaço de vídeo.</Vazio>
+        )}
       </div>
 
       {/* Barra de ação fixa: em seção longa, o botão de salvar não pode
@@ -111,12 +126,10 @@ export function FormularioSecao({
             disabled={!editavel || restaurando}
             className="inline-flex min-h-11 items-center rounded-full border border-linha bg-white px-5 text-[0.9375rem] font-medium transition-colors hover:border-azul/30 disabled:opacity-40"
           >
-            Voltar ao texto original
+            Voltar ao original
           </button>
 
-          {estado?.ok ? (
-            <span className="text-sm font-medium text-verde">Salvo.</span>
-          ) : null}
+          {estado?.ok ? <span className="text-sm font-medium text-verde">Salvo.</span> : null}
           {estado?.erro ? (
             <span role="alert" className="text-sm font-medium text-red-600">
               {estado.erro}
@@ -128,24 +141,10 @@ export function FormularioSecao({
   )
 }
 
-/** Escreve num caminho aninhado sem mutar o original. */
-function escrever(
-  alvo: Record<string, unknown>,
-  caminho: string[],
-  valor: unknown,
-): Record<string, unknown> {
-  const [chave, ...resto] = caminho
-  if (resto.length === 0) return { ...alvo, [chave]: valor }
-
-  const atual = alvo[chave]
-  if (Array.isArray(atual)) {
-    const i = Number(resto[0])
-    const copia = [...atual]
-    copia[i] = escrever((copia[i] ?? {}) as Record<string, unknown>, resto.slice(1), valor)
-    return { ...alvo, [chave]: copia }
-  }
-  return {
-    ...alvo,
-    [chave]: escrever((atual ?? {}) as Record<string, unknown>, resto, valor),
-  }
+function Vazio({ children }: { children: React.ReactNode }) {
+  return (
+    <p className="rounded-2xl border border-dashed border-linha bg-white px-5 py-8 text-center text-sm text-grafite">
+      {children}
+    </p>
+  )
 }

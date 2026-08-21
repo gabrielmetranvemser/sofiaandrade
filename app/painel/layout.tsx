@@ -21,7 +21,7 @@ export default function LayoutPainel({ children }: { children: React.ReactNode }
       ) : null}
 
       <MenuLateral>
-        <div className="mx-auto max-w-4xl">{children}</div>
+        <div className="mx-auto max-w-6xl">{children}</div>
       </MenuLateral>
     </div>
   )

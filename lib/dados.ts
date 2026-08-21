@@ -1,10 +1,18 @@
 import 'server-only'
 
 import municipiosJson from '@/data/municipios-ro.json'
+import localidadesJson from '@/data/localidades-ro.json'
 import gruposLocaisJson from '@/data/grupos.local.json'
 import { config } from './config'
 import { criarClienteAdmin } from './supabase/admin'
-import type { Grupo, Municipio, MunicipioComGrupo, StatusGrupo } from './tipos'
+import type {
+  Grupo,
+  Localidade,
+  LocalidadeComGrupo,
+  Municipio,
+  MunicipioComGrupo,
+  StatusGrupo,
+} from './tipos'
 
 /**
  * Acesso a dados. Uma porta só.
@@ -20,8 +28,25 @@ export const MUNICIPIOS = (municipiosJson as Municipio[])
 
 const GRUPOS_LOCAIS = gruposLocaisJson as Grupo[]
 
+/**
+ * Os distritos com grupo próprio. Ver o comentário de `Localidade`:
+ * não entram na contagem dos 52 nem no mapa, mas têm /g/ próprio.
+ */
+export const LOCALIDADES = (localidadesJson as Localidade[])
+  .slice()
+  .sort((a, b) => a.nome.localeCompare(b.nome, 'pt-BR'))
+
 export function municipioPorSlug(slug: string): Municipio | undefined {
   return MUNICIPIOS.find((m) => m.slug === slug)
+}
+
+export function localidadePorSlug(slug: string): Localidade | undefined {
+  return LOCALIDADES.find((l) => l.slug === slug)
+}
+
+/** O grupo desta linha é de um distrito, e não da sede? */
+function ehDeLocalidade(g: Grupo): boolean {
+  return LOCALIDADES.some((l) => l.municipioSlug === g.municipio_slug && l.ordem === g.ordem)
 }
 
 /** Todos os grupos, com link. NUNCA devolver isto para o cliente. */
@@ -41,26 +66,41 @@ export async function listarGrupos(): Promise<Grupo[]> {
   return data as Grupo[]
 }
 
+const disponivel = (g: Grupo) =>
+  g.status === 'aberto' &&
+  Boolean(g.link) &&
+  (g.limite_cliques === null || g.cliques < g.limite_cliques)
+
 /**
- * O grupo para onde a pessoa deve ir agora, num município.
+ * O grupo para onde a pessoa deve ir agora, num município ou distrito.
  *
  * Regra do plano, seção 7:
  *   1. o grupo `fixado` manda, se estiver aberto
  *   2. se estourou o limite de cliques, ele vira `cheio` e o próximo assume
  *   3. na falta de fixado, o menor `ordem` aberto
+ *
+ * Distrito é caso à parte: `/g/iata` tem uma linha só, a dele, e não
+ * cai para a sede. Do outro lado, a sede também não herda o grupo do
+ * distrito — quem clicou em Guajará-Mirim quer Guajará-Mirim, e mandar
+ * essa pessoa para o grupo do Iata seria trocar o destino por baixo do
+ * pano. O que existe é a escolha, e ela é oferecida na lista e no mapa.
  */
 export async function grupoDeDestino(slug: string): Promise<Grupo | null> {
   const todos = await listarGrupos()
+
+  const localidade = localidadePorSlug(slug)
+  if (localidade) {
+    const grupo = todos.find(
+      (g) => g.municipio_slug === localidade.municipioSlug && g.ordem === localidade.ordem,
+    )
+    return grupo && grupo.status !== 'desativado' ? grupo : null
+  }
+
   const doMunicipio = todos
-    .filter((g) => g.municipio_slug === slug && g.status !== 'desativado')
+    .filter((g) => g.municipio_slug === slug && g.status !== 'desativado' && !ehDeLocalidade(g))
     .sort((a, b) => a.ordem - b.ordem)
 
   if (doMunicipio.length === 0) return null
-
-  const disponivel = (g: Grupo) =>
-    g.status === 'aberto' &&
-    Boolean(g.link) &&
-    (g.limite_cliques === null || g.cliques < g.limite_cliques)
 
   const fixado = doMunicipio.find((g) => g.fixado)
   if (fixado && disponivel(fixado)) return fixado
@@ -78,32 +118,36 @@ export async function grupoDeDestino(slug: string): Promise<Grupo | null> {
 export async function listarMunicipiosComStatus(): Promise<MunicipioComGrupo[]> {
   const grupos = await listarGrupos()
 
-  const porMunicipio = new Map<string, StatusGrupo>()
-  for (const m of MUNICIPIOS) porMunicipio.set(m.slug, 'em_breve')
-
-  for (const slug of porMunicipio.keys()) {
-    const doMunicipio = grupos
-      .filter((g) => g.municipio_slug === slug && g.status !== 'desativado')
-      .sort((a, b) => a.ordem - b.ordem)
-    if (doMunicipio.length === 0) continue
-
-    const temAberto = doMunicipio.some(
-      (g) =>
-        g.status === 'aberto' &&
-        Boolean(g.link) &&
-        (g.limite_cliques === null || g.cliques < g.limite_cliques),
-    )
-    if (temAberto) {
-      porMunicipio.set(slug, 'aberto')
-      continue
-    }
-    const fixado = doMunicipio.find((g) => g.fixado) ?? doMunicipio[0]
-    porMunicipio.set(slug, fixado.status === 'aberto' ? 'cheio' : fixado.status)
+  /** O estado que a lista mostra para um punhado de grupos do mesmo lugar. */
+  function statusDoConjunto(doLugar: Grupo[]): StatusGrupo {
+    if (doLugar.length === 0) return 'em_breve'
+    if (doLugar.some(disponivel)) return 'aberto'
+    // Aberto no banco mas indisponível aqui só acontece por limite de
+    // cliques estourado: para quem lê a lista, isso é "cheio".
+    const fixado = doLugar.find((g) => g.fixado) ?? doLugar[0]
+    return fixado.status === 'aberto' ? 'cheio' : fixado.status
   }
 
+  const vivos = grupos.filter((g) => g.status !== 'desativado')
+
   return MUNICIPIOS.map((m) => {
-    const status = porMunicipio.get(m.slug) ?? 'em_breve'
-    return { ...m, status, disponivel: status === 'aberto' }
+    // O grupo do distrito fica FORA da conta da sede: são dois destinos
+    // independentes que por acaso dividem o mesmo pedaço do mapa.
+    const daSede = vivos
+      .filter((g) => g.municipio_slug === m.slug && !ehDeLocalidade(g))
+      .sort((a, b) => a.ordem - b.ordem)
+
+    const localidades: LocalidadeComGrupo[] = LOCALIDADES.filter(
+      (l) => l.municipioSlug === m.slug,
+    ).map((l) => {
+      const status = statusDoConjunto(
+        vivos.filter((g) => g.municipio_slug === l.municipioSlug && g.ordem === l.ordem),
+      )
+      return { ...l, status, disponivel: status === 'aberto' }
+    })
+
+    const status = statusDoConjunto(daSede)
+    return { ...m, status, disponivel: status === 'aberto', localidades }
   })
 }
 

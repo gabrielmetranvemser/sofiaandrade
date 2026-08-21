@@ -1,5 +1,10 @@
 import { NextResponse, type NextRequest } from 'next/server'
-import { grupoDeDestino, municipioPorSlug, registrarCliqueNoGrupo } from '@/lib/dados'
+import {
+  grupoDeDestino,
+  localidadePorSlug,
+  municipioPorSlug,
+  registrarCliqueNoGrupo,
+} from '@/lib/dados'
 import { criarClienteAdmin } from '@/lib/supabase/admin'
 import { config, emSilencioEleitoral } from '@/lib/config'
 import type { OrigemClique } from '@/lib/tipos'
@@ -28,9 +33,15 @@ export async function GET(
   ctx: { params: Promise<{ slug: string }> },
 ) {
   const { slug } = await ctx.params
-  const municipio = municipioPorSlug(slug)
+  // Distrito com grupo próprio (/g/iata) entra por aqui igual a
+  // município. O que muda é a métrica: o evento é gravado no município
+  // que ancora o grupo, senão o painel passa a ter linha para um lugar
+  // que não existe na tabela de municípios. Quem separa os dois lá é o
+  // `grupo_id`, que é diferente.
+  const localidade = localidadePorSlug(slug)
+  const municipio = municipioPorSlug(localidade?.municipioSlug ?? slug)
 
-  // Município que não existe: manda para a lista, nunca erro 404 seco.
+  // Lugar que não existe: manda para a lista, nunca erro 404 seco.
   if (!municipio) {
     return NextResponse.redirect(new URL('/grupos?nao-encontrado=1', req.url), 307)
   }
@@ -63,14 +74,14 @@ export async function GET(
   if (!grupo || !podeEntrar) {
     await gravarEvento({
       tipo: 'entrou_grupo_indisponivel',
-      municipio_slug: slug,
+      municipio_slug: municipio.slug,
       grupo_id: grupo?.id ?? null,
       origem,
       req,
     })
 
     const destino = new URL('/grupos', req.url)
-    destino.searchParams.set('cidade', slug)
+    destino.searchParams.set('cidade', municipio.slug)
     destino.searchParams.set('situacao', grupo?.status ?? 'em_breve')
     return NextResponse.redirect(destino, 307)
   }
@@ -80,7 +91,7 @@ export async function GET(
     registrarCliqueNoGrupo(grupo),
     gravarEvento({
       tipo: 'clicou_grupo',
-      municipio_slug: slug,
+      municipio_slug: municipio.slug,
       grupo_id: grupo.id,
       origem,
       req,

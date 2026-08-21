@@ -570,5 +570,27 @@
     "limite_cliques": 700,
     "cliques": 0,
     "observacao": null
+  },
+  {
+    "id": "local-53",
+    "municipio_slug": "guajara-mirim",
+    "ordem": 2,
+    "link": null,
+    "status": "em_breve",
+    "fixado": false,
+    "limite_cliques": 700,
+    "cliques": 0,
+    "observacao": "Distrito de Iata — atende por /g/iata"
+  },
+  {
+    "id": "local-54",
+    "municipio_slug": "buritis",
+    "ordem": 2,
+    "link": null,
+    "status": "em_breve",
+    "fixado": false,
+    "limite_cliques": 700,
+    "cliques": 0,
+    "observacao": "Distrito de Rio Pardo — atende por /g/rio-pardo"
   }
 ]

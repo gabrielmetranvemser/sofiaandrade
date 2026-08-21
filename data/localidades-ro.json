@@ -1,0 +1,14 @@
+[
+  {
+    "slug": "iata",
+    "nome": "Iata",
+    "municipioSlug": "guajara-mirim",
+    "ordem": 2
+  },
+  {
+    "slug": "rio-pardo",
+    "nome": "Rio Pardo",
+    "municipioSlug": "buritis",
+    "ordem": 2
+  }
+]

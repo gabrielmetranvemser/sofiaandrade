@@ -5,6 +5,7 @@ import { useConteudo } from '@/lib/conteudo/contexto'
 import { buscarMunicipios } from '@/lib/geo'
 import { evento } from '@/lib/eventos'
 import type { MunicipioComGrupo } from '@/lib/tipos'
+import { achatarDestinos } from '@/lib/destinos'
 import { LinhaMunicipio } from './LinhaMunicipio'
 
 /**
@@ -43,9 +44,19 @@ export function FolhaDeCidades({
   const timerBusca = useRef<ReturnType<typeof setTimeout> | null>(null)
   const [termo, setTermo] = useState('')
 
+  // A busca corre sobre a lista já achatada: quem digita "Iata" acha
+  // Iata, e não Guajará-Mirim, que é o município que o esconderia.
+  const linhas = useMemo(() => achatarDestinos(municipios), [municipios])
   const resultados = useMemo(
-    () => (termo.trim().length >= 2 ? buscarMunicipios(municipios, termo, 40) : municipios),
-    [municipios, termo],
+    () =>
+      termo.trim().length >= 2
+        ? buscarMunicipios(
+            linhas.map((l) => ({ ...l, nome: l.destino.nome })),
+            termo,
+            40,
+          )
+        : linhas,
+    [linhas, termo],
   )
   const buscando = termo.trim().length >= 2
 
@@ -92,7 +103,7 @@ export function FolhaDeCidades({
     onFechar()
   }
 
-  const abertos = municipios.filter((m) => m.disponivel).length
+  const abertos = linhas.filter((l) => l.destino.disponivel).length
 
   return (
     <dialog
@@ -163,10 +174,11 @@ export function FolhaDeCidades({
         <div className="min-h-0 flex-1 overflow-y-auto overscroll-contain p-2" role="region" aria-live="polite">
           {resultados.length > 0 ? (
             <ul className="grid gap-1 md:grid-cols-2">
-              {resultados.map((m) => (
+              {resultados.map(({ destino, dentroDe }) => (
                 <LinhaMunicipio
-                  key={m.slug}
-                  municipio={m}
+                  key={destino.slug}
+                  destino={destino}
+                  dentroDe={dentroDe}
                   origem={buscando ? 'busca' : 'lista'}
                 />
               ))}
