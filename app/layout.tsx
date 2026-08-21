@@ -6,6 +6,7 @@ import { lerSlots } from '@/lib/midia/ler'
 import { Revelar } from '@/components/ui/Revelar'
 import { ConteudoProvider } from '@/lib/conteudo/contexto'
 import { lerConteudoCliente } from '@/lib/conteudo/subconjunto'
+import { lerConteudo } from '@/lib/conteudo/ler'
 import './globals.css'
 
 /**
@@ -105,11 +106,22 @@ export const viewport: Viewport = {
 
 export default async function LayoutRaiz({ children }: { children: React.ReactNode }) {
   // Só o recorte que a árvore de cliente consome atravessa a fronteira.
-  const conteudoCliente = await lerConteudoCliente()
+  const [conteudoCliente, { aparencia }] = await Promise.all([
+    lerConteudoCliente(),
+    lerConteudo(),
+  ])
 
   return (
     <html lang="pt-BR" className={`${titulo.variable} ${corpo.variable} sem-js`}>
-      <body>
+      {/* A textura pontilhada é um atributo, e não uma classe, porque
+          ela tem TRÊS estados e não dois — o CSS lê o valor para
+          escolher a opacidade e o passo da trama. Desligada, o atributo
+          não existe e a camada nem é criada.
+
+          Mora no <body> e não numa seção porque ela cobre a página
+          inteira, incluindo as páginas internas: filtro, grupos e
+          privacidade herdam daqui sem precisar saber que ela existe. */}
+      <body data-halftone={aparencia.halftone ? aparencia.halftoneForca : undefined}>
         {/* Pular para o conteúdo: leitor de tela e navegação por teclado */}
         <a
           href="#conteudo"

@@ -1,8 +1,10 @@
+import { formatoValido } from '@/lib/video'
 import { lerConteudo } from '@/lib/conteudo/ler'
 import { lerSlots } from '@/lib/midia/ler'
 import { Secao, CabecalhoSecao } from '@/components/ui/Secao'
 import { Imagem } from '@/components/ui/Imagem'
 import { TextoComDestaque } from '@/components/ui/TextoComDestaque'
+import { Video } from '@/components/ui/Video'
 
 /**
  * O que os outros dizem — e o que a esquerda diz.
@@ -34,22 +36,29 @@ export async function ProvaSocial() {
     <Secao id="prova-social" fundo="branco" espaco="solto">
       <CabecalhoSecao etiqueta={social.etiqueta} titulo={social.titulo} intro={social.intro} />
 
-      {/* Mosaico em colunas, não grade.
-          Print de comentário não tem altura padrão — os do acervo vão
-          de 335px a 1074px de altura. Numa grade, a linha inteira
-          cresce até o print mais alto e sobra um rombo branco embaixo
-          dos outros dois. Em colunas CSS cada um ocupa o que precisa.
+      {/* GRADE, e não mosaico em colunas.
+          Já foi mosaico (`columns-2` / `columns-3`) porque print de
+          comentário não tem altura padrão: os do acervo vão de 335px a
+          1074px, e em colunas CSS cada um ocupa só o que precisa.
 
-          O preço é a ordem de leitura virar coluna-a-coluna em vez de
-          linha-a-linha. Aqui isso não custa nada: são seis provas
-          independentes, nenhuma depende da anterior. */}
-      <div className="mt-12 gap-5 sm:columns-2 lg:columns-3">
+          A campanha olhou o resultado e pediu os comentários "um do
+          lado do outro". Tem razão, e a razão é de leitura: em colunas,
+          o segundo comentário fica ABAIXO do primeiro, não ao lado —
+          quem lê da esquerda para a direita atravessa três conversas
+          diferentes em vez de ler uma. A grade devolve a linha.
+
+          O `items-start` é o que impede o efeito que o mosaico existia
+          para evitar: sem ele, todos os cartões da linha esticam até a
+          altura do mais alto e sobra branco embaixo dos menores. Com
+          ele, cada um mantém a própria altura e a linha fica alinhada
+          pelo topo — que é onde o olho entra. */}
+      <div className="mt-12 grid items-start gap-5 sm:grid-cols-2 lg:grid-cols-3">
         {social.legendas.map((legenda, i) => (
           <figure
             key={legenda.id}
             data-revelar
             style={{ ['--atraso' as string]: `${i * 60}ms` }}
-            className="mb-5 break-inside-avoid overflow-hidden rounded-2xl border border-linha bg-white shadow-suave"
+            className="overflow-hidden rounded-2xl border border-linha bg-white shadow-suave"
           >
             <Imagem
               slot={`social.comentario.${i + 1}`}
@@ -65,6 +74,17 @@ export async function ProvaSocial() {
           </figure>
         ))}
       </div>
+
+      {/* Os vídeos de comentário. Mesma prova, em outro formato: o
+          print mostra o que escreveram, o vídeo mostra o que falaram.
+          Some inteiro enquanto nenhum dos dois tiver endereço. */}
+      {social.videos.some((v) => v.url) ? (
+        <div className="mt-5 grid items-start gap-5 sm:grid-cols-2">
+          {social.videos.map((v) => (
+            <Video key={v.id} url={v.url} formato={formatoValido(v.formato)} titulo={v.titulo} />
+          ))}
+        </div>
+      ) : null}
 
       {/* ── O outro lado ─────────────────────────────────────────── */}
       <div className="mt-20 rounded-3xl bg-azul-escuro p-7 text-white md:mt-24 md:p-12">
@@ -126,6 +146,34 @@ export async function ProvaSocial() {
                   </svg>
                   {p.resultado}
                 </p>
+
+                {/* Os vídeos do processo, dentro do cartão dele.
+                    O do TRE tem dois — o relato e a leitura da decisão,
+                    esta gravada de celular na vertical. É o único lugar
+                    da página onde os dois enquadramentos convivem, e por
+                    isso o formato é escolhido POR VÍDEO no painel: numa
+                    proporção fixa, o vertical apareceria com metade do
+                    cartão em tarja preta.
+
+                    `items-start` de novo, e pela mesma razão de sempre:
+                    um vídeo deitado ao lado de um em pé, esticados para
+                    a mesma altura, distorcem os dois. */}
+                {p.videos.some((v) => v.url) ? (
+                  <div
+                    className={`mt-5 grid items-start gap-4 ${
+                      p.videos.filter((v) => v.url).length > 1 ? 'sm:grid-cols-2' : ''
+                    }`}
+                  >
+                    {p.videos.map((v) => (
+                      <Video
+                        key={v.id}
+                        url={v.url}
+                        formato={formatoValido(v.formato)}
+                        titulo={v.titulo}
+                      />
+                    ))}
+                  </div>
+                ) : null}
               </li>
             ))}
           </ul>

@@ -1,4 +1,5 @@
 import type { Campo } from '@/content/esquema'
+import { interpretarVideo } from '@/lib/video'
 
 /**
  * Valida o que veio do formulário contra o descritor.
@@ -71,6 +72,34 @@ function validarCampo(
         erros[caminho] = 'Precisa ser um endereço completo, começando com https://'
       }
       return t
+    }
+
+    /**
+     * Vídeo. Vazio passa — é o estado normal enquanto o vídeo não
+     * existe, e com o campo em branco o bloco some da página.
+     *
+     * Preenchido, tem que ser um endereço que o PLAYER toque, não só um
+     * endereço bem formado. Validar com a mesma função que o componente
+     * usa é o que impede o painel de dizer "salvo" e a página mostrar um
+     * quadro preto.
+     */
+    case 'video': {
+      const t = limpo(valor)
+      if (t && !interpretarVideo(t)) {
+        erros[caminho] =
+          'Não reconheci esse endereço. Cole o link de um vídeo do YouTube ou do Vimeo.'
+      }
+      return t
+    }
+
+    case 'escolha': {
+      const t = limpo(valor)
+      const permitidos = campo.opcoes.map((o) => o.valor)
+      // Fora da lista vira o primeiro, em silêncio: o formulário só
+      // oferece as opções válidas, então valor estranho aqui é payload
+      // adulterado — e para esse caso a resposta certa é o padrão, não
+      // uma mensagem de erro que ensina o formato aceito.
+      return permitidos.includes(t) ? t : (permitidos[0] ?? '')
     }
 
     case 'ancora': {

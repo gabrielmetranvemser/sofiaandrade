@@ -31,7 +31,7 @@ Todo ponto marcado com `// ⚠️ CONFIRMAR` em [`content/copy.ts`](./content/co
 
 | Seção | O que falta |
 |---|---|
-| `origem` · `provas` | **os 14.634 votos de 2022** — o documento traz o número mas não o cargo disputado. Confirmar antes de publicar: número de votação sem cargo é o tipo de dado que o adversário usa |
+| ~~`origem` · `provas`~~ | ~~**os 14.634 votos de 2022**~~ — **RESOLVIDO por remoção.** A campanha pediu para tirar a linha do tempo de "Quem é Sofia" e a faixa de números de "O que já foi feito", e o dado morava só nesses dois lugares. Não é mais preciso confirmar o cargo disputado |
 | `candidata` | número de WhatsApp da campanha |
 
 O que **entrou** do documento e não estava aqui antes: a história do
@@ -43,6 +43,45 @@ O que **ficou de fora** de propósito: a Parte 3 do documento (vídeos,
 prints de comentários, depoimentos) depende de mídia que a campanha
 ainda não entregou, e o Bloco 8 inteiro — prova social e os processos
 — está fora pelo motivo abaixo.
+
+---
+
+## 🟡 Os vídeos
+
+A página tem **oito lugares que aceitam vídeo**, todos com o campo
+vazio. Vazio não é erro: com o campo em branco o bloco não existe na
+página. Colar o endereço no painel liga cada um.
+
+Onde ficam, e o que a campanha indicou para cada um:
+
+| Painel | Onde aparece | Arquivo indicado |
+|---|---|---|
+| Quem é Sofia → *Vídeo da história dela* | topo da coluna de fotos | o "vídeo diamante" — **ainda em edição** |
+| A rua → *Vídeo da pandemia* | antes das três fotos de 2020 | `VIDEO COVID.mp4` |
+| O que está errado → *Vídeo* | fecha a seção | "BLOCO 8 - OK" — **⚠️ ver abaixo** |
+| O que já foi feito → *Vídeo da prestação de contas* | ao lado da introdução | `bloco 6.mp4` |
+| Prova social → *Vídeos de comentário* (2) | abaixo dos prints | `bloco 8 - comentários_.mp4` e `bloco 8 - comentário parte 2.mp4` |
+| Prova social → processo do TRE → *Vídeos* (2) | dentro do cartão | `perdeu processo.mp4` e `decisão juiz_.mov` |
+| Prova social → processo do Governador → *Vídeos* | dentro do cartão | `processo governador .mp4` |
+| Trilha de vídeos → *Vídeos* (8 espaços) | fita acima dos Compromissos | pasta `BLOCO 8 - FINAL TRILHA DE VIDEOS DA SOFIA X PT` |
+
+O que **falta resolver**:
+
+1. **"BLOCO 8 - OK" não existe** na pasta de vídeos. Os candidatos são
+   `BLOCO 4 - OK.mp4` (1:01) ou `BLOCO 8 - SOFIA ESCLARECE SITUAÇÃO_.mp4`
+   (4:09). Precisa de confirmação de quem escreveu o pedido.
+2. **Subir os vídeos** para YouTube ou Vimeo, como **não listados**, e
+   colar os endereços no painel. A página não hospeda vídeo.
+3. `VIDEO COVID.mp4` tem **172 MB em 3928×2160**. Reencodar para 1080p
+   antes de subir.
+4. Sem destino definido: `bloco 4.mp4`, `snapinsta-1787183675084.mp4`,
+   `BLOCO 8 - CONTINUE ESCLARECIMENTO_.mp4`.
+5. **Direito de uso.** Os arquivos da trilha têm nome `snapinsta-*` — foram
+   baixados de posts do Instagram. Se algum for de terceiro, vale a mesma
+   checagem que [`PLANO-FOTOS.md`](./PLANO-FOTOS.md) já exige para as fotos.
+6. **Copy da trilha.** A etiqueta, o título e a introdução da seção foram
+   escritos a partir do NOME DA PASTA — ninguém aqui assistiu aos oito
+   vídeos. Reescrever no painel antes de publicar.
 
 ---
 

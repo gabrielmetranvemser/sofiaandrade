@@ -1,5 +1,6 @@
 import { lerConteudo } from '@/lib/conteudo/ler'
 import { Secao, CabecalhoSecao } from '@/components/ui/Secao'
+import { Video } from '@/components/ui/Video'
 
 export async function Problema() {
   const { problema } = await lerConteudo()
@@ -31,6 +32,17 @@ export async function Problema() {
           </li>
         ))}
       </ul>
+
+      {/* O vídeo fecha a seção, e fecha de propósito: os quatro cartões
+          listam o que está errado em texto frio, e é ela quem dá voz a
+          isso. Centralizado e contido — a seção é uma grade de dois, e
+          um vídeo de largura total viraria uma quinta caixa maior que
+          as outras quatro. */}
+      {problema.video ? (
+        <div data-revelar className="mx-auto mt-8 max-w-3xl">
+          <Video url={problema.video} titulo={problema.titulo.replace(/\[\[|\]\]/g, '')} />
+        </div>
+      ) : null}
     </Secao>
   )
 }

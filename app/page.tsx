@@ -20,6 +20,7 @@ import { Valores } from '@/components/site/Valores'
 import { CenaBandeira } from '@/components/animacao/CenaBandeira'
 import { Provas } from '@/components/site/Provas'
 import { ProvaSocial } from '@/components/site/ProvaSocial'
+import { Trilha } from '@/components/site/Trilha'
 import { Futuro } from '@/components/site/Futuro'
 import { SecaoGrupos } from '@/components/site/SecaoGrupos'
 import { SecaoFiltro } from '@/components/site/SecaoFiltro'
@@ -76,6 +77,12 @@ export default async function Home() {
             elogio. Invertido, os depoimentos chegam antes de existir
             motivo para eles. */}
         {exibir.social ? <ProvaSocial /> : null}
+        {/* A trilha vem antes de Compromissos porque é o último bloco
+            de prova: depois dela a página para de olhar para trás e
+            começa a prometer. E vem depois da prova social pela mesma
+            regra que já rege esta ordem — primeiro o que aconteceu,
+            depois o que dizem sobre isso, só então o que virá. */}
+        {exibir.trilha ? <Trilha /> : null}
         {exibir.futuro ? <Futuro /> : null}
         {exibir.grupos ? <SecaoGrupos municipios={municipios} sugerido={sugerido} /> : null}
         {exibir.filtro ? <SecaoFiltro /> : null}
