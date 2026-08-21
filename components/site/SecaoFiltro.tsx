@@ -1,11 +1,11 @@
 import { lerConteudo } from '@/lib/conteudo/ler'
 import { lerSlots } from '@/lib/midia/ler'
 import { lerApoios, formatarApoios } from '@/lib/apoios'
-import { resolverMolduras } from '@/lib/molduras'
+import { resolverExemplos, resolverMolduras } from '@/lib/molduras'
 import { Secao, CabecalhoSecao } from '@/components/ui/Secao'
 import { BotaoLink } from '@/components/ui/Botao'
-import { Silhueta } from '@/components/ui/Silhueta'
 import { Texto } from '@/components/ui/TextoComDestaque'
+import { VitrineFiltro } from './VitrineFiltro'
 
 /**
  * Chamada para o gerador de moldura.
@@ -26,6 +26,9 @@ export async function SecaoFiltro() {
   ])
 
   const molduras = resolverMolduras(slots)
+  // Resolvido AQUI, no servidor, porque a vitrine é Client Component e
+  // não alcança o Storage — mesma razão de `resolverMolduras`.
+  const exemplos = resolverExemplos(slots)
 
   return (
     // Verde de superfície, amarelo só nos detalhes: o número do passo,
@@ -91,36 +94,23 @@ export async function SecaoFiltro() {
           </div>
         </div>
 
-        {/* As duas molduras, na arte que a pessoa vai receber.
+        {/* As duas molduras, na arte que a pessoa vai receber — e, por
+            baixo delas, apoiadores de verdade trocando sozinhos.
 
-            A silhueta por baixo não é enfeite: a moldura é transparente
-            no miolo, então sozinha ela some — sobre o amarelo da seção,
-            o anel amarelo do formato de perfil ficava invisível. Com uma
-            foto de mentira atrás, dá para ver o que a moldura faz. */}
-        <div data-revelar className="grid grid-cols-2 items-start gap-4">
-          {molduras.map((m, i) => (
-            <div
-              key={m.id}
-              className={`relative overflow-hidden rounded-2xl bg-azul-suave shadow-alta ring-1 ring-white/25 ${
-                i === 1 ? 'mt-10' : ''
-              }`}
-              style={{ aspectRatio: `${m.largura} / ${m.altura}` }}
-            >
-              <Silhueta
-                variante={m.formato === 'perfil' ? 'rosto' : 'meio-corpo'}
-                className="absolute inset-0 size-full"
-                rotulo=""
-              />
-              {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img
-                src={m.arquivo}
-                alt={filtro.formatos[m.formato].rotulo}
-                loading="lazy"
-                className="absolute inset-0 size-full object-contain"
-              />
-            </div>
-          ))}
-        </div>
+            A moldura é transparente no miolo: sozinha ela some, e sobre
+            o verde da seção o anel do formato de perfil fica invisível.
+            Sempre houve algo atrás. Era uma silhueta cinza, que mostra
+            ONDE a foto entra; agora são pessoas, que mostram COMO fica.
+            Enquanto o painel não tiver nenhum par completo, a silhueta
+            volta sozinha — ver `VitrineFiltro`. */}
+        <VitrineFiltro
+          molduras={molduras}
+          exemplos={exemplos}
+          rotulos={{
+            story: filtro.formatos.story.rotulo,
+            perfil: filtro.formatos.perfil.rotulo,
+          }}
+        />
       </div>
     </Secao>
   )

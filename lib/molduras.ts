@@ -66,6 +66,49 @@ export const SLOT_DA_MOLDURA: Record<FormatoMoldura, string> = {
 }
 
 /**
+ * OS APOIADORES DE EXEMPLO que giram dentro das duas molduras.
+ *
+ * ⚠️ O PAR É A UNIDADE, e o filtro abaixo é o que garante isso: um
+ *    apoiador só entra na roda com as DUAS fotos. As duas molduras
+ *    trocam ao mesmo tempo e mostram sempre a mesma pessoa — é isso
+ *    que faz o exemplo se ler como "a sua foto vai ficar assim nos
+ *    dois formatos", e não como duas pessoas quaisquer lado a lado.
+ *
+ *    Descartar o par incompleto em silêncio é deliberado: permite
+ *    subir um apoiador por vez, sem a seção passar por um estado em
+ *    que um lado tem foto e o outro tem silhueta.
+ */
+export interface ApoiadorExemplo {
+  id: string
+  story: ImagemDeSlot
+  perfil: ImagemDeSlot
+}
+
+/** O bastante do que `lerSlots` devolve para desenhar a foto. */
+interface ImagemDeSlot {
+  url: string
+  largura: number
+  altura: number
+  blur?: string | null
+  alt?: string
+}
+
+/** Quantos pares o painel oferece. Mudar aqui pede mudar em slots.ts. */
+export const MAXIMO_DE_EXEMPLOS = 6
+
+export function resolverExemplos(
+  slots: Record<string, ImagemDeSlot>,
+): ApoiadorExemplo[] {
+  const saida: ApoiadorExemplo[] = []
+  for (let i = 1; i <= MAXIMO_DE_EXEMPLOS; i++) {
+    const story = slots[`filtro.exemplo.${i}.story`]
+    const perfil = slots[`filtro.exemplo.${i}.perfil`]
+    if (story && perfil) saida.push({ id: `exemplo-${i}`, story, perfil })
+  }
+  return saida
+}
+
+/**
  * Troca a arte provisória pela que a campanha subiu, quando houver.
  *
  * Roda no servidor e o resultado desce como prop: o gerador é Client

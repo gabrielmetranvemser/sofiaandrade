@@ -247,6 +247,50 @@ export const SLOTS: Slot[] = [
     nota: 'PNG 1080×1080 com transparência no miolo. ⚠️ CNPJ obrigatório na arte.',
     padrao: '/molduras/perfil-apoio.svg',
   },
+
+  // ── Os apoiadores de exemplo ───────────────────────────────────
+  // As fotos que giram DENTRO das duas molduras, na seção do site que
+  // convida a usar o filtro. Substituem a silhueta cinza desenhada em
+  // código — que mostra onde a foto entra, mas não mostra o resultado.
+  //
+  // ⚠️ SÃO PARES, E O PAR É A UNIDADE. Cada apoiador tem as duas fotos,
+  //    story e perfil, e as duas molduras trocam JUNTAS: quem olha vê a
+  //    mesma pessoa nos dois formatos, que é o que faz o exemplo
+  //    funcionar como exemplo. Par incompleto simplesmente não entra na
+  //    roda — ver `resolverExemplos` em lib/molduras.ts. Não é um
+  //    erro a corrigir: é o que permite subir o apoiador 1 hoje e o 2
+  //    na semana que vem sem a seção quebrar no meio do caminho.
+  //
+  // ⚠️ MÍNIMOS BAIXOS DE PROPÓSITO. Estas fotos aparecem com menos de
+  //    300px de largura na tela, e a origem delas é o rolo da câmera de
+  //    um apoiador — muitas chegam por WhatsApp, já comprimidas. Exigir
+  //    1080 aqui barraria exatamente o material que a seção quer.
+  ...Array.from({ length: 6 }, (_, i) => [
+    {
+      chave: `filtro.exemplo.${i + 1}.story`,
+      rotulo: `Apoiador ${i + 1} · story`,
+      onde: 'Gerador de filtro',
+      proporcao: '9/16',
+      larguraMin: 540,
+      alturaMin: 960,
+      nota:
+        i === 0
+          ? 'De três a seis apoiadores, cada um com as DUAS fotos. Rosto no terço de cima: a moldura escurece a metade de baixo. Peça autorização antes de subir a foto de alguém.'
+          : undefined,
+    },
+    {
+      chave: `filtro.exemplo.${i + 1}.perfil`,
+      rotulo: `Apoiador ${i + 1} · perfil`,
+      onde: 'Gerador de filtro',
+      proporcao: '1/1',
+      larguraMin: 540,
+      alturaMin: 540,
+      nota:
+        i === 0
+          ? 'A mesma pessoa da foto de story ao lado, enquadrada em quadrado. Sem as duas, o apoiador não entra na roda.'
+          : undefined,
+    },
+  ]).flat(),
 ]
 
 export const SLOTS_POR_CHAVE: Record<string, Slot> = Object.fromEntries(
@@ -281,6 +325,7 @@ const SECAO_DO_ESPACO: Record<string, string> = {
   social: 'social',
   cta: 'ctaFinal',
   moldura: 'filtro',
+  filtro: 'filtro',
 }
 
 export function secaoDoEspaco(chave: string): string | null {
