@@ -1,4 +1,4 @@
-# Sofia Andrade 2233
+# Sofia Andrade 2233 | Candidata
 
 LP de campanha + gerador de filtro + painel de grupos e métricas.
 Deputada Federal por Rondônia · PL · número **2233**.
