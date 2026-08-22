@@ -3,6 +3,7 @@ import { lerTrafego } from '@/lib/trafego/ler'
 import { EVENTO_META, EXPLICACAO_EVENTO, EVENTOS_PADRAO_META } from '@/lib/trafego/tipos'
 import type { TipoEvento } from '@/lib/tipos'
 import { EditorTrafego } from './EditorTrafego'
+import { TextoPrivacidade } from './TextoPrivacidade'
 
 export const dynamic = 'force-dynamic'
 export const metadata = { title: 'Tráfego', robots: { index: false } }
@@ -78,11 +79,12 @@ export default async function PaginaTrafego() {
         </p>
         <p className="mt-2">
           Com o pixel ligado isso deixa de ser verdade — ele grava o cookie{' '}
-          <code className="font-mono">_fbp</code> e serve justamente para montar público. Ajuste o
-          texto em <strong className="font-medium">Seções ▸ Política de privacidade</strong> antes
-          de subir campanha: diga que o site usa o pixel da Meta, para que serve, e que a pessoa
-          pode desativar anúncios personalizados nas configurações da conta dela. É rápido, e é a
-          diferença entre uma página que cumpre o que promete e uma que não.
+          <code className="font-mono">_fbp</code> e serve justamente para montar público. Numa
+          página que é propaganda eleitoral, é uma afirmação falsa assinada pela campanha.
+        </p>
+        <p className="mt-2">
+          O texto de substituição está pronto no fim desta tela, com botão de copiar. São dois
+          minutos, e é a diferença entre uma página que cumpre o que promete e uma que não.
         </p>
       </div>
 
@@ -198,6 +200,8 @@ export default async function PaginaTrafego() {
           </li>
         </ol>
       </section>
+
+      <TextoPrivacidade pixel={Boolean(t.metaPixelId)} gtm={Boolean(t.gtmId)} />
     </>
   )
 }
