@@ -1,6 +1,6 @@
 import type { Metadata, Viewport } from 'next'
 import { Archivo, Inter } from 'next/font/google'
-import { candidata, meta } from '@/content/copy'
+import { candidata } from '@/content/copy'
 import { config } from '@/lib/config'
 import { lerSlots } from '@/lib/midia/ler'
 import { Revelar } from '@/components/ui/Revelar'
@@ -50,12 +50,21 @@ const corpo = Inter({
  * Sem imagem no espaço, o Next continua servindo o `icon.png` da pasta
  * `app/`, que é a convenção dele. Por isso não há fallback escrito
  * aqui: omitir `icons` é justamente deixar a convenção agir.
+ *
+ * ⚠️ TÍTULO E DESCRIÇÃO VÊM DO PAINEL, e até agora não vinham. Estes
+ *    campos eram lidos direto de `content/copy.ts`, enquanto as
+ *    páginas internas (/grupos, /filtro, privacidade) já liam da
+ *    edição — então "Busca e compartilhamento" prometia editar a aba
+ *    da home e não editava nada. Salvar não dava erro, só não fazia
+ *    efeito, que é a pior forma de um painel mentir.
  */
 export async function generateMetadata(): Promise<Metadata> {
-  const [icone, trafego] = await Promise.all([
+  const [icone, trafego, conteudo] = await Promise.all([
     lerSlots().then((s) => s['marca.favicon']?.url ?? null),
     lerTrafegoPublico(),
+    lerConteudo(),
   ])
+  const meta = conteudo.meta
 
   return {
   metadataBase: new URL(config.siteUrl),
@@ -108,6 +117,15 @@ export async function generateMetadata(): Promise<Metadata> {
        explicação. */
     ...(trafego.metaDominio
       ? { other: { 'facebook-domain-verification': trafego.metaDominio } }
+      : {}),
+    /* ⚠️ A VERIFICAÇÃO DO GOOGLE SÓ EXISTE SE ALGUÉM A COLOU. Vazio
+       significa que a propriedade foi verificada pelo DNS — o caminho
+       recomendado — ou que ainda não foi verificada. Nos dois casos o
+       certo é não emitir tag nenhuma: uma tag com valor em branco não
+       é neutra, é uma verificação falhando em silêncio toda vez que o
+       Google revisita o site. Preenchido em Painel ▸ Buscas. */
+    ...(meta.verificacaoGoogle
+      ? { verification: { google: meta.verificacaoGoogle } }
       : {}),
   }
 }

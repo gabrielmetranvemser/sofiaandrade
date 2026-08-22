@@ -1,13 +1,14 @@
 import type { MetadataRoute } from 'next'
-import { config } from '@/lib/config'
+import { config, siteIndexavel } from '@/lib/config'
 
 export default function robots(): MetadataRoute.Robots {
   // Enquanto estiver em URL de preview, não indexa. Publicação em
   // domínio próprio depende de CNPJ e domínio confirmados — está no
   // plano como risco que BLOQUEIA a publicação.
-  const emProducao = !config.siteUrl.includes('localhost') && !config.siteUrl.includes('vercel.app')
-
-  if (!emProducao) {
+  //
+  // A regra em si está em lib/config.ts: a tela de Buscas do painel
+  // mostra o mesmo estado para quem for cadastrar no Search Console.
+  if (!siteIndexavel()) {
     return { rules: [{ userAgent: '*', disallow: '/' }] }
   }
 

@@ -27,7 +27,7 @@ quase todo visual: animação, o filtro refeito e o mapa.
 | Redirecionador `/g/[slug]` | conta o clique, aplica a virada por limite, respeita o silêncio eleitoral |
 | Gerador de filtro | EXIF, teto de 2000px, zona segura, e todo o tratamento do webview do Instagram |
 | Política de privacidade | escrita, com tokens resolvidos do conteúdo |
-| SEO | metadata, OG image gerada por código, sitemap, robots, dados estruturados |
+| SEO | metadata, OG image gerada por código, sitemap, robots, `llms.txt`, dados estruturados |
 | Conformidade eleitoral | rodapé de identificação, silêncio automático por variável de ambiente |
 
 ### Painel
@@ -40,6 +40,7 @@ quase todo visual: animação, o filtro refeito e o mapa.
 | **Imagens** | 30 espaços com instruções na tela, **recorte e zoom na própria página**, conversão para WebP preservando transparência |
 | **Grupos** | link, situação, fixar, limite de cliques, exportar CSV, gerar QR por município |
 | **Métricas** | funil, qual botão trabalha, cliques por município, UTM, celular vs desktop |
+| **Buscas** | os endereços do sitemap, robots e llms.txt com botão de copiar, estado da indexação e a verificação do Search Console |
 
 ### Banco
 

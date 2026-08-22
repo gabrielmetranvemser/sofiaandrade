@@ -41,3 +41,24 @@ export function msAteSilencio(agora: Date = new Date()): number {
   if (!config.silencioEleitoralEm) return Number.POSITIVE_INFINITY
   return new Date(config.silencioEleitoralEm).getTime() - agora.getTime()
 }
+
+/**
+ * O site pode ser indexado pelo Google?
+ *
+ * ⚠️ MORA AQUI PORQUE TEM DOIS DONOS. A regra nasceu dentro do
+ *    `robots.ts`, onde ninguém a vê: o arquivo é gerado, não é uma
+ *    tela. Só que a tela de Buscas do painel precisa responder à mesma
+ *    pergunta — é o primeiro diagnóstico de "cadastrei no Search
+ *    Console e ele não indexa". Duas cópias da regra divergiriam na
+ *    primeira vez que alguém trocasse o domínio, e a divergência
+ *    apareceria como um painel dizendo "no ar" sobre um site que o
+ *    robots.txt manda ignorar.
+ *
+ * O critério é o endereço: em `localhost` e nos domínios de preview da
+ * Vercel o site é uma cópia de trabalho. Indexar a cópia é pior do que
+ * não indexar nada — ela concorre com a oficial na busca pelo nome da
+ * candidata.
+ */
+export function siteIndexavel(url: string = config.siteUrl): boolean {
+  return !url.includes('localhost') && !url.includes('vercel.app')
+}

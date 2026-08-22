@@ -45,11 +45,31 @@ export const ITENS: ItemMenu[] = [
   // aconteceu aqui dentro, Tráfego entrega o mesmo fato ao anúncio lá
   // fora. Quem procura uma quase sempre acaba precisando da outra.
   { href: '/painel/trafego', rotulo: 'Tráfego', icone: 'M12 2a3 3 0 0 1 3 3v3a3 3 0 0 1-6 0V5a3 3 0 0 1 3-3Zm0 8a3 3 0 0 1 3 3v3a3 3 0 0 1-6 0v-3a3 3 0 0 1 3-3Zm0 8a3 3 0 0 1 3 3H9a3 3 0 0 1 3-3ZM5 7h2v2H5V7Zm12 0h2v2h-2V7ZM5 15h2v2H5v-2Zm12 0h2v2h-2v-2Z' },
+  // Depois de Tráfego, e no fim da lista, porque é a tela que se abre
+  // MENOS: cadastrar o site no Search Console é tarefa de uma vez só.
+  { href: '/painel/buscas', rotulo: 'Buscas', icone: 'M10 2a8 8 0 0 1 6.32 12.9l5.39 5.39-1.42 1.42-5.39-5.39A8 8 0 1 1 10 2Zm0 2a6 6 0 1 0 0 12 6 6 0 0 0 0-12Z' },
 ]
 
-export function MenuLateral({ children }: { children: React.ReactNode }) {
+export function MenuLateral({
+  children,
+  modoLocal,
+}: {
+  children: React.ReactNode
+  /** Supabase desconectado: o painel lê dados locais e não grava. */
+  modoLocal: boolean
+}) {
   const caminho = usePathname()
   const [aberto, setAberto] = useState(false)
+
+  // ⚠️ A TELA DE ENTRAR NÃO USA NADA DISTO, e a saída é antecipada em
+  //    vez de escondida com CSS: markup escondido continua no HTML, e
+  //    o que este bloco lista é o mapa do painel inteiro — quais telas
+  //    existem e para onde levam. Isso é informação para quem já
+  //    entrou. Quem está na porta vê só a porta.
+  //
+  //    A faixa de "Modo local" veio junto pelo mesmo motivo: ela conta
+  //    o estado da conexão com o banco, que é diagnóstico interno.
+  if (caminho.startsWith('/painel/login')) return <>{children}</>
 
   const ativo = (href: string) =>
     href === '/painel' ? caminho === '/painel' : caminho.startsWith(href)
@@ -80,6 +100,17 @@ export function MenuLateral({ children }: { children: React.ReactNode }) {
 
   return (
     <>
+      {modoLocal ? (
+        <div className="border-b border-amarelo/30 bg-amarelo-suave">
+          <p className="px-4 py-3 text-sm md:px-8">
+            <strong className="font-semibold">Modo local.</strong> O Supabase não está conectado —
+            o painel mostra os dados de{' '}
+            <code className="rounded bg-white/70 px-1.5 py-0.5">data/grupos.local.json</code> e a
+            edição está desligada.
+          </p>
+        </div>
+      ) : null}
+
       {/* Barra do celular */}
       <div className="sticky top-0 z-30 flex items-center gap-3 border-b border-linha bg-white px-4 py-3 lg:hidden">
         <button

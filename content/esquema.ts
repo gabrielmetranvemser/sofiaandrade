@@ -995,6 +995,20 @@ export const ESQUEMA: Record<string, SecaoEsquema> = {
           chamada: { tipo: 'texto', rotulo: 'Chamada', max: 60 },
         },
       },
+      // ⚠️ OCULTO DE PROPÓSITO, e não por ser secreto — ele aparece no
+      //    HTML de toda visita. É que este campo não se escreve: se
+      //    cola, uma vez, exatamente como o Google entregou. Num
+      //    formulário de redação, entre título e descrição, ele seria
+      //    o único campo em que digitar bem é digitar nada — e um
+      //    caractere trocado quebra a verificação sem dar erro em
+      //    lugar nenhum.
+      //
+      //    Quem o preenche é a tela de Buscas, que aceita a linha
+      //    inteira da meta tag e extrai o código sozinha. Aqui ele
+      //    continua declarado porque o valor precisa sobreviver a um
+      //    salvamento desta seção: campo fora do esquema é campo que a
+      //    validação descarta.
+      verificacaoGoogle: { tipo: 'oculto' },
     },
   },
 

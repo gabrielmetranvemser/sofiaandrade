@@ -56,6 +56,24 @@ export const meta = {
     subtitulo: 'Deputada Federal por Rondônia',
     chamada: 'Mandaram fechar. Eu fui pra rua.',
   },
+  /**
+   * O código do Google Search Console.
+   *
+   * ⚠️ VAZIO É O ESTADO NORMAL. Ele só é preenchido se a verificação
+   *    de propriedade for feita pela meta tag; quem verificar pelo DNS
+   *    (o caminho recomendado, porque vale para o domínio inteiro e
+   *    não se perde numa republicação) deixa isto em branco para
+   *    sempre — e o site não emite tag nenhuma.
+   *
+   * Não é segredo: a tag fica visível no HTML de qualquer visitante.
+   * Ela não dá acesso a nada — só prova ao Google que quem a colocou
+   * ali manda no site.
+   *
+   * Preenchido em Painel ▸ Buscas, e não no editor de "Busca e
+   * compartilhamento", porque lá é texto de campanha e aqui é um
+   * código que se cola uma vez e não se lê nunca mais.
+   */
+  verificacaoGoogle: '',
 } as const
 
 /**
