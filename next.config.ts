@@ -6,6 +6,64 @@ const hostSupabase = process.env.NEXT_PUBLIC_SUPABASE_URL
   ? new URL(process.env.NEXT_PUBLIC_SUPABASE_URL).hostname
   : null
 
+/**
+ * CONTENT-SECURITY-POLICY.
+ *
+ * ⚠️ O DESENHO INTEIRO SAI DE UMA RESTRIÇÃO: NÃO PODE TRAVAR O GTM.
+ *
+ *    Um CSP de manual tranca `script-src` numa lista de domínios. Aqui
+ *    isso seria uma armadilha: o Tag Manager existe justamente para o
+ *    gestor de tráfego pendurar ferramenta nova — Google Ads hoje,
+ *    TikTok mês que vem — SEM tocar no site. Com lista fechada, cada
+ *    tag nova apareceria como "não funciona" no meio de uma campanha
+ *    no ar, e o diagnóstico é dos piores: o erro fica no console do
+ *    navegador de quem visita, não no de quem publicou.
+ *
+ *    Então `script-src` aceita qualquer origem https. O que ele barra
+ *    é script por `http:`, `data:` e `blob:` — os três vetores que uma
+ *    injeção usa e que nenhuma ferramenta legítima de medição precisa.
+ *
+ * ⚠️ O VALOR REAL DESTA POLÍTICA ESTÁ NAS OUTRAS QUATRO LINHAS, e não
+ *    em `script-src`. Elas não custam nada ao GTM e fecham ataques que
+ *    os cabeçalhos anteriores não alcançavam:
+ *
+ *    · `base-uri` — sem ela, uma única tag <base> injetada reescreve
+ *      TODO caminho relativo da página. Os links dos grupos passariam
+ *      a apontar para o servidor de outra pessoa sem que uma linha do
+ *      HTML visível mudasse.
+ *    · `form-action` — impede que um formulário injetado poste em
+ *      domínio de terceiro.
+ *    · `object-src 'none'` — mata <object>/<embed>, que não têm uso
+ *      nenhum neste site e são caminho clássico de execução.
+ *    · `frame-ancestors` — clickjacking. Fica em 'self' e não 'none'
+ *      porque a prévia ao vivo do painel mostra o site num quadro.
+ *
+ * `unsafe-inline` é inevitável: o próprio Next injeta script inline
+ * para hidratar, e o GTM inline é o formato que a ferramenta entrega.
+ * Registro em vez de fingir que a política é mais forte do que é.
+ */
+const CSP = [
+  "default-src 'self'",
+  // https: e não lista fechada — ver o bloco acima.
+  "script-src 'self' 'unsafe-inline' 'unsafe-eval' https:",
+  "style-src 'self' 'unsafe-inline' https:",
+  // data: e blob: para a moldura gerada no próprio aparelho; https:
+  // cobre o Storage do Supabase, a miniatura do YouTube e os pixels.
+  "img-src 'self' data: blob: https:",
+  "font-src 'self' data: https:",
+  "connect-src 'self' https:",
+  // blob: é o vídeo do R2 e a imagem que o filtro monta antes de baixar.
+  "media-src 'self' blob: https:",
+  // Player do YouTube e do Vimeo, e o quadro sem-JS do GTM.
+  "frame-src https:",
+  "worker-src 'self' blob:",
+  "object-src 'none'",
+  "base-uri 'self'",
+  "form-action 'self'",
+  "frame-ancestors 'self'",
+  'upgrade-insecure-requests',
+].join('; ')
+
 const nextConfig: NextConfig = {
   reactStrictMode: true,
   poweredByHeader: false,
@@ -53,8 +111,11 @@ const nextConfig: NextConfig = {
         headers: [
           { key: 'X-Content-Type-Options', value: 'nosniff' },
           { key: 'Referrer-Policy', value: 'strict-origin-when-cross-origin' },
+          // Mantido junto do `frame-ancestors` do CSP: navegador velho
+          // não entende o segundo, e clickjacking não espera atualização.
           { key: 'X-Frame-Options', value: 'SAMEORIGIN' },
           { key: 'Permissions-Policy', value: 'camera=(), microphone=(), geolocation=(self), interest-cohort=()' },
+          { key: 'Content-Security-Policy', value: CSP },
         ],
       },
     ]

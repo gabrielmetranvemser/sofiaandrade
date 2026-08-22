@@ -3,6 +3,7 @@ import { criarClienteAdmin } from '@/lib/supabase/admin'
 import { config } from '@/lib/config'
 import { enviarEvento, identidadeDoPedido } from '@/lib/trafego/meta'
 import { EVENTO_META } from '@/lib/trafego/tipos'
+import { veioDeOutroSite } from '@/lib/trafego/origem'
 import type { TipoEvento } from '@/lib/tipos'
 
 export const dynamic = 'force-dynamic'
@@ -103,6 +104,12 @@ export async function POST(req: NextRequest) {
  * id seria escolher contar dobrado.
  */
 function repassarParaMeta(req: NextRequest, corpo: Record<string, unknown>): void {
+  // ⚠️ SÓ O REPASSE É BARRADO, e a gravação no banco segue. São dois
+  //    prejuízos de tamanho diferente: métrica interna suja se conserta
+  //    olhando a tabela; pixel envenenado gasta verba de anúncio
+  //    perseguindo conversão que não existiu.
+  if (veioDeOutroSite(req)) return
+
   const nome = EVENTO_META[String(corpo.tipo) as TipoEvento]
   if (!nome) return
 

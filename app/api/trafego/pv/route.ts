@@ -1,6 +1,7 @@
 import { after, NextResponse, type NextRequest } from 'next/server'
 import { config } from '@/lib/config'
 import { enviarEvento, identidadeDoPedido } from '@/lib/trafego/meta'
+import { veioDeOutroSite } from '@/lib/trafego/origem'
 
 export const dynamic = 'force-dynamic'
 export const runtime = 'nodejs'
@@ -28,6 +29,9 @@ export async function POST(req: NextRequest) {
   const ok = () => new NextResponse(null, { status: 204 })
 
   try {
+    // Evento vindo de página de terceiro não é evento desta campanha.
+    if (veioDeOutroSite(req)) return ok()
+
     const bruto = await req.text()
     if (bruto.length > LIMITE_CORPO) return ok()
 
