@@ -1,4 +1,4 @@
-import { NextResponse, type NextRequest } from 'next/server'
+import { after, NextResponse, type NextRequest } from 'next/server'
 import {
   grupoDeDestino,
   localidadePorSlug,
@@ -7,6 +7,7 @@ import {
 } from '@/lib/dados'
 import { criarClienteAdmin } from '@/lib/supabase/admin'
 import { config, emSilencioEleitoral } from '@/lib/config'
+import { enviarEvento, identidadeDoPedido } from '@/lib/trafego/meta'
 import type { OrigemClique } from '@/lib/tipos'
 
 /**
@@ -97,6 +98,34 @@ export async function GET(
       req,
     }),
   ])
+
+  // ── A CONVERSÃO, para a Meta ────────────────────────────────
+  //
+  // ⚠️ ESTE É O ÚNICO EVENTO SEM PAR NO NAVEGADOR, e não é escolha:
+  //    daqui a resposta é um 307 para o WhatsApp. A página é
+  //    descarregada, e o pixel não sobrevive para disparar nada. Todo
+  //    site que manda gente para fora tem esse buraco; é exatamente
+  //    para ele que a Conversions API existe.
+  //
+  //    Como não há par, também não há deduplicação a fazer — o id é
+  //    gerado aqui mesmo, e serve só para a Meta reconhecer uma
+  //    retentativa como repetição, e não como segunda conversão.
+  //
+  // ⚠️ `after` E NÃO `await`: o que está entre a pessoa e o grupo é
+  //    esta função. Esperar 300ms da Graph API antes de redirecionar
+  //    seria cobrar da pessoa o preço da nossa medição — e no celular,
+  //    em 4G ruim, é assim que se perde alguém no meio do caminho.
+  const identidade = identidadeDoPedido(req, req.nextUrl.searchParams.get('s'))
+  const eventId = `grupo-${grupo.id}-${identidade.sessao ?? 'sem-sessao'}-${Date.now()}`
+  after(async () => {
+    await enviarEvento({
+      nome: 'Lead',
+      eventId,
+      url: new URL(req.nextUrl.pathname + req.nextUrl.search, config.siteUrl).toString(),
+      identidade,
+      dados: { municipio: municipio.slug, origem, conteudo: 'grupo-whatsapp' },
+    })
+  })
 
   const resposta = NextResponse.redirect(grupo.link!, 307)
   resposta.headers.set('cache-control', 'no-store, max-age=0')

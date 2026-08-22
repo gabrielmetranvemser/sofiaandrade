@@ -7,6 +7,8 @@ import { Revelar } from '@/components/ui/Revelar'
 import { ConteudoProvider } from '@/lib/conteudo/contexto'
 import { lerConteudoCliente } from '@/lib/conteudo/subconjunto'
 import { lerConteudo } from '@/lib/conteudo/ler'
+import { lerTrafegoPublico } from '@/lib/trafego/ler'
+import { Trafego } from '@/components/trafego/Trafego'
 import './globals.css'
 
 /**
@@ -50,7 +52,10 @@ const corpo = Inter({
  * aqui: omitir `icons` é justamente deixar a convenção agir.
  */
 export async function generateMetadata(): Promise<Metadata> {
-  const icone = (await lerSlots())['marca.favicon']?.url ?? null
+  const [icone, trafego] = await Promise.all([
+    lerSlots().then((s) => s['marca.favicon']?.url ?? null),
+    lerTrafegoPublico(),
+  ])
 
   return {
   metadataBase: new URL(config.siteUrl),
@@ -94,6 +99,16 @@ export async function generateMetadata(): Promise<Metadata> {
           },
         }
       : {}),
+    /* ⚠️ A VERIFICAÇÃO DE DOMÍNIO PRECISA ESTAR NO <head>, e é por
+       isso que ela entra pelos metadados e não junto do pixel. É ela
+       que dá à campanha o direito de configurar os Eventos Agregados
+       de Mensuração — o mecanismo que a Meta criou para o iOS. Sem
+       ela, no iPhone só a primeira conversão de cada pessoa é
+       atribuída, e o gestor vê o custo por resultado subir sem
+       explicação. */
+    ...(trafego.metaDominio
+      ? { other: { 'facebook-domain-verification': trafego.metaDominio } }
+      : {}),
   }
 }
 
@@ -106,9 +121,10 @@ export const viewport: Viewport = {
 
 export default async function LayoutRaiz({ children }: { children: React.ReactNode }) {
   // Só o recorte que a árvore de cliente consome atravessa a fronteira.
-  const [conteudoCliente, { aparencia }] = await Promise.all([
+  const [conteudoCliente, { aparencia }, trafego] = await Promise.all([
     lerConteudoCliente(),
     lerConteudo(),
+    lerTrafegoPublico(),
   ])
 
   return (
@@ -142,6 +158,9 @@ export default async function LayoutRaiz({ children }: { children: React.ReactNo
 
         <ConteudoProvider valor={conteudoCliente}>{children}</ConteudoProvider>
         <Revelar />
+        {/* Só os ids públicos atravessam. O token da Conversions API
+            fica no servidor — ver lib/trafego/ler.ts. */}
+        <Trafego {...trafego} />
       </body>
     </html>
   )

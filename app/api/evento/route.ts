@@ -1,6 +1,9 @@
-import { NextResponse, type NextRequest } from 'next/server'
+import { after, NextResponse, type NextRequest } from 'next/server'
 import { criarClienteAdmin } from '@/lib/supabase/admin'
 import { config } from '@/lib/config'
+import { enviarEvento, identidadeDoPedido } from '@/lib/trafego/meta'
+import { EVENTO_META } from '@/lib/trafego/tipos'
+import type { TipoEvento } from '@/lib/tipos'
 
 export const dynamic = 'force-dynamic'
 export const runtime = 'nodejs'
@@ -31,7 +34,7 @@ const ORIGENS = new Set([
   'cta_final', 'rodape', 'grupos_pagina', 'qr', 'direto',
 ])
 
-const LIMITE_CORPO = 2_048
+const LIMITE_CORPO = 3_072
 
 function texto(v: unknown, max = 120): string | null {
   if (typeof v !== 'string') return null
@@ -49,6 +52,15 @@ export async function POST(req: NextRequest) {
 
     const corpo = JSON.parse(bruto) as Record<string, unknown>
     if (!TIPOS.has(String(corpo.tipo))) return ok()
+
+    // ── O mesmo evento, também para a Meta ──────────────────────
+    //
+    // ⚠️ ANTES DA GRAVAÇÃO NO BANCO, e de propósito: `after` só
+    //    agenda, não executa, então o repasse não depende de o
+    //    Supabase estar de pé. Métrica interna e rastreamento de
+    //    anúncio são dois sistemas, e a queda de um não pode levar o
+    //    outro junto — é o anúncio que está gastando dinheiro.
+    repassarParaMeta(req, corpo)
 
     if (!config.supabaseAtivo) {
       // Fase local: sem banco, o evento vai para o log do servidor.
@@ -79,5 +91,46 @@ export async function POST(req: NextRequest) {
     return ok()
   } catch {
     return ok()
+  }
+}
+
+/**
+ * Repasse para a Conversions API.
+ *
+ * O `eventId` vem do navegador, que já contou o mesmo evento no pixel
+ * com ele — ver `lib/eventos.ts`. É esse par que faz a Meta reconhecer
+ * os dois como um só. Sem `eventId` no corpo, não repassa: mandar sem
+ * id seria escolher contar dobrado.
+ */
+function repassarParaMeta(req: NextRequest, corpo: Record<string, unknown>): void {
+  const nome = EVENTO_META[String(corpo.tipo) as TipoEvento]
+  if (!nome) return
+
+  const eventId = typeof corpo.eventId === 'string' ? corpo.eventId.slice(0, 60) : ''
+  if (!eventId) return
+
+  const identidade = identidadeDoPedido(req, texto(corpo.sessao, 40))
+  const url = enderecoProprio(corpo.pagina)
+
+  const dados: Record<string, unknown> = {}
+  const municipio = texto(corpo.municipio_slug, 64)
+  const origem = texto(corpo.origem, 24)
+  if (municipio) dados.municipio = municipio
+  if (origem) dados.origem = origem
+
+  after(async () => {
+    await enviarEvento({ nome, eventId, url, identidade, dados })
+  })
+}
+
+/** `event_source_url` aparece no Gerenciador. Só endereço nosso entra. */
+function enderecoProprio(bruto: unknown): string {
+  if (typeof bruto !== 'string') return config.siteUrl
+  try {
+    const url = new URL(bruto)
+    const meu = new URL(config.siteUrl)
+    return url.host === meu.host ? url.toString().slice(0, 500) : config.siteUrl
+  } catch {
+    return config.siteUrl
   }
 }

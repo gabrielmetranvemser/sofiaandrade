@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from 'react'
 import type { Evento, TipoEvento } from './tipos'
+import { EVENTO_META, EVENTOS_PADRAO_META } from './trafego/tipos'
 
 const CHAVE_SESSAO = 'sofia2233.sessao'
 
@@ -65,9 +66,59 @@ export function utmDaUrl(): string | null {
 }
 
 /**
+ * Um identificador por disparo, usado nos DOIS caminhos do mesmo
+ * evento: o pixel manda em `eventID`, o servidor manda em `event_id`,
+ * e a Meta reconhece que são a mesma coisa.
+ *
+ * ⚠️ GERADO NO NAVEGADOR, e é aqui que a deduplicação vive ou morre.
+ *    Se cada lado gerasse o seu, a Meta veria dois eventos distintos e
+ *    a campanha passaria a contar o dobro de conversões — com o
+ *    agravante de parecer certo: o número sobe, ninguém desconfia, e a
+ *    otimização do anúncio persegue um alvo que não existe.
+ */
+function novoIdDeEvento(): string {
+  try {
+    if (crypto?.randomUUID) return crypto.randomUUID()
+  } catch {
+    /* navegador antigo ou contexto inseguro */
+  }
+  return `ev-${Date.now()}-${Math.random().toString(36).slice(2)}`
+}
+
+/**
+ * Conta o evento para o pixel da Meta, se ele estiver carregado.
+ *
+ * Silencioso por natureza: sem pixel configurado no painel, `fbq` não
+ * existe e a função não faz nada — que é o estado normal enquanto a
+ * campanha não roda anúncio.
+ */
+function contarNoPixel(tipo: TipoEvento, eventId: string, extra: Record<string, unknown>): void {
+  const nome = EVENTO_META[tipo]
+  if (!nome) return
+
+  const w = window as unknown as { fbq?: (...a: unknown[]) => void }
+  if (typeof w.fbq !== 'function') return
+
+  // `track` só aceita a lista fechada de nomes da Meta; qualquer outro
+  // precisa de `trackCustom`, e mandar um nome nosso em `track` faz o
+  // evento ser descartado em silêncio do outro lado.
+  const metodo = EVENTOS_PADRAO_META.has(nome) ? 'track' : 'trackCustom'
+  try {
+    w.fbq(metodo, nome, extra, { eventID: eventId })
+  } catch {
+    /* rastreamento nunca quebra a página */
+  }
+}
+
+/**
  * Dispara um evento. Nunca lança, nunca bloqueia a navegação.
  * Usa sendBeacon quando existe — sobrevive ao unload da página,
  * que é exatamente o caso do clique que leva pro WhatsApp.
+ *
+ * Vai para dois lugares ao mesmo tempo: a métrica própria da campanha,
+ * em `/api/evento`, e — quando há pixel configurado — a Meta, pelos
+ * dois caminhos ao mesmo tempo (navegador e servidor), amarrados pelo
+ * `eventId`.
  */
 export function evento(
   tipo: TipoEvento,
@@ -75,13 +126,22 @@ export function evento(
 ): void {
   if (typeof window === 'undefined') return
 
-  const corpo: Evento = {
+  const eventId = novoIdDeEvento()
+
+  const corpo: Evento & { eventId: string; pagina: string } = {
     tipo,
     ...extra,
     utm: utmDaUrl(),
     sessao: idSessao(),
     dispositivo: dispositivo(),
+    eventId,
+    pagina: window.location.href,
   }
+
+  contarNoPixel(tipo, eventId, {
+    municipio: extra.municipio_slug ?? undefined,
+    origem: extra.origem ?? undefined,
+  })
 
   try {
     const dados = JSON.stringify(corpo)

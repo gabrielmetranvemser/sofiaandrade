@@ -40,6 +40,11 @@ export const ITENS: ItemMenu[] = [
   { href: '/painel/identidade', rotulo: 'Identidade', icone: 'M12 2 3 6v6c0 5 3.8 9.4 9 10 5.2-.6 9-5 9-10V6l-9-4Zm0 2.2 7 3.1V12c0 4-2.9 7.6-7 8.2-4.1-.6-7-4.2-7-8.2V7.3l7-3.1ZM12 7a2.5 2.5 0 1 1 0 5 2.5 2.5 0 0 1 0-5Zm0 6.2c1.9 0 4.5.9 4.5 2.1V17h-9v-1.7c0-1.2 2.6-2.1 4.5-2.1Z' },
   { href: '/painel/grupos', rotulo: 'Grupos', icone: 'M12 2a10 10 0 1 0 0 20 10 10 0 0 0 0-20Zm0 2a8 8 0 0 1 6.3 12.9l-2.1-2.1a5 5 0 1 0-8.4 0l-2.1 2.1A8 8 0 0 1 12 4Zm0 5a3 3 0 1 1 0 6 3 3 0 0 1 0-6Z' },
   { href: '/painel/metricas', rotulo: 'Métricas', icone: 'M4 20V10h4v10H4Zm6 0V4h4v16h-4Zm6 0v-7h4v7h-4Z' },
+  // Tráfego é vizinho de Métricas de propósito: as duas respondem à
+  // mesma pergunta em escalas diferentes — Métricas conta o que
+  // aconteceu aqui dentro, Tráfego entrega o mesmo fato ao anúncio lá
+  // fora. Quem procura uma quase sempre acaba precisando da outra.
+  { href: '/painel/trafego', rotulo: 'Tráfego', icone: 'M12 2a3 3 0 0 1 3 3v3a3 3 0 0 1-6 0V5a3 3 0 0 1 3-3Zm0 8a3 3 0 0 1 3 3v3a3 3 0 0 1-6 0v-3a3 3 0 0 1 3-3Zm0 8a3 3 0 0 1 3 3H9a3 3 0 0 1 3-3ZM5 7h2v2H5V7Zm12 0h2v2h-2V7ZM5 15h2v2H5v-2Zm12 0h2v2h-2v-2Z' },
 ]
 
 export function MenuLateral({ children }: { children: React.ReactNode }) {
