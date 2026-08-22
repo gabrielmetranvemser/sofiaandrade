@@ -3,7 +3,7 @@ import { lerSlots } from '@/lib/midia/ler'
 import { Imagem } from '@/components/ui/Imagem'
 import { TextoComDestaque, Texto } from '@/components/ui/TextoComDestaque'
 import { Video } from '@/components/ui/Video'
-import { formatoValido, larguraDoVideo } from '@/lib/video'
+import { emPe, formatoValido, larguraDoVideo, TETO_AO_LADO_DO_TEXTO } from '@/lib/video'
 
 /**
  * A prova visual da manchete.
@@ -20,6 +20,11 @@ import { formatoValido, larguraDoVideo } from '@/lib/video'
  */
 export async function Rua() {
   const [{ rua }, slots] = await Promise.all([lerConteudo(), lerSlots()])
+
+  const formato = formatoValido(rua.video.formato)
+  const vertical = emPe(formato)
+  // Deitado, nada muda: teto padrão e a mesma grade de sempre.
+  const teto = vertical ? TETO_AO_LADO_DO_TEXTO : undefined
 
   return (
     <section
@@ -43,10 +48,25 @@ export async function Rua() {
 
             Sem vídeo, nada de coluna vazia esperando: a grade não
             existe e o texto fica exatamente como sempre esteve. */}
+        {/* ⚠️ DUAS GRADES, UMA POR ENQUADRAMENTO.
+            Deitado: duas colunas quase iguais (1.05fr / 0.95fr). O
+            vídeo tem largura de sobra e preenche a coluna que recebeu,
+            então as bordas batem sozinhas.
+
+            Em pé: a coluna da direita deixa de ser uma fração e passa
+            a ser `auto` — ou seja, EXATAMENTE a largura do vídeo. Era
+            aqui que nascia o desalinhamento: numa coluna de 543 px, um
+            vídeo de 306 sobrava 118 px de cada lado, e o quadro flutuava
+            no meio do azul sem encostar em nada. Com `auto` ele encosta
+            na borda direita da seção — a mesma borda da faixa de fotos
+            logo abaixo — e a sobra vira uma calha só, entre texto e
+            vídeo, que é onde ar é bem-vindo. */}
         <div
           className={
             rua.video.url
-              ? 'grid gap-10 lg:grid-cols-[1.05fr_0.95fr] lg:items-center lg:gap-14'
+              ? vertical
+                ? 'grid gap-10 lg:grid-cols-[1fr_auto] lg:items-center lg:gap-14'
+                : 'grid gap-10 lg:grid-cols-[1.05fr_0.95fr] lg:items-center lg:gap-14'
               : ''
           }
         >
@@ -87,12 +107,30 @@ export async function Rua() {
               // isso, um vídeo em pé viraria uma tira estreita no meio
               // de um painel largo — a moldura passaria a ser o
               // elemento maior, e o vídeo, o detalhe dentro dela.
-              style={{ maxWidth: `calc(${larguraDoVideo(formatoValido(rua.video.formato))} + 1.5rem)` }}
-              className="mx-auto w-full rounded-3xl bg-white/5 p-3 ring-1 ring-white/10"
+              // ⚠️ LARGURA FIXA NO EM PÉ, E TETO NO DEITADO — não é
+              //    preciosismo, é o que faz a coluna `auto` existir.
+              //    Uma coluna `auto` mede o conteúdo; um filho com
+              //    `width: 100%` e só `max-width` não mede nada, e a
+              //    coluna colapsa para a largura do padding. Com a
+              //    largura escrita, a coluna nasce do tamanho do vídeo.
+              //
+              //    Deitado continua no `max-width`: lá a largura do
+              //    quadro (853 px) é maior que a coluna, e fixá-la
+              //    faria o vídeo furar a grade.
+              style={
+                vertical
+                  ? { ['--largura' as string]: `calc(${larguraDoVideo(formato, teto)} + 1.5rem)` }
+                  : { maxWidth: `calc(${larguraDoVideo(formato)} + 1.5rem)` }
+              }
+              className={`mx-auto w-full rounded-3xl bg-white/5 p-3 ring-1 ring-white/10 ${
+                vertical ? 'lg:w-[var(--largura)]' : ''
+              }`}
             >
               <Video
                 url={rua.video.url}
-                formato={formatoValido(rua.video.formato)}
+                formato={formato}
+                alturaMax={teto}
+                preencher={vertical}
                 opcoes={rua.video.opcoes}
                 titulo={rua.video.titulo}
               />

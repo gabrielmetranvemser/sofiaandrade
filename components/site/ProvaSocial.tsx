@@ -1,4 +1,4 @@
-import { formatoValido } from '@/lib/video'
+import { emPe, formatoValido } from '@/lib/video'
 import { lerConteudo } from '@/lib/conteudo/ler'
 import { lerSlots } from '@/lib/midia/ler'
 import { Secao, CabecalhoSecao } from '@/components/ui/Secao'
@@ -77,9 +77,27 @@ export async function ProvaSocial() {
 
       {/* Os vídeos de comentário. Mesma prova, em outro formato: o
           print mostra o que escreveram, o vídeo mostra o que falaram.
-          Some inteiro enquanto nenhum dos dois tiver endereço. */}
+          Some inteiro enquanto nenhum dos dois tiver endereço.
+
+          ⚠️ EM PÉ ELES ENTRAM NA GRADE DOS PRINTS — três colunas, a
+          mesma do bloco acima — e cada um preenche a célula que
+          recebeu. Numa fila própria de duas colunas, um vídeo em pé
+          ocupava 306 px de uma célula de 558 e ficava boiando no meio
+          dela, com a borda esquerda batendo em nada. Na grade de três,
+          a largura da célula (373) é a largura do vídeo, e a fila de
+          vídeos continua a fila de prints em vez de abrir uma segunda
+          régua embaixo da primeira.
+
+          Deitado, a fila de duas colunas de sempre: ali a célula larga
+          é justamente o que o enquadramento pede. */}
       {social.videos.some((v) => v.url) ? (
-        <div className="mt-5 grid items-start gap-5 sm:grid-cols-2">
+        <div
+          className={`mt-5 grid items-start gap-5 ${
+            social.videos.some((v) => v.url && emPe(formatoValido(v.formato)))
+              ? 'sm:grid-cols-2 lg:grid-cols-3'
+              : 'sm:grid-cols-2'
+          }`}
+        >
           {social.videos.map((v) => (
             <Video
               key={v.id}
@@ -87,6 +105,7 @@ export async function ProvaSocial() {
               formato={formatoValido(v.formato)}
               opcoes={v.opcoes}
               titulo={v.titulo}
+              preencher={emPe(formatoValido(v.formato))}
             />
           ))}
         </div>
@@ -137,12 +156,26 @@ export async function ProvaSocial() {
             e o resultado é o que a seção inteira existe para dizer. */}
         {social.processos.length > 0 ? (
           <ul className="mt-10 grid gap-4 sm:grid-cols-2">
-            {social.processos.map((p, i) => (
+            {social.processos.map((p, i) => {
+              // Só o cartão que tem vídeo EM PÉ muda de arranjo. Com
+              // vídeo deitado o cartão continua sendo o de sempre.
+              const temEmPe = p.videos.some((v) => v.url && emPe(formatoValido(v.formato)))
+              return (
               <li
                 key={p.id}
                 data-revelar
                 style={{ ['--atraso' as string]: `${i * 80}ms` }}
-                className="rounded-2xl border border-white/10 bg-white/[0.06] p-6"
+                // ⚠️ COLUNA FLEX PARA O VÍDEO PODER SER EMPURRADO PARA
+                //    O PÉ DO CARTÃO. Os dois cartões já tinham a mesma
+                //    altura (é grade), mas o texto de um é mais curto
+                //    que o do outro — então os vídeos começavam em
+                //    alturas diferentes e terminavam em alturas
+                //    diferentes, que é o degrau que aparecia na tela.
+                //    Presos ao pé, os dois compartilham a mesma linha
+                //    de base e o mesmo topo, porque têm a mesma largura.
+                className={`rounded-2xl border border-white/10 bg-white/[0.06] p-6 ${
+                  temEmPe ? 'flex flex-col' : ''
+                }`}
               >
                 <h4 className="text-lg text-white"><Texto tom="amarelo">{p.titulo}</Texto></h4>
                 <p className="mt-2 text-base text-white/65"><Texto tom="amarelo">{p.texto}</Texto></p>
@@ -161,14 +194,26 @@ export async function ProvaSocial() {
                     proporção fixa, o vertical apareceria com metade do
                     cartão em tarja preta.
 
-                    `items-start` de novo, e pela mesma razão de sempre:
-                    um vídeo deitado ao lado de um em pé, esticados para
-                    a mesma altura, distorcem os dois. */}
+                    ⚠️ EM PÉ, O VÍDEO TEM A LARGURA DO CARTÃO — inteira,
+                    de borda a borda do padding. Era aqui o pior
+                    desalinhamento da página: o vídeo tinha 306 px num
+                    cartão de 462, ficava centrado, e sobravam 78 px de
+                    cada lado. Duas sobras que não são margem de nada:
+                    o título, o texto e o selo do mesmo cartão começam
+                    todos na borda, e só o vídeo recuava.
+
+                    Com dois vídeos, eles dividem a mesma largura em
+                    duas colunas — a soma continua sendo a do cartão, e
+                    as bordas externas continuam batendo com as do texto.
+
+                    `mt-auto` cola o bloco no pé do cartão: ver a nota do
+                    <li> acima. `items-start` continua valendo para o
+                    caso misto (um deitado ao lado de um em pé). */}
                 {p.videos.some((v) => v.url) ? (
                   <div
-                    className={`mt-5 grid items-start gap-4 ${
-                      p.videos.filter((v) => v.url).length > 1 ? 'sm:grid-cols-2' : ''
-                    }`}
+                    className={`grid items-start gap-4 ${
+                      temEmPe ? 'mt-auto pt-5' : 'mt-5'
+                    } ${p.videos.filter((v) => v.url).length > 1 ? 'sm:grid-cols-2' : ''}`}
                   >
                     {p.videos.map((v) => (
                       <Video
@@ -177,12 +222,14 @@ export async function ProvaSocial() {
                         formato={formatoValido(v.formato)}
                         opcoes={v.opcoes}
                         titulo={v.titulo}
+                        preencher={emPe(formatoValido(v.formato))}
                       />
                     ))}
                   </div>
                 ) : null}
               </li>
-            ))}
+              )
+            })}
           </ul>
         ) : null}
 

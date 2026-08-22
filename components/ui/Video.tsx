@@ -67,6 +67,22 @@ interface Props {
    */
   alturaMax?: string
   /**
+   * QUEM MANDA NA LARGURA É A COLUNA, e não o teto de altura.
+   *
+   * ⚠️ EXISTE PARA MATAR A CALHA BRANCA. Por padrão o vídeo em pé
+   *    recebe `max-width` derivada do teto de altura e se centra no
+   *    lugar que recebeu — o que é certo quando o lugar é largo (um
+   *    parágrafo, uma seção inteira) e errado quando a coluna FOI
+   *    DESENHADA para ele. Aí o `max-width` sobra: o vídeo fica no
+   *    meio de uma coluna do tamanho dele, com duas faixas de ar de
+   *    poucos pixels que não se explicam.
+   *
+   *    Com `preencher`, a largura é 100% da coluna e a altura sai da
+   *    proporção. Quem responde pelo tamanho passa a ser a grade —
+   *    que é o que faz as bordas baterem com as dos vizinhos.
+   */
+  preencher?: boolean
+  /**
    * Ajustes de player vindos do painel.
    *
    * ⚠️ `unknown` DE PROPÓSITO. O tipo do conteúdo editável alarga todo
@@ -86,6 +102,7 @@ export function Video({
   aberto,
   onAbrir,
   alturaMax,
+  preencher = false,
   opcoes: opcoesBrutas,
 }: Props) {
   const [abertoLocal, setAbertoLocal] = useState(false)
@@ -147,7 +164,7 @@ export function Video({
   //    do lugar que recebeu, em vez de encostado à esquerda.
   const medida = {
     aspectRatio: String(RAZAO[formato]),
-    maxWidth: larguraDoVideo(formato, alturaMax),
+    ...(preencher ? {} : { maxWidth: larguraDoVideo(formato, alturaMax) }),
   }
   const moldura =
     `relative isolate mx-auto w-full overflow-hidden rounded-2xl bg-azul-noite ${className}`
