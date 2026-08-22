@@ -95,7 +95,21 @@ export default async function Home() {
 
       {/* Dados estruturados: ajuda o Google a entender quem é a pessoa.
           SEO importa pouco aqui (o tráfego vem do Instagram), mas custa
-          zero e resolve a busca por nome próprio. */}
+          zero e resolve a busca por nome próprio.
+
+          ⚠️ O `replace` NÃO É ENFEITE, e é o único ponto da página que
+          escreve HTML sem passar pelo React. `JSON.stringify` escapa
+          aspas, mas NÃO escapa `</script>` — e o navegador fecha a tag
+          ao ver essa sequência, esteja ela dentro de uma string JSON ou
+          não. Um nome de candidata com `</script><script>…` gravado no
+          painel viraria código executado em toda visita.
+
+          Trocar `<` pelo seu escape unicode resolve na origem: dentro
+          de JSON, `\u003c` é lido como `<` e o valor continua correto;
+          para o analisador de HTML, a sequência que fecha a tag deixa
+          de existir. É a mesma defesa que as bibliotecas seriam
+          obrigadas a aplicar — aqui é explícita porque o `dangerously`
+          no nome da prop é o aviso de que ninguém mais vai proteger. */}
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{
@@ -116,7 +130,7 @@ export default async function Home() {
                 addressCountry: 'BR',
               },
             },
-          }),
+          }).replace(/</g, '\\u003c'),
         }}
       />
     </>

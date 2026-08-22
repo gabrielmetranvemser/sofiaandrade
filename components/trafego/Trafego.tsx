@@ -45,7 +45,36 @@ import type { TrafegoPublico } from '@/lib/trafego/tipos'
  *    de propósito, é o que a política de privacidade promete. Perde-se
  *    zero, e ganha-se uma contagem em que dá para confiar.
  */
-export function Trafego({ metaPixelId, gtmId }: TrafegoPublico) {
+/**
+ * ⚠️ O CRIVO QUE IMPEDE EXECUÇÃO DE CÓDIGO ARBITRÁRIO.
+ *
+ *    Os dois ids abaixo são costurados DENTRO de um `<script>` inline,
+ *    dentro de aspas simples. Um valor com uma aspa simples fecha a
+ *    string e o que vier depois é JavaScript executado em toda página
+ *    do site — comprovado em teste: `123');window.PROVA_XSS=1;fbq('init','123`
+ *    gravado no banco executou.
+ *
+ *    A ação de salvar já valida o formato, e é isso que torna o buraco
+ *    difícil de alcançar hoje. Mas validar na ENTRADA é uma promessa
+ *    sobre o passado: não cobre o que já está no banco, não cobre
+ *    escrita direta no Supabase, e some no dia em que alguém afrouxar a
+ *    expressão regular para aceitar um formato novo. O crivo aqui é
+ *    sobre o presente — o valor é conferido no instante em que vira
+ *    código.
+ *
+ *    FALHA FECHADO: valor fora do formato não é limpo nem escapado, é
+ *    DESCARTADO. Rastreamento que não carrega é um problema visível na
+ *    tela de Tráfego; rastreamento que carrega código de terceiro não é
+ *    visível em lugar nenhum.
+ */
+function apenasSeSeguro(valor: string, formato: RegExp): string {
+  return formato.test(valor) ? valor : ''
+}
+
+export function Trafego(props: TrafegoPublico) {
+  const metaPixelId = apenasSeSeguro(props.metaPixelId, /^\d{6,20}$/)
+  const gtmId = apenasSeSeguro(props.gtmId, /^GTM-[A-Z0-9]{4,12}$/)
+
   /**
    * Já contamos esta carga de página?
    *
