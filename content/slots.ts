@@ -59,6 +59,21 @@ export const SLOTS: Slot[] = [
     alturaMin: 512,
     nota: 'Quadrado. É o ícone da aba do navegador e o do atalho na tela inicial do celular. Desenho simples: ele será visto com 16 pixels de lado.',
   },
+  // ⚠️ A PROPORÇÃO NÃO É 16:9, e quem chega com uma arte de story ou
+  //    de post vai estranhar. 1200×630 é o formato que o WhatsApp, o
+  //    Facebook e o Telegram recortam para mostrar; mandar 16:9 faz o
+  //    aplicativo aparar por conta própria, quase sempre cortando
+  //    justamente o número. O recortador do painel resolve isso: ele
+  //    abre a imagem nesta janela e deixa escolher o que fica.
+  {
+    chave: 'marca.cartaoLink',
+    rotulo: 'Cartão do link (WhatsApp)',
+    onde: 'Marca',
+    proporcao: '1200/630',
+    larguraMin: 1200,
+    alturaMin: 630,
+    nota: 'A imagem que aparece quando alguém cola o link do site no WhatsApp, no Facebook ou no Telegram. Deitada, com o rosto e o número no meio — as bordas são aparadas em telas pequenas. Sem imagem aqui, o site desenha o cartão sozinho, com o nome e o número. O WhatsApp guarda o cartão de um link por semanas: trocar aqui não muda os links já enviados.',
+  },
 
   // ── Primeira dobra ─────────────────────────────────────────────
   {
@@ -316,6 +331,7 @@ export const SLOTS_POR_CHAVE: Record<string, Slot> = Object.fromEntries(
 const SECAO_DO_ESPACO: Record<string, string> = {
   'marca.simbolo': 'candidata',
   'marca.favicon': 'meta',
+  'marca.cartaoLink': 'meta',
   hero: 'hero',
   origem: 'origem',
   album: 'album',
