@@ -3,7 +3,7 @@ import { lerSlots } from '@/lib/midia/ler'
 import { Secao, CabecalhoSecao } from '@/components/ui/Secao'
 import { Imagem } from '@/components/ui/Imagem'
 import { Video } from '@/components/ui/Video'
-import { formatoValido } from '@/lib/video'
+import { emPe, formatoValido, larguraDoVideo, TETO_AO_LADO_DO_TEXTO } from '@/lib/video'
 import { Texto } from '@/components/ui/TextoComDestaque'
 
 /**
@@ -26,6 +26,10 @@ import { Texto } from '@/components/ui/TextoComDestaque'
 export async function Provas() {
   const [{ provas }, slots] = await Promise.all([lerConteudo(), lerSlots()])
 
+  const formato = formatoValido(provas.video.formato)
+  const vertical = emPe(formato)
+  const teto = vertical ? TETO_AO_LADO_DO_TEXTO : undefined
+
   return (
     <Secao id="provas" fundo="azul-profundo" espaco="solto" className="overflow-hidden">
 
@@ -35,10 +39,18 @@ export async function Provas() {
             grade abre em duas. É o `grid` com `md:grid-cols-2` só
             quando há o que pôr do lado — daí o ternário, e não uma
             coluna vazia esperando. */}
+        {/* ⚠️ EM PÉ, A SEGUNDA COLUNA VALE O VÍDEO — não meia seção.
+            Com `1fr_1fr`, o vídeo em pé recebia 540 px de coluna para
+            ocupar 306: sobravam 117 px de cada lado, e o pior deles era
+            o da direita, porque deixava o vídeo sem encostar na borda
+            que os três cartões de entrega logo abaixo respeitam. `auto`
+            devolve essa borda. */}
         <div
           className={
             provas.video.url
-              ? 'grid items-center gap-10 md:grid-cols-[1fr_1fr] md:gap-14'
+              ? vertical
+                ? 'grid items-center gap-10 md:grid-cols-[1fr_auto] md:gap-14'
+                : 'grid items-center gap-10 md:grid-cols-[1fr_1fr] md:gap-14'
               : ''
           }
         >
@@ -49,10 +61,27 @@ export async function Provas() {
             tom="escuro"
           />
           {provas.video.url ? (
-            <div data-revelar className="mt-10 md:mt-0">
+            <div
+              data-revelar
+              // Largura escrita no em pé: coluna `auto` não mede filho
+              // que só tem `max-width`. Ver a mesma nota em `Rua`.
+              style={vertical ? { ['--largura' as string]: larguraDoVideo(formato, teto) } : undefined}
+              // ⚠️ `mx-auto` SÓ NO EM PÉ, e a razão é uma armadilha do
+              //    grid: margem automática num item de grade faz o item
+              //    encolher para o conteúdo em vez de esticar. Com o
+              //    vídeo deitado, cujo quadro é `width: 100%`, isso vira
+              //    um cálculo circular — 100% de uma largura que depende
+              //    do conteúdo — e o vídeo desaparece com 0 px. Em pé
+              //    não acontece porque ali a largura está escrita.
+              className={
+                vertical ? 'mx-auto mt-10 w-full md:mt-0 md:w-[var(--largura)]' : 'mt-10 md:mt-0'
+              }
+            >
               <Video
                 url={provas.video.url}
-                formato={formatoValido(provas.video.formato)}
+                formato={formato}
+                alturaMax={teto}
+                preencher={vertical}
                 opcoes={provas.video.opcoes}
                 titulo={provas.video.titulo}
               />

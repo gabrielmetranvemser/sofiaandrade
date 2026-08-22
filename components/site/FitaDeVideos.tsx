@@ -2,7 +2,7 @@
 
 import { useCallback, useEffect, useRef, useState } from 'react'
 import { Video } from '@/components/ui/Video'
-import { formatoValido } from '@/lib/video'
+import { emPe, formatoValido } from '@/lib/video'
 
 interface Item {
   id: string
@@ -44,10 +44,47 @@ interface Item {
 /** O teto de altura dos cartões. Um valor só, e tudo deriva dele. */
 const ALTURA = 'min(54svh, 22rem)'
 
+/**
+ * ATÉ AQUI A FITA VIRA GRADE.
+ *
+ * ⚠️ SEIS É O LIMITE, E É UM NÚMERO DE LEITURA, NÃO DE LARGURA. Numa
+ *    fila de 1136 px, seis vídeos em pé ficam com 173 px cada — a
+ *    largura de uma miniatura, ainda reconhecível. No sétimo o cartão
+ *    passa a ser pequeno demais para se saber o que tem dentro antes
+ *    de clicar, e aí a barra rolável volta a ser a resposta certa:
+ *    melhor mostrar quatro em tamanho de gente e deixar rolar do que
+ *    espremer oito.
+ */
+const MAXIMO_NA_GRADE = 6
+
+/** A largura de um cartão da grade quando sobra espaço (poucos vídeos). */
+const LARGURA_MAXIMA_DO_CARTAO = 22
+
 export function FitaDeVideos({ itens }: { itens: readonly Item[] }) {
   const [aberto, setAberto] = useState<string | null>(null)
   const pista = useRef<HTMLOListElement>(null)
   const [pode, setPode] = useState({ antes: false, depois: false })
+
+  /**
+   * ⚠️ DOIS MODOS, E O QUE DECIDE É O ENQUADRAMENTO MAIS O NÚMERO.
+   *
+   *    GRADE — todos em pé e no máximo seis. Os cartões dividem a
+   *    largura da seção em partes iguais e a fila termina exatamente na
+   *    borda direita. Era esse o defeito relatado: com quatro vídeos em
+   *    pé, a barra rolável colocava quatro cartões de 198 px à
+   *    esquerda e deixava 284 px de azul vazio à direita, com as duas
+   *    setas apagadas por cima — a seção prometia mais conteúdo e não
+   *    tinha.
+   *
+   *    BARRA ROLÁVEL — o resto: sete ou mais, qualquer vídeo deitado,
+   *    ou a mistura dos dois. Deitado, quatro cartões numa fila de 1136
+   *    dariam 269 px de largura por 151 de altura, que é miniatura de
+   *    galeria, não vídeo de campanha. E na mistura a grade é
+   *    impossível: colunas iguais com proporções diferentes produzem
+   *    exatamente o cartão espremido que a fita existe para evitar.
+   */
+  const todosEmPe = itens.every((i) => emPe(formatoValido(i.formato)))
+  const grade = todosEmPe && itens.length <= MAXIMO_NA_GRADE
 
   // As setas não podem mentir: apagadas quando não há para onde ir.
   // A folga de 2px é porque `scrollLeft` é fracionário em tela com
@@ -90,6 +127,46 @@ export function FitaDeVideos({ itens }: { itens: readonly Item[] }) {
     el.scrollBy({ left: direcao * passo, behavior: parado ? 'auto' : 'smooth' })
   }
 
+  // ── GRADE ────────────────────────────────────────────────────────
+  if (grade) {
+    return (
+      <div className="container-lp mt-8">
+        <ol
+          aria-label="Vídeos da trilha"
+          style={{
+            ['--colunas' as string]: itens.length,
+            // O teto existe para o caso de poucos vídeos: com dois, a
+            // coluna de 1fr daria 558 px de largura e um vídeo em pé de
+            // 992 de altura — uma tela inteira por cartão. Com o teto, a
+            // fila fica no tamanho de sempre e se centra na seção.
+            maxWidth: `calc(${itens.length} * ${LARGURA_MAXIMA_DO_CARTAO}rem + ${
+              itens.length - 1
+            } * 1.25rem)`,
+          }}
+          className="mx-auto grid grid-cols-2 gap-5 sm:grid-cols-3 lg:[grid-template-columns:repeat(var(--colunas),minmax(0,1fr))]"
+        >
+          {itens.map((item) => (
+            <li key={item.id}>
+              <Video
+                url={item.url}
+                formato={formatoValido(item.formato)}
+                // Sem teto de altura e sem `max-width`: aqui quem manda
+                // no tamanho é a coluna, e a altura é consequência dela.
+                // É o que faz a fila terminar na borda da seção.
+                preencher
+                opcoes={item.opcoes as never}
+                titulo={item.titulo}
+                aberto={aberto === item.id}
+                onAbrir={() => setAberto(item.id)}
+              />
+            </li>
+          ))}
+        </ol>
+      </div>
+    )
+  }
+
+  // ── BARRA ROLÁVEL ────────────────────────────────────────────────
   return (
     <div className="container-lp mt-8">
       {itens.length > 1 ? (

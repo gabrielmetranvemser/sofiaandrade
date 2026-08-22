@@ -84,6 +84,13 @@ export async function enviarImagem(
 
   updateTag(TAG_MIDIA)
   revalidatePath('/', 'layout')
+  // ⚠️ O CARTÃO DO LINK É UMA ROTA À PARTE, e `revalidatePath('/')`
+  //    não a alcança: /opengraph-image não está dentro da árvore da
+  //    página, é um arquivo gerado que o WhatsApp busca sozinho.
+  //    Sem esta linha, trocar a imagem no painel só apareceria na
+  //    próxima revalidação — até uma hora depois, sem nada na tela
+  //    explicando a espera.
+  revalidatePath('/opengraph-image')
   return { ok: true }
 }
 
@@ -130,5 +137,12 @@ export async function removerImagem(
 
   updateTag(TAG_MIDIA)
   revalidatePath('/', 'layout')
+  // ⚠️ O CARTÃO DO LINK É UMA ROTA À PARTE, e `revalidatePath('/')`
+  //    não a alcança: /opengraph-image não está dentro da árvore da
+  //    página, é um arquivo gerado que o WhatsApp busca sozinho.
+  //    Sem esta linha, trocar a imagem no painel só apareceria na
+  //    próxima revalidação — até uma hora depois, sem nada na tela
+  //    explicando a espera.
+  revalidatePath('/opengraph-image')
   return { ok: true }
 }

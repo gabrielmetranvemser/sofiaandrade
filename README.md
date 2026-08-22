@@ -1,11 +1,15 @@
 # Sofia Andrade 2233 | Candidata
 
-LP de campanha + gerador de filtro + painel de grupos e métricas.
+LP de campanha + gerador de filtro + painel de edição, grupos e métricas.
 Deputada Federal por Rondônia · PL · número **2233**.
 
-> Estado atual: **estrutura levantada e rodando 100% local.**
-> Supabase ainda não conectado — o site funciona inteiro com os dados
-> de `data/`. Nada quebra sem banco.
+> Estado atual: **site completo, Supabase conectado, painel no ar.**
+> Quase tudo que aparece na página é editável sem republicar: textos,
+> imagens, vídeos, cores, os links dos grupos, o rastreamento de
+> anúncio e o cartão que o WhatsApp mostra.
+>
+> O que ainda trava a publicação em domínio próprio está em
+> [PENDENCIAS.md](./PENDENCIAS.md) — são dados da campanha, não código.
 
 ---
 
@@ -25,6 +29,10 @@ npm run build      # build de produção
 npm run typecheck  # tsc --noEmit
 ```
 
+Sem `NEXT_PUBLIC_SUPABASE_URL` o site continua de pé: cai nos dados de
+`data/` e nos textos de `content/copy.ts`, e o painel abre em modo de
+leitura. Nada quebra sem banco.
+
 ---
 
 ## O que a página faz, em ordem de importância
@@ -39,14 +47,35 @@ rede da pessoa conhece.
 
 ---
 
+## O painel
+
+`/painel`, senha única. Oito telas, cada uma com um dono:
+
+| Tela | O que resolve |
+|---|---|
+| **Início** | o que bloqueia a publicação, funil do dia, quais seções ainda estão no texto de fábrica |
+| **Seções** | a página inteira, na ordem em que ela aparece. Dentro de cada seção: textos, imagens e vídeos dela, com prévia ao vivo e histórico de versões |
+| **Vídeos** | todos os espaços de vídeo num lugar só — trabalho de produção, com os arquivos na mão |
+| **Identidade** | nome, número, marca, ícone, cores, textura, cartão de compartilhamento e a identificação eleitoral do rodapé |
+| **Grupos** | link, situação, fixar, limite de cliques, exportar CSV, gerar QR por município |
+| **Métricas** | funil, qual botão trabalha, cliques por município, UTM, celular vs desktop |
+| **Tráfego** | pixel da Meta, Conversions API pelo servidor e Google Tag Manager — com o texto de privacidade pronto para colar quando o pixel for ligado |
+| **Buscas** | os endereços de `sitemap.xml`, `robots.txt` e `llms.txt` com botão de copiar, o estado da indexação e a verificação do Search Console |
+
+Toda escrita passa por Server Action com sessão conferida. O conteúdo é
+versionado: cada salvamento guarda uma cópia integral em
+`conteudo_versoes`, e restaurar nunca é destrutivo.
+
+---
+
 ## Estrutura
 
 ```
 app/
-├─ layout.tsx                   fontes, metadata, SEO base
+├─ layout.tsx                   fontes, metadata (vinda do painel), verificações
 ├─ page.tsx                     landing page
-├─ opengraph-image.tsx          cartão do WhatsApp (gerado, sem designer)
-├─ sitemap.ts · robots.ts · manifest.ts
+├─ opengraph-image.tsx          cartão do WhatsApp — imagem do painel, ou desenho em código
+├─ sitemap.ts · robots.ts · manifest.ts · llms.txt/route.ts
 │
 ├─ g/[slug]/route.ts            REDIRECIONADOR — conta o clique e vira o grupo
 ├─ grupos/page.tsx              lista dos 52 (fallback e destino de erro)
@@ -55,45 +84,75 @@ app/
 │
 ├─ painel/
 │  ├─ login/                    senha única (vira Supabase Auth depois)
-│  ├─ page.tsx                  grupos: link, situação, fixar, limite, CSV
-│  ├─ metricas/                 funil, município, origem, UTM, dispositivo
-│  ├─ qr/                       QR por município para material impresso
-│  └─ acoes.ts                  Server Actions (toda escrita passa aqui)
+│  ├─ page.tsx                  início
+│  ├─ secoes/[secao]/           editor por seção + histórico
+│  ├─ videos/ · identidade/     produção de vídeo · marca e SEO
+│  ├─ grupos/ · metricas/       operação e números
+│  ├─ trafego/ · buscas/        anúncio e busca
+│  └─ acoes*.ts                 Server Actions (toda escrita passa aqui)
 │
-└─ api/evento/route.ts          recebe eventos do navegador
+└─ api/evento · api/trafego/pv  eventos do navegador e PageView pelo servidor
 
 components/
-├─ site/       Header · BotaoFlutuante · Hero · Origem · Problema ·
-│              Valores · Provas · Futuro · SecaoGrupos · SecaoFiltro ·
-│              Compartilhar · CtaFinal · RodapeLegal
-├─ grupos/     BuscadorDeGrupo · CardCidadeSugerida · ListaMunicipios · LinhaMunicipio
-├─ filtro/     AvisoWebview · SeletorDeMoldura · EditorCanvas · Resultado · GeradorDeFiltro
-└─ ui/         Botao · Secao · Silhueta · QuadroImagem · Aviso · Numero2233 · Revelar
+├─ site/       as seções da página, uma por arquivo
+├─ grupos/     busca, mapa de Rondônia, lista dos 52
+├─ filtro/     webview do Instagram, canvas, resultado
+├─ animacao/   palco de rolagem e cena da bandeira
+├─ trafego/    pixel e GTM (só carregam se o painel preencher)
+└─ ui/         Botao · Secao · Imagem · Video · TextoComDestaque · Revelar …
 
 lib/
-├─ config.ts       ponto único de leitura de env + silêncio eleitoral
-├─ dados.ts        acesso a dados com fallback local ↔ Supabase
-├─ geo.ts          busca tolerante, haversine, casamento de header da Vercel
-├─ eventos.ts      disparo de evento no cliente (sendBeacon)
+├─ config.ts       env, silêncio eleitoral e "o site pode ser indexado?"
+├─ conteudo/       leitura, merge, validação, versões e o recorte que vai ao cliente
+├─ midia/          slots de imagem: leitura e processamento (sharp → WebP)
+├─ trafego/        pixel, Conversions API e origem do clique
+├─ video.ts        interpretação de link, enquadramento e medidas
+├─ dados.ts        grupos e municípios, com fallback local ↔ Supabase
+├─ geo.ts          busca tolerante, haversine, header de cidade da Vercel
 ├─ imagem.ts       EXIF, downscale, desenho e exportação do canvas
-├─ navegador.ts    detecção de webview do Instagram, share nativo
-├─ metricas.ts     leitura das views de métrica
-├─ molduras.ts     catálogo de molduras
-├─ painel/sessao.ts
-└─ supabase/       client.ts · server.ts · admin.ts (server-only)
+├─ painel/         sessão, limite de tentativas, destinos de vídeo
+└─ supabase/       client · server · admin (server-only)
 
-content/copy.ts    TODA a copy, num arquivo só
-data/              municipios-ro.json (52) · grupos.local.json
-supabase/migrations/
-public/molduras/   PLACEHOLDERS em SVG — trocar pela arte final
+content/
+├─ copy.ts         o texto de fábrica — o painel sobrescreve por cima
+├─ esquema.ts      descritor dos campos do painel (formulário + validação)
+├─ slots.ts        os espaços de imagem, com as exigências de cada um
+└─ mapa.ts         costura tudo na ordem da página
+
+data/              municipios-ro.json (52) · localidades · mapa · grupos.local.json
+supabase/migrations/   15 migrations, em ordem
 ```
 
 ### Motor e maquiagem
 
-`lib/` e `app/g/`, `app/api/`, `app/painel/` são **motor**: se repetem
-em qualquer campanha. `content/copy.ts`, `app/globals.css` e
-`public/` são **maquiagem**: mudam por candidato. Foi construído
-separado de propósito — em 2028 troca-se a maquiagem.
+`lib/`, `app/g/`, `app/api/` e `app/painel/` são **motor**: se repetem
+em qualquer campanha. `content/`, `app/globals.css` e o que está no
+banco são **maquiagem**: mudam por candidato. Foi construído separado
+de propósito — em 2028 troca-se a maquiagem.
+
+---
+
+## Vídeo em pé e vídeo deitado
+
+O acervo tem os dois enquadramentos, e o painel guarda qual é qual em
+cada espaço. **Não existe um layout que sirva aos dois.** Um vídeo em
+pé numa coluna desenhada para 16:9 vira uma tira estreita com calhas
+brancas dos lados — foi o defeito relatado pela campanha.
+
+Por isso seis seções têm **dois desenhos**, escolhidos pelo
+enquadramento: `Origem`, `Rua`, `Problema`, `Provas`, `ProvaSocial` e
+`Trilha`. A regra que vale para todas:
+
+- deitado mantém o desenho original da seção, sem exceção;
+- em pé, a coluna do vídeo passa a valer **a largura do vídeo** — nunca
+  uma fração da seção — para que as bordas batam com as do vizinho;
+- quem sobrar de altura estica (cartão, foto), em vez de deixar branco;
+- a trilha vira grade quando são até seis vídeos em pé, e só volta a ser
+  barra rolável do sétimo em diante.
+
+`components/ui/Video.tsx` tem a prop `preencher` para o caso em que a
+coluna já decide a largura. Cada seção explica a própria escolha em
+comentário, no arquivo.
 
 ---
 
@@ -111,6 +170,10 @@ A leitura do link real acontece só em `app/g/[slug]/route.ts`, no
 servidor, com `service_role` isolada em `lib/supabase/admin.ts`, que tem
 `import 'server-only'` no topo — se algum componente de cliente importar
 por engano, **o build quebra**.
+
+O token da Conversions API segue a mesma lógica e mora em tabela
+própria, **sem versionamento**: credencial em histórico é credencial
+vazada para sempre. O painel mostra só os quatro últimos caracteres.
 
 ---
 
@@ -136,51 +199,46 @@ O que está no código desde o primeiro dia (`lib/navegador.ts`,
 
 | Item | Onde | Situação |
 |---|---|---|
-| Rodapé de identificação | `components/site/RodapeLegal.tsx` | ✅ montado, **dados a confirmar** |
-| CNPJ na moldura | `public/molduras/*.svg` | ✅ na arte placeholder |
-| Política de privacidade | `app/politica-de-privacidade` | ✅ escrita |
+| Rodapé de identificação | Painel ▸ Identidade ▸ Rodapé | ✅ montado, **dados a confirmar** |
+| CNPJ na moldura | `public/molduras/` | ✅ na arte |
+| Política de privacidade | `app/politica-de-privacidade` | ✅ escrita e editável pelo painel |
 | Silêncio eleitoral automático | `NEXT_PUBLIC_SILENCIO_ELEITORAL_EM` | ✅ variável de ambiente, não depende de alguém lembrar |
-| Menções a processos judiciais | — | ⛔ **fora da copy** até o jurídico assinar |
+| Menções a processos judiciais | Painel ▸ Seções ▸ Prova social | ⛔ **só com o jurídico assinando** |
+| Pixel ligado × texto da privacidade | Painel ▸ Tráfego | ⚠️ ligar o pixel exige trocar o texto — a tela entrega o parágrafo pronto |
 
 O `robots.ts` bloqueia indexação enquanto a URL for `localhost` ou
 `*.vercel.app`. Publicação em domínio próprio depende de CNPJ e domínio
-confirmados.
+confirmados. O estado disso aparece em **Painel ▸ Buscas**.
 
 ---
 
-## Conectar o Supabase
+## Banco
 
-Enquanto `NEXT_PUBLIC_SUPABASE_URL` estiver vazio, tudo vem de `data/`.
-Para ligar:
+Supabase já conectado. Tabelas: `municipios`, `grupos`, `eventos`,
+`administradores`, `conteudo`, `conteudo_versoes`, `midia`,
+`midia_slots`, `trafego`. Dois baldes de Storage.
 
-1. Criar o projeto no Supabase.
-2. Rodar as migrations em ordem, pelo SQL editor ou pela CLI:
-   ```
-   supabase/migrations/20260819120000_esquema.sql
-   supabase/migrations/20260819120100_seguranca.sql
-   supabase/migrations/20260819120200_metricas.sql
-   supabase/migrations/20260819120300_seed.sql
-   ```
-3. Preencher no `.env.local`:
-   ```
-   NEXT_PUBLIC_SUPABASE_URL
-   NEXT_PUBLIC_SUPABASE_ANON_KEY
-   SUPABASE_SERVICE_ROLE_KEY
-   ```
-4. Colar os links dos grupos pelo painel.
+Para levantar um projeto novo (outra campanha), rodar as 15 migrations
+de `supabase/migrations/` em ordem e preencher no `.env.local`:
 
-Nenhum componente muda. Só `lib/dados.ts` passa a consultar o banco.
+```
+NEXT_PUBLIC_SUPABASE_URL
+NEXT_PUBLIC_SUPABASE_ANON_KEY
+SUPABASE_SERVICE_ROLE_KEY
+```
+
+Nenhum componente muda: quem consulta o banco é `lib/`.
 
 ---
 
 ## Deploy
 
-1. `git init && git add . && git commit`
-2. Subir para o GitHub.
-3. Importar na Vercel.
-4. Configurar as variáveis do `.env.example` no painel da Vercel.
-5. Manter em **URL de preview** até CNPJ, responsável, endereço do comitê
-   e domínio estarem confirmados.
+Vercel, a partir do GitHub. As variáveis do `.env.example` vão no painel
+da Vercel — em especial `NEXT_PUBLIC_SITE_URL`, que é o que decide se o
+site pode ser indexado e o que alimenta os endereços da tela de Buscas.
+
+Manter em **URL de preview** até CNPJ, responsável, endereço do comitê e
+domínio estarem confirmados.
 
 A sugestão de cidade por IP usa o header `x-vercel-ip-city`, que só
 existe em produção na Vercel. Em local ela simplesmente não aparece.
@@ -197,9 +255,12 @@ existe em produção na Vercel. Em local ela simplesmente não aparece.
 - [ ] **abrir o site DENTRO do Instagram, no iPhone e no Android, e fazer o filtro até salvar**
 - [ ] foto vertical de iPhone entra na orientação certa
 - [ ] colar o link no WhatsApp: cartão com imagem e título
+- [ ] trocar um vídeo de deitado para em pé no painel e conferir a seção nos dois estados
+- [ ] editar um texto no painel e ver a home mudar sem republicar
 - [ ] cronometrar num celular antigo em 4G — teto de 3s até o botão clicável
 - [ ] conferir 5 municípios distantes no mapa (Porto Velho, Vilhena, Guajará-Mirim, Ji-Paraná, Cabixi)
 
 ---
 
 Pendências do cliente: ver [PENDENCIAS.md](./PENDENCIAS.md).
+Panorama do que está pronto: ver [ESTADO.md](./ESTADO.md).

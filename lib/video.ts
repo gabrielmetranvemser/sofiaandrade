@@ -197,6 +197,27 @@ export function larguraDoVideo(formato: FormatoVideo, alturaMax?: string): strin
   return `calc(${alturaMax ?? TETO_ALTURA[formato]} * ${RAZAO[formato]})`
 }
 
+/** Atalho de leitura. `formato === 'em-pe'` espalhado por seis seções vira ruído. */
+export function emPe(formato: FormatoVideo): boolean {
+  return formato === 'em-pe'
+}
+
+/**
+ * O TETO DE ALTURA DE UM VÍDEO EM PÉ QUE DIVIDE A LINHA COM TEXTO.
+ *
+ * ⚠️ MENOR QUE O TETO NORMAL, e a diferença é o que resolve o buraco
+ *    branco. Numa faixa de duas colunas — texto de um lado, vídeo do
+ *    outro — quem manda na altura da linha é o mais alto dos dois. Um
+ *    bloco de texto de campanha tem 260 a 320 px; o vídeo em pé, no
+ *    teto de 34rem, tem 544. A diferença não some: ela vira ar em volta
+ *    do texto, e é exatamente isso que se lê como desalinhado.
+ *
+ *    30rem dão 480 px de altura e 270 de largura — ainda é um celular
+ *    na mão, e a sobra cai para menos da metade.
+ */
+export const TETO_AO_LADO_DO_TEXTO = 'min(64svh, 30rem)'
+
+
 /**
  * OS AJUSTES DE PLAYER, POR VÍDEO.
  *
