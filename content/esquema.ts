@@ -599,6 +599,14 @@ export const ESQUEMA: Record<string, SecaoEsquema> = {
       sugestaoNao: { tipo: 'texto', rotulo: 'Recusar a sugestão', max: 30 },
       sugestaoSim: { tipo: 'texto', rotulo: 'Confirmar a sugestão', max: 30 },
       sugestaoLonge: { tipo: 'longo', rotulo: 'Quando a cidade está longe', max: 140, linhas: 2 },
+      anuncioTitulo: {
+        tipo: 'texto',
+        rotulo: 'Card do anúncio: título',
+        max: 34,
+        ajuda: 'Aparece para quem chegou por um link de anúncio com a cidade já escolhida.',
+      },
+      anuncioTexto: { tipo: 'texto', rotulo: 'Card do anúncio: frase', max: 80 },
+      anuncioOutra: { tipo: 'texto', rotulo: 'Card do anúncio: outra cidade', max: 30 },
       dicaBusca: { tipo: 'longo', rotulo: 'Dica embaixo da busca', max: 120, linhas: 2 },
       vazio: { tipo: 'longo', rotulo: 'Busca sem resultado', max: 140, linhas: 2 },
       proximasTitulo: { tipo: 'texto', rotulo: 'Título das cidades próximas', max: 40 },
@@ -844,6 +852,12 @@ export const ESQUEMA: Record<string, SecaoEsquema> = {
     campos: {
       grupo: { tipo: 'texto', rotulo: 'Entrar no grupo (completo)', max: 42 },
       grupoCurto: { tipo: 'texto', rotulo: 'Entrar no grupo (curto)', max: 22 },
+      grupoDe: {
+        tipo: 'texto',
+        rotulo: 'Entrar no grupo de…',
+        max: 24,
+        ajuda: 'O nome da cidade entra sozinho no fim. Só aparece em quem chegou pelo link de um anúncio de município.',
+      },
       filtro: { tipo: 'texto', rotulo: 'Filtro (completo)', max: 42 },
       filtroCurto: { tipo: 'texto', rotulo: 'Filtro (curto)', max: 22 },
       compartilhar: { tipo: 'texto', rotulo: 'Compartilhar', max: 30 },

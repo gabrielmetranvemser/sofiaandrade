@@ -4,7 +4,7 @@ import { useState, type ReactNode } from 'react'
 import { useConteudo } from '@/lib/conteudo/contexto'
 import { municipiosMaisProximos } from '@/lib/geo'
 import { evento } from '@/lib/eventos'
-import type { MunicipioComGrupo } from '@/lib/tipos'
+import type { Destino, MunicipioComGrupo } from '@/lib/tipos'
 import { achatarDestinos } from '@/lib/destinos'
 import { CardCidadeSugerida } from './CardCidadeSugerida'
 import { FolhaDeCidades } from './FolhaDeCidades'
@@ -15,6 +15,17 @@ interface Props {
   municipios: MunicipioComGrupo[]
   /** Sugestão silenciosa vinda do IP, resolvida no servidor. */
   sugerido?: MunicipioComGrupo | null
+  /**
+   * A cidade que o anúncio prometeu (`?cidade=porto-velho`).
+   *
+   * Manda sobre o IP e sobre o GPS, e não é preferência de código: as
+   * outras duas são palpites do servidor e do aparelho; esta é o que a
+   * própria pessoa escolheu ao clicar num anúncio que dizia o nome da
+   * cidade. Mostrar duas cidades diferentes na mesma tela — a do IP e a
+   * do anúncio — seria fazer o site contradizer o anúncio que a campanha
+   * pagou para publicar.
+   */
+  alvo?: Destino | null
   /**
    * O mapa, montado no servidor e entregue pronto.
    *
@@ -46,7 +57,7 @@ interface Props {
  * Vale medir: buscou_cidade contra clicou_grupo por origem diz em duas
  * semanas se recolher a lista atrapalhou.
  */
-export function BuscadorDeGrupo({ municipios, sugerido = null, mapa = null }: Props) {
+export function BuscadorDeGrupo({ municipios, sugerido = null, alvo = null, mapa = null }: Props) {
   const { grupos: copy } = useConteudo()
   const [folhaAberta, setFolhaAberta] = useState(false)
   const [proximas, setProximas] = useState<{ m: MunicipioComGrupo; km: number }[] | null>(null)
@@ -84,10 +95,29 @@ export function BuscadorDeGrupo({ municipios, sugerido = null, mapa = null }: Pr
   const disponiveis = achatarDestinos(municipios).filter((l) => l.destino.disponivel)
   const abertos = disponiveis.length
   const primeirosAbertos = disponiveis.slice(0, 6)
-  const mostrarSugestao = Boolean(sugerido) && !sugestaoDispensada && !proximas
+  // O card do anúncio ocupa o lugar do card de sugestão. Ver `alvo`.
+  const mostrarAlvo = Boolean(alvo) && !sugestaoDispensada && !proximas
+  const mostrarSugestao = Boolean(sugerido) && !alvo && !sugestaoDispensada && !proximas
 
   return (
     <div className="mt-12">
+      {/* ── A cidade que veio no link do anúncio ──
+          A saída não dispensa o card em silêncio: ela abre a lista
+          inteira. Quem chegou por um anúncio de outra cidade não pode
+          ficar olhando para uma tela onde a única coisa concreta acabou
+          de sumir. */}
+      {mostrarAlvo && alvo ? (
+        <CardCidadeSugerida
+          municipio={alvo}
+          origem="anuncio"
+          modo="anuncio"
+          onNaoEMinha={() => {
+            setDispensada(true)
+            setFolhaAberta(true)
+          }}
+        />
+      ) : null}
+
       {/* ── A cidade do IP, sem clique e sem permissão ── */}
       {mostrarSugestao && sugerido ? (
         <CardCidadeSugerida

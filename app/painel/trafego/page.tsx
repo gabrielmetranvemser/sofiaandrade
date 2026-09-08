@@ -1,3 +1,4 @@
+import Link from 'next/link'
 import { config } from '@/lib/config'
 import { lerTrafego } from '@/lib/trafego/ler'
 import { EVENTO_META, EXPLICACAO_EVENTO, EVENTOS_PADRAO_META } from '@/lib/trafego/tipos'
@@ -105,6 +106,31 @@ export default async function PaginaTrafego() {
           </li>
         ))}
       </ul>
+
+      {/* ── A PORTA PARA OS LINKS DE ANÚNCIO ───────────────────
+          Fica antes do formulário de propósito. Quem abre esta tela no
+          meio de uma campanha quase sempre veio buscar um link, não
+          trocar o token — e o token só se mexe uma vez na vida do
+          projeto. */}
+      <section className="mt-8 rounded-2xl border border-linha bg-white p-6">
+        <div className="flex flex-wrap items-center justify-between gap-4">
+          <div className="max-w-2xl">
+            <h2 className="text-lg">Links de anúncio por município</h2>
+            <p className="mt-1 text-sm text-grafite">
+              Um link por cidade, com o município já escolhido e o UTM certo. Quem clica cai na
+              página com o grupo da cidade dele a um toque, de qualquer botão. É também o que faz
+              a entrada em grupo chegar ao painel com o nome da campanha — sem esses links, toda
+              conversão aparece como orgânica.
+            </p>
+          </div>
+          <Link
+            href="/painel/trafego/links"
+            className="inline-flex min-h-12 shrink-0 items-center rounded-full bg-azul px-6 font-semibold text-white transition-colors hover:bg-azul-escuro"
+          >
+            Gerar os links
+          </Link>
+        </div>
+      </section>
 
       <div className="mt-8">
         <EditorTrafego

@@ -4,7 +4,8 @@ import { config } from '@/lib/config'
 import { enviarEvento, identidadeDoPedido } from '@/lib/trafego/meta'
 import { EVENTO_META } from '@/lib/trafego/tipos'
 import { veioDeOutroSite } from '@/lib/trafego/origem'
-import type { TipoEvento } from '@/lib/tipos'
+import { marcasDoPedido } from '@/lib/campanha/marcas'
+import { ORIGENS_CLIQUE, type TipoEvento } from '@/lib/tipos'
 
 export const dynamic = 'force-dynamic'
 export const runtime = 'nodejs'
@@ -30,10 +31,11 @@ const TIPOS = new Set([
   'compartilhou_pagina', 'clicou_instagram',
 ])
 
-const ORIGENS = new Set([
-  'hero', 'topo', 'flutuante', 'lista', 'busca', 'geo',
-  'cta_final', 'rodape', 'grupos_pagina', 'qr', 'direto',
-])
+// ⚠️ VEM DE `lib/tipos.ts`, e não é uma cópia escrita à mão. A cópia
+//    que estava aqui tinha esquecido `'mapa'` — todo toque no mapa de
+//    Rondônia chegava com origem nula, sem erro nenhum, e a tela "qual
+//    botão trabalha" jurava que o mapa nunca tinha sido usado.
+const ORIGENS = new Set<string>(ORIGENS_CLIQUE)
 
 const LIMITE_CORPO = 3_072
 
@@ -78,12 +80,19 @@ export async function POST(req: NextRequest) {
     const origem = texto(corpo.origem, 24)
     const dispositivo = texto(corpo.dispositivo, 12)
 
+    // ⚠️ O NAVEGADOR MANDA O UTM DA PÁGINA EM QUE ESTÁ, e ele some na
+    //    primeira navegação interna: quem chega pelo anúncio na home e
+    //    depois abre `/grupos` deixa a origem para trás. Sem esta
+    //    linha, metade dos eventos de uma mesma visita paga entraria no
+    //    painel como orgânica. O cookie de chegada é a memória disso.
+    const marcas = marcasDoPedido(req)
+
     await sb.from('eventos').insert({
       tipo: String(corpo.tipo),
       municipio_slug: texto(corpo.municipio_slug, 64),
       grupo_id: texto(corpo.grupo_id, 40),
       origem: origem && ORIGENS.has(origem) ? origem : null,
-      utm: texto(corpo.utm, 200),
+      utm: texto(corpo.utm, 200) ?? marcas?.utm ?? null,
       sessao: texto(corpo.sessao, 40),
       dispositivo:
         dispositivo === 'celular' || dispositivo === 'desktop' ? dispositivo : null,

@@ -8,7 +8,8 @@ import {
 import { criarClienteAdmin } from '@/lib/supabase/admin'
 import { config, emSilencioEleitoral } from '@/lib/config'
 import { enviarEvento, identidadeDoPedido } from '@/lib/trafego/meta'
-import type { OrigemClique } from '@/lib/tipos'
+import { marcasDoPedido } from '@/lib/campanha/marcas'
+import { ORIGENS_CLIQUE, type OrigemClique } from '@/lib/tipos'
 
 /**
  * O REDIRECIONADOR.
@@ -24,10 +25,7 @@ import type { OrigemClique } from '@/lib/tipos'
 export const dynamic = 'force-dynamic'
 export const revalidate = 0
 
-const ORIGENS_VALIDAS = new Set<OrigemClique>([
-  'hero', 'topo', 'flutuante', 'lista', 'busca', 'geo', 'mapa',
-  'cta_final', 'rodape', 'grupos_pagina', 'qr', 'direto',
-])
+const ORIGENS_VALIDAS = new Set<string>(ORIGENS_CLIQUE)
 
 export async function GET(
   req: NextRequest,
@@ -59,9 +57,14 @@ export async function GET(
   }
 
   const deParam = req.nextUrl.searchParams.get('de')
-  const origem: OrigemClique = ORIGENS_VALIDAS.has(deParam as OrigemClique)
+  const origem: OrigemClique = ORIGENS_VALIDAS.has(deParam ?? '')
     ? (deParam as OrigemClique)
     : 'direto'
+
+  // De qual anúncio esta pessoa veio. A URL deste redirecionador não
+  // carrega UTM nenhum — quem a montou foi um botão da própria página —
+  // então a resposta está no cookie escrito na chegada. Ver `proxy.ts`.
+  const marcas = marcasDoPedido(req)
 
   const grupo = await grupoDeDestino(slug)
   const podeEntrar =
@@ -79,6 +82,7 @@ export async function GET(
       grupo_id: grupo?.id ?? null,
       origem,
       req,
+      utm: marcas?.utm ?? null,
     })
 
     const destino = new URL('/grupos', req.url)
@@ -96,6 +100,7 @@ export async function GET(
       grupo_id: grupo.id,
       origem,
       req,
+      utm: marcas?.utm ?? null,
     }),
   ])
 
@@ -138,12 +143,15 @@ async function gravarEvento({
   grupo_id,
   origem,
   req,
+  utm,
 }: {
   tipo: string
   municipio_slug: string
   grupo_id: string | null
   origem: OrigemClique
   req: NextRequest
+  /** O rótulo da campanha, vindo do cookie de chegada. */
+  utm: string | null
 }) {
   // Id de sessão que o navegador passou em `?s=`. É o mesmo aleatório
   // dos outros eventos, sem nome, sem telefone, sem IP — serve só para
@@ -157,10 +165,6 @@ async function gravarEvento({
   if (!sb) return
 
   const ua = req.headers.get('user-agent') ?? ''
-  const utm = ['utm_source', 'utm_medium', 'utm_campaign']
-    .map((k) => req.nextUrl.searchParams.get(k))
-    .filter(Boolean)
-    .join('|')
 
   try {
     await sb.from('eventos').insert({
@@ -168,7 +172,7 @@ async function gravarEvento({
       municipio_slug,
       grupo_id,
       origem,
-      utm: utm || null,
+      utm,
       sessao,
       dispositivo: /Mobile|Android|iPhone/i.test(ua) ? 'celular' : 'desktop',
     })

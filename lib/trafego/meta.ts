@@ -1,6 +1,7 @@
 import 'server-only'
 
 import { createHash } from 'node:crypto'
+import { fbcDeMarcas, marcasDoPedido } from '@/lib/campanha/marcas'
 import { lerTrafego } from './ler'
 import type { Trafego } from './tipos'
 
@@ -77,14 +78,31 @@ export function identidadeDoPedido(req: Request, sessao?: string | null): Identi
   const encaminhado = cabecalhos.get('x-forwarded-for')?.split(',')[0]?.trim()
   const ip = encaminhado || cabecalhos.get('x-real-ip') || null
 
-  let fbc = cookies._fbc ?? null
-  if (!fbc) {
-    // Primeiro clique no anúncio: a pessoa chega com `fbclid` na URL e
-    // o cookie ainda não existe. O formato é o que a Meta especifica —
-    // versão, subdomínio, instante e o id do clique.
-    const fbclid = new URL(req.url).searchParams.get('fbclid')
-    if (fbclid) fbc = `fb.1.${Date.now()}.${fbclid}`
-  }
+  // O cookie que o PRÓPRIO pixel escreveu manda: é o valor que a Meta
+  // reconhece sem intermediário.
+  let fbc: string | null = cookies._fbc ?? null
+
+  // ⚠️ E QUANDO ELE NÃO EXISTE — que é o caso que mais importa aqui.
+  //
+  //    Duas situações produzem isso. A primeira é o primeiro clique no
+  //    anúncio: a pessoa chega com `fbclid` na URL e o pixel ainda não
+  //    teve tempo de gravar nada. A segunda é a que justifica todo o
+  //    mecanismo de `lib/campanha/`: o pixel foi BLOQUEADO — bloqueador
+  //    de anúncio, iOS com rastreamento negado, rede filtrando
+  //    `connect.facebook.net` — e `_fbc` não vai existir nunca, em
+  //    visita nenhuma daquela pessoa.
+  //
+  //    É exatamente esse público que a Conversions API existe para
+  //    alcançar, e mandar o Lead dele SEM `fbc` seria alcançá-lo pela
+  //    metade: a Meta contaria a conversão, mas sem saber de qual
+  //    anúncio ela veio. Numa campanha por município, em que cada
+  //    cidade é um conjunto de anúncios próprio, isso é o mesmo que não
+  //    medir.
+  //
+  //    `marcasDoPedido` resolve os dois casos com a mesma chamada: lê o
+  //    `fbclid` da URL quando ele está lá, e o cookie de primeira parte
+  //    escrito na chegada quando não está.
+  if (!fbc) fbc = fbcDeMarcas(marcasDoPedido(req))
 
   return {
     ip,

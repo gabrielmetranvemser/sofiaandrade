@@ -2,6 +2,8 @@ import { headers } from 'next/headers'
 import { lerSlots } from '@/lib/midia/ler'
 import { listarMunicipiosComStatus } from '@/lib/dados'
 import { casarCidadePorHeader } from '@/lib/geo'
+import { resolverCidadeAlvo } from '@/lib/campanha/alvo'
+import { CidadeAlvoProvider } from '@/lib/campanha/contexto'
 import { config, emSilencioEleitoral } from '@/lib/config'
 import { candidata, meta } from '@/content/copy'
 import { lerConteudo } from '@/lib/conteudo/ler'
@@ -35,13 +37,18 @@ import { RodapeLegal } from '@/components/site/RodapeLegal'
  */
 export const revalidate = 3600
 
-export default async function Home() {
+export default async function Home({
+  searchParams,
+}: {
+  searchParams: Promise<{ cidade?: string }>
+}) {
   const simboloDaMarca = (await lerSlots())['marca.simbolo']?.url ?? null
   // Quais seções estão ligadas. Vem do painel; ver content/copy.ts.
   const { exibir } = await lerConteudo()
-  const [municipios, cabecalhos] = await Promise.all([
+  const [municipios, cabecalhos, params] = await Promise.all([
     listarMunicipiosComStatus(),
     headers(),
+    searchParams,
   ])
 
   // Sugestão silenciosa por IP: o header vem da Vercel, de graça,
@@ -54,9 +61,22 @@ export default async function Home() {
 
   const silencio = emSilencioEleitoral()
 
+  // ── A CIDADE DO ANÚNCIO ─────────────────────────────────────
+  //
+  // ⚠️ EM SILÊNCIO ELEITORAL O ALVO É `null`, e não basta confiar em
+  //    quem renderiza os botões. Cada CTA já se esconde sozinho no
+  //    silêncio, mas o alvo é o que os transforma em link direto para o
+  //    WhatsApp: deixá-lo de pé seria manter carregada a única peça que
+  //    ainda pode levar alguém a um grupo depois da hora. A trava
+  //    definitiva continua no redirecionador, que recusa de qualquer
+  //    jeito — esta aqui é a que impede o botão de existir.
+  const alvo = silencio ? null : resolverCidadeAlvo(params.cidade, municipios)
+
   return (
-    <>
-      <RegistroDePagina />
+    <CidadeAlvoProvider valor={alvo}>
+      {/* Na home, `?cidade=` só pode ter vindo de um link de anúncio: o
+          redirecionador nunca manda ninguém para cá. */}
+      <RegistroDePagina cidadeDoAnuncio={alvo?.municipioSlug ?? alvo?.slug ?? null} />
       <Header silencio={silencio} simbolo={simboloDaMarca} ocultas={secoesOcultas(exibir)} />
 
       <main id="conteudo">
@@ -84,7 +104,9 @@ export default async function Home() {
             depois o que dizem sobre isso, só então o que virá. */}
         {exibir.trilha ? <Trilha /> : null}
         {exibir.futuro ? <Futuro /> : null}
-        {exibir.grupos ? <SecaoGrupos municipios={municipios} sugerido={sugerido} /> : null}
+        {exibir.grupos ? (
+          <SecaoGrupos municipios={municipios} sugerido={sugerido} alvo={alvo} />
+        ) : null}
         {exibir.filtro ? <SecaoFiltro /> : null}
         {exibir.compartilhar ? <Compartilhar siteUrl={config.siteUrl} /> : null}
         <CtaFinal silencio={silencio} />
@@ -133,6 +155,6 @@ export default async function Home() {
           }).replace(/</g, '\\u003c'),
         }}
       />
-    </>
+    </CidadeAlvoProvider>
   )
 }

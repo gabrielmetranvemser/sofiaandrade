@@ -8,6 +8,7 @@ import { BotaoLink } from '@/components/ui/Botao'
 import { BrilhoCursor } from '@/components/animacao/BrilhoCursor'
 import { destinoGrupo } from '@/lib/conteudo/secoes'
 import { CliqueGrupo } from './CliqueGrupo'
+import { RotuloDoGrupo } from './RotuloDoGrupo'
 
 /**
  * Os esquemas que o CSS conhece. Ver `.capa` em globals.css.
@@ -156,8 +157,15 @@ export async function Hero({ silencio = false }: { silencio?: boolean }) {
                     próprio link, e não só no miolo, senão sobra um alvo
                     de toque invisível no meio da coluna. */}
                 <CliqueGrupo origem="hero" href={paraOsGrupos} className="hidden lg:contents">
-                  <span className="toque inline-flex min-h-14 items-center justify-center gap-2.5 rounded-full bg-(--capa-botao) px-8 text-lg font-semibold text-(--capa-botao-texto) shadow-alta transition-all duration-300 hover:brightness-110 sm:whitespace-nowrap">
-                    {ctas.grupo}
+                  <span className="toque inline-flex min-h-14 items-center justify-center gap-2.5 rounded-full bg-(--capa-botao) px-8 text-center text-lg font-semibold text-(--capa-botao-texto) shadow-alta transition-all duration-300 hover:brightness-110">
+                    {/* O `whitespace-nowrap` que havia aqui saiu junto
+                        com a chegada do rótulo por cidade: "Entrar no
+                        grupo de Governador Jorge Teixeira" não cabe numa
+                        linha em nenhuma largura de coluna, e forçar a
+                        linha única faria o botão furar a grade. Sem ele,
+                        o texto genérico continua numa linha só — ele é
+                        curto — e o nome longo quebra em duas, centrado. */}
+                    <RotuloDoGrupo padrao={ctas.grupo} />
                     <svg viewBox="0 0 24 24" className="hidden size-5 shrink-0 sm:block" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" aria-hidden>
                       <path d="M5 12h14M13 6l6 6-6 6" />
                     </svg>

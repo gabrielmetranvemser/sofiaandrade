@@ -5,6 +5,8 @@ import { headers } from 'next/headers'
 import { lerConteudo } from '@/lib/conteudo/ler'
 import { listarMunicipiosComStatus, municipioPorSlug } from '@/lib/dados'
 import { casarCidadePorHeader } from '@/lib/geo'
+import { resolverCidadeAlvo } from '@/lib/campanha/alvo'
+import { CidadeAlvoProvider } from '@/lib/campanha/contexto'
 import { config, emSilencioEleitoral } from '@/lib/config'
 import { Header } from '@/components/site/Header'
 import { RodapeLegal } from '@/components/site/RodapeLegal'
@@ -57,16 +59,42 @@ export default async function PaginaGrupos({
 
   // Quem chegou aqui vindo de /g/[slug] com grupo indisponível merece
   // saber exatamente o que aconteceu, não uma lista muda.
-  const cidadeVinda = params.cidade ? municipioPorSlug(params.cidade) : undefined
+  //
+  // ⚠️ O AVISO EXIGE `situacao`, E NÃO SÓ `cidade`. Quem manda para cá
+  //    com grupo indisponível é o redirecionador, e ele SEMPRE manda as
+  //    duas coisas. Sem esta condição, `?cidade=` sozinho — que é
+  //    exatamente a forma do link de anúncio — caía no ramo do "ainda
+  //    não abriu": a página recebia quem clicou no anúncio de uma
+  //    cidade com o grupo aberto e avisava, em amarelo, que aquele
+  //    grupo não tinha aberto, logo acima do botão que abria ele.
   const situacao = params.situacao
+  const cidadeVinda = params.cidade && situacao ? municipioPorSlug(params.cidade) : undefined
+
+  // ⚠️ O MESMO `?cidade=` SERVE A DUAS CHEGADAS DIFERENTES, e por isso
+  //    convive com `situacao` em vez de brigar com ele.
+  //
+  //    Uma é o link do anúncio: `/grupos?cidade=porto-velho`, e a
+  //    cidade aparece pré-selecionada no card do topo.
+  //
+  //    A outra é o desvio do redirecionador, que manda para cá quando o
+  //    grupo está cheio ou ainda não abriu — e aí `situacao` também vem
+  //    junto, o aviso amarelo explica o que houve, e o card mostra o
+  //    selo em vez do botão. As duas leituras são verdadeiras ao mesmo
+  //    tempo; separá-las em dois parâmetros só criaria uma terceira
+  //    combinação para alguém errar.
+  const alvo = emSilencioEleitoral() ? null : resolverCidadeAlvo(params.cidade, municipios)
   const naoEncontrado = params['nao-encontrado'] === '1'
   // Chegou aqui vindo de /g/ durante o silêncio eleitoral: o
   // redirecionador recusou de propósito.
   const emSilencio = params.silencio === '1'
 
   return (
-    <>
-      <RegistroDePagina />
+    <CidadeAlvoProvider valor={alvo}>
+      {/* Com `situacao` na URL, quem trouxe esta pessoa foi o nosso
+          redirecionador, não um anúncio. Ver RegistroDePagina. */}
+      <RegistroDePagina
+        cidadeDoAnuncio={situacao ? null : (alvo?.municipioSlug ?? alvo?.slug ?? null)}
+      />
       <Header silencio={emSilencioEleitoral()} simbolo={simboloDaMarca} />
 
       <main id="conteudo" className="pt-24 md:pt-28">
@@ -128,13 +156,19 @@ export default async function PaginaGrupos({
             <BuscadorDeGrupo
               municipios={municipios}
               sugerido={sugerido}
-              mapa={<MapaRondonia municipios={municipios} destacado={sugerido?.slug} />}
+              alvo={alvo}
+              mapa={
+                <MapaRondonia
+                  municipios={municipios}
+                  destacado={alvo?.municipioSlug ?? alvo?.slug ?? sugerido?.slug}
+                />
+              }
             />
           </div>
         </section>
       </main>
 
       <RodapeLegal />
-    </>
+    </CidadeAlvoProvider>
   )
 }

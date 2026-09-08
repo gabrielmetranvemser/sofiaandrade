@@ -60,6 +60,7 @@ rede da pessoa conhece.
 | **Grupos** | link, situação, fixar, limite de cliques, exportar CSV, gerar QR por município |
 | **Métricas** | funil, qual botão trabalha, cliques por município, UTM, celular vs desktop |
 | **Tráfego** | pixel da Meta, Conversions API pelo servidor e Google Tag Manager — com o texto de privacidade pronto para colar quando o pixel for ligado |
+| **Tráfego ▸ Links** | um link de anúncio por município, com a cidade já escolhida e o UTM certo. Copiar um, copiar os 52, baixar CSV |
 | **Buscas** | os endereços de `sitemap.xml`, `robots.txt` e `llms.txt` com botão de copiar, o estado da indexação e a verificação do Search Console |
 
 Toda escrita passa por Server Action com sessão conferida. O conteúdo é
@@ -103,6 +104,7 @@ components/
 
 lib/
 ├─ config.ts       env, silêncio eleitoral e "o site pode ser indexado?"
+├─ campanha/       a cidade do anúncio na URL e a origem guardada no cookie
 ├─ conteudo/       leitura, merge, validação, versões e o recorte que vai ao cliente
 ├─ midia/          slots de imagem: leitura e processamento (sharp → WebP)
 ├─ trafego/        pixel, Conversions API e origem do clique
@@ -153,6 +155,58 @@ enquadramento: `Origem`, `Rua`, `Problema`, `Provas`, `ProvaSocial` e
 `components/ui/Video.tsx` tem a prop `preencher` para o caso em que a
 coluna já decide a largura. Cada seção explica a própria escolha em
 comentário, no arquivo.
+
+---
+
+## Tráfego por município
+
+A campanha roda um conjunto de anúncios por cidade. O link de cada um
+termina com a cidade:
+
+```
+https://…/?cidade=porto-velho&utm_source=meta&utm_medium=cpc&utm_campaign=grupos-municipios&utm_content=porto-velho
+```
+
+Quem clica cai na página com **a cidade já escolhida**: o card no topo
+da seção de grupos é o dela, e todo botão de grupo — cabeçalho, hero,
+flutuante, CTA final — passa a apontar direto para `/g/porto-velho`, em
+vez de rolar até a lista. Um toque, não três.
+
+Os links saem prontos de **Painel ▸ Tráfego ▸ Links de anúncio**, um por
+município, com o UTM já montado e um aviso nas cidades cujo grupo ainda
+não abriu — anunciar uma delas é pagar por um clique que termina num
+"em breve".
+
+**Parâmetro, e não `#porto-velho`.** O fragmento não é enviado ao
+servidor: com ele a cidade só apareceria depois de a página carregar e
+hidratar, piscando, num público que abre o link dentro do WhatsApp em
+4G. E `#` já é das âncoras de seção. Com `?cidade=`, o card vem no
+primeiro byte de HTML.
+
+**O cookie de origem.** O botão do grupo aponta para uma URL nossa
+(`/g/porto-velho?de=hero&s=…`) que não carrega `fbclid` nem UTM — eles
+ficaram na URL de chegada. Sem memória, a conversão chegaria ao painel
+como orgânica e à Meta sem o clique de origem. Então o `proxy.ts` grava
+as marcas num cookie de primeira parte na chegada, e as duas rotas de
+servidor leem de volta na saída:
+
+- `sofia_campanha`, **de sessão** (morre ao fechar o navegador), `httpOnly`
+- só é escrito quando a URL traz `fbclid`, `utm_source` ou `cidade` —
+  em visita orgânica o proxy nem é invocado
+- **combina, não sobrescreve**: `?cidade=` sozinho pode ser o desvio do
+  próprio redirecionador quando o grupo está cheio, e substituir ali
+  apagaria o anúncio de origem no meio do caminho
+- entra no texto da política de privacidade que a tela de Tráfego
+  entrega pronto para colar
+
+O ganho maior é na Meta: com o pixel bloqueado — bloqueador, iOS, rede
+filtrando `connect.facebook.net` — `_fbc` não existe, e é justamente
+esse público que a Conversions API existe para alcançar. O cookie
+devolve o `fbc` ao `Lead`, que sem ele chegaria sem saber de qual
+anúncio veio.
+
+**Painel ▸ Métricas ▸ Anúncio por município** fecha a conta: visitas
+vindas do anúncio → entradas no grupo, uma linha por peça e cidade.
 
 ---
 
@@ -259,6 +313,9 @@ existe em produção na Vercel. Em local ela simplesmente não aparece.
 - [ ] editar um texto no painel e ver a home mudar sem republicar
 - [ ] cronometrar num celular antigo em 4G — teto de 3s até o botão clicável
 - [ ] conferir 5 municípios distantes no mapa (Porto Velho, Vilhena, Guajará-Mirim, Ji-Paraná, Cabixi)
+- [ ] abrir `/?cidade=porto-velho` e conferir que TODO botão de grupo leva a `/g/porto-velho`
+- [ ] abrir `/?cidade=porto-velo` (errado de propósito): a página cai no comportamento normal, sem adivinhar
+- [ ] com um grupo cheio: clicar no botão, cair em `/grupos`, escolher outra cidade, e conferir no banco que o `clicou_grupo` guardou o UTM do anúncio original
 
 ---
 

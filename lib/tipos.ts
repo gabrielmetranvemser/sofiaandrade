@@ -101,20 +101,37 @@ export type TipoEvento =
   | 'compartilhou_pagina'
   | 'clicou_instagram'
 
-/** De onde no layout partiu o clique. Responde "qual botão trabalha". */
-export type OrigemClique =
-  | 'hero'
-  | 'topo'
-  | 'flutuante'
-  | 'lista'
-  | 'busca'
-  | 'geo'
-  | 'mapa'
-  | 'cta_final'
-  | 'rodape'
-  | 'grupos_pagina'
-  | 'qr'
-  | 'direto'
+/**
+ * De onde no layout partiu o clique. Responde "qual botão trabalha".
+ *
+ * ⚠️ A LISTA É UMA SÓ, e virou constante em tempo de execução por causa
+ *    de um erro que durou meses sem dar sintoma. Havia duas cópias
+ *    escritas à mão — uma em `app/api/evento/route.ts` e outra em
+ *    `app/g/[slug]/route.ts` — e a primeira tinha esquecido `'mapa'`.
+ *    Resultado: todo toque no mapa de Rondônia chegava ao banco com a
+ *    origem nula. Nada quebrou, nada apareceu no console; a tela "qual
+ *    botão trabalha" simplesmente dizia que o mapa nunca foi usado.
+ *
+ *    Uma lista só, importada pelos dois lados, não tem como divergir.
+ */
+export const ORIGENS_CLIQUE = [
+  'hero',
+  'topo',
+  'flutuante',
+  'lista',
+  'busca',
+  'geo',
+  'mapa',
+  'cta_final',
+  'rodape',
+  'grupos_pagina',
+  'qr',
+  /** Chegou pelo link de anúncio, com a cidade já escolhida na URL. */
+  'anuncio',
+  'direto',
+] as const
+
+export type OrigemClique = (typeof ORIGENS_CLIQUE)[number]
 
 export interface Evento {
   tipo: TipoEvento

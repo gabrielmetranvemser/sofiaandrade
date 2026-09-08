@@ -2,14 +2,17 @@ import { lerConteudo } from '@/lib/conteudo/ler'
 import { Secao, CabecalhoSecao } from '@/components/ui/Secao'
 import { BuscadorDeGrupo } from '@/components/grupos/BuscadorDeGrupo'
 import { MapaRondonia } from '@/components/grupos/MapaRondonia'
-import type { MunicipioComGrupo } from '@/lib/tipos'
+import type { Destino, MunicipioComGrupo } from '@/lib/tipos'
 
 export async function SecaoGrupos({
   municipios,
   sugerido,
+  alvo,
 }: {
   municipios: MunicipioComGrupo[]
   sugerido?: MunicipioComGrupo | null
+  /** A cidade que veio no link do anúncio. Ver `lib/campanha/alvo.ts`. */
+  alvo?: Destino | null
 }) {
   const { grupos: copy } = await lerConteudo()
 
@@ -24,7 +27,13 @@ export async function SecaoGrupos({
       <BuscadorDeGrupo
         municipios={municipios}
         sugerido={sugerido}
-        mapa={<MapaRondonia municipios={municipios} destacado={sugerido?.slug} />}
+        alvo={alvo}
+        mapa={
+          <MapaRondonia
+            municipios={municipios}
+            destacado={alvo?.municipioSlug ?? alvo?.slug ?? sugerido?.slug}
+          />
+        }
       />
     </Secao>
   )

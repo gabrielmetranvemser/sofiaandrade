@@ -6,6 +6,7 @@ import { TextoComDestaque } from '@/components/ui/TextoComDestaque'
 import { Numero } from '@/components/ui/Marca'
 import { destinoGrupo } from '@/lib/conteudo/secoes'
 import { CliqueGrupo } from './CliqueGrupo'
+import { RotuloDoGrupo } from './RotuloDoGrupo'
 
 export async function CtaFinal({ silencio = false }: { silencio?: boolean }) {
   const [{ ctaFinal, ctas, exibir }, slots] = await Promise.all([lerConteudo(), lerSlots()])
@@ -74,8 +75,8 @@ export async function CtaFinal({ silencio = false }: { silencio?: boolean }) {
             className="mt-12 flex flex-col items-center justify-center gap-3 sm:flex-row"
           >
             <CliqueGrupo origem="cta_final" href={paraOsGrupos} className="contents">
-              <span className="toque inline-flex min-h-14 items-center justify-center gap-2.5 rounded-full bg-amarelo px-8 text-lg font-semibold text-azul-escuro shadow-alta transition-all duration-300 hover:brightness-105">
-                {ctaFinal.ctaPrimario}
+              <span className="toque inline-flex min-h-14 items-center justify-center gap-2.5 rounded-full bg-amarelo px-8 text-center text-lg font-semibold text-azul-escuro shadow-alta transition-all duration-300 hover:brightness-105">
+                <RotuloDoGrupo padrao={ctaFinal.ctaPrimario} />
               </span>
             </CliqueGrupo>
 

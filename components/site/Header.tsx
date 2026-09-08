@@ -4,6 +4,7 @@ import Link from 'next/link'
 import { useEffect, useState } from 'react'
 import { useConteudo } from '@/lib/conteudo/contexto'
 import { evento } from '@/lib/eventos'
+import { useCidadeAlvo, useDestinoDoGrupo } from '@/lib/campanha/contexto'
 import { Simbolo } from '@/components/ui/Marca'
 
 export function Header({
@@ -24,6 +25,22 @@ export function Header({
   // de grupos desligada ele virava clique morto — o pior tipo de bug,
   // porque não dá erro nenhum.
   const paraOsGrupos = ocultas.includes('grupos') ? '/grupos' : '/#grupos'
+
+  // Quem chegou pelo anúncio de uma cidade entra no grupo dela direto,
+  // do topo da página. Ver `lib/campanha/contexto.tsx`.
+  const alvo = useCidadeAlvo()
+  const destino = useDestinoDoGrupo('topo', paraOsGrupos)
+  const paraOGrupo = destino.href
+
+  // ⚠️ O NOME DA CIDADE SÓ ENTRA NO BOTÃO DO MENU DO CELULAR, que é
+  //    largo e pode quebrar linha. A cápsula do desktop divide a barra
+  //    com o menu inteiro e tem largura de um punhado de palavras:
+  //    "Entrar no grupo de Candeias do Jamari" ali é cortado no meio de
+  //    uma palavra, e rótulo cortado parece defeito, não promessa
+  //    cumprida. O destino do toque é o mesmo nos dois — que é o que
+  //    decide a conversão. Quem repete o nome da cidade é o card do
+  //    topo da seção e o botão grande do hero.
+  const rotuloLongo = destino.direto && alvo ? `${ctas.grupoDe} ${alvo.nome}` : ctas.grupo
 
   const itens = navegacao.itens.filter((item) => {
     const ancora = item.href.match(/#([\w-]+)/)
@@ -92,13 +109,14 @@ export function Header({
 
           <div className="flex items-center gap-2">
             {!silencio ? (
-              <Link
-                href={paraOsGrupos}
+              <BotaoGrupo
+                href={paraOGrupo}
+                direto={destino.direto}
                 onClick={() => evento('clicou_cta', { origem: 'topo' })}
                 className="toque hidden min-h-11 items-center rounded-full bg-amarelo px-5 text-[0.9375rem] font-semibold text-azul-escuro shadow-suave transition-all hover:brightness-105 sm:inline-flex"
               >
                 {ctas.grupoCurto}
-              </Link>
+              </BotaoGrupo>
             ) : null}
 
             <button
@@ -161,20 +179,56 @@ export function Header({
               </Link>
             ))}
             {!silencio ? (
-              <Link
-                href={paraOsGrupos}
+              <BotaoGrupo
+                href={paraOGrupo}
+                direto={destino.direto}
                 onClick={() => {
                   setAberto(false)
                   evento('clicou_cta', { origem: 'topo' })
                 }}
-                className="mt-2 flex min-h-14 items-center justify-center rounded-full bg-amarelo px-6 font-semibold text-azul-escuro"
+                className="mt-2 flex min-h-14 items-center justify-center rounded-full bg-amarelo px-6 text-center font-semibold text-azul-escuro"
               >
-                {ctas.grupo}
-              </Link>
+                {rotuloLongo}
+              </BotaoGrupo>
             ) : null}
           </nav>
         ) : null}
       </div>
     </header>
+  )
+}
+
+/**
+ * O botão de grupo do cabeçalho.
+ *
+ * `<a>` quando o destino é `/g/`, `<Link>` quando é a âncora — pelo
+ * mesmo motivo explicado em `CliqueGrupo`: `/g/` é Route Handler, e a
+ * pré-busca do `<Link>` contaria um clique no grupo sem ninguém ter
+ * tocado no botão.
+ */
+function BotaoGrupo({
+  href,
+  direto,
+  onClick,
+  className,
+  children,
+}: {
+  href: string
+  direto: boolean
+  onClick: () => void
+  className: string
+  children: React.ReactNode
+}) {
+  if (direto) {
+    return (
+      <a href={href} onClick={onClick} className={className}>
+        {children}
+      </a>
+    )
+  }
+  return (
+    <Link href={href} onClick={onClick} className={className}>
+      {children}
+    </Link>
   )
 }
