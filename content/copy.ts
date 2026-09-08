@@ -122,6 +122,9 @@ export const navegacao = {
 export const ctas = {
   grupo: 'Entrar no grupo da minha cidade',
   grupoCurto: 'Entrar no grupo',
+  // Usado só quando a cidade veio no link do anúncio: o nome dela entra
+  // logo depois, sozinho. "Entrar no grupo de" + "Porto Velho".
+  grupoDe: 'Entrar no grupo de',
   filtro: 'Colocar o 2233 na minha foto',
   filtroCurto: 'Colocar o 2233',
   compartilhar: 'Compartilhar esta página',
@@ -590,6 +593,11 @@ export const grupos = {
   geoNegado: 'Sem problema. Procure sua cidade na lista abaixo.',
   sugestaoTitulo: 'Você está em',
   sugestaoPergunta: 'Confirma para entrar no grupo daqui.',
+  // O card de quem chegou pelo anúncio da própria cidade. Aqui não se
+  // pergunta nada: a cidade veio no link, e perguntar de novo é atrito.
+  anuncioTitulo: 'O grupo da sua cidade',
+  anuncioTexto: 'É por aqui que a campanha fala com quem é daí.',
+  anuncioOutra: 'Sou de outra cidade',
   sugestaoNao: 'Não é minha cidade',
   dicaBusca: 'Pode digitar sem acento. Ex.: "ji parana", "sao miguel".',
   vazio: 'Nenhuma cidade com esse nome. Veja a lista completa.',

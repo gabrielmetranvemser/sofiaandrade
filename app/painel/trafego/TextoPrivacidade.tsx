@@ -29,6 +29,7 @@ export function TextoPrivacidade({ pixel, gtm }: { pixel: boolean; gtm: boolean 
   const paragrafos = [
     'Quando a campanha está anunciando, esta página carrega o pixel da Meta, a empresa do Facebook e do Instagram. Ele grava cookies no seu navegador e informa à Meta as mesmas ações listadas acima, para medir o resultado dos anúncios e formar públicos de divulgação.',
     'Parte dessas informações também sai do nosso servidor direto para a Meta, pela Conversions API. O que é enviado: o seu endereço de rede, o modelo do seu navegador, os identificadores que o próprio pixel gravou e o identificador aleatório da visita. Não enviamos nome, telefone, e-mail nem qualquer foto — esta página não pede nada disso.',
+    'Quando você chega por um anúncio, guardamos num cookie do seu navegador apenas de qual anúncio foi — o identificador do clique e o nome da peça, que já vinham escritos no endereço que você abriu. Ele serve para sabermos qual anúncio trouxe você até o grupo, apaga sozinho quando você fecha o navegador, e não guarda nada sobre o que você faz em outros sites.',
     ...(gtm
       ? [
           'Esta página também carrega o Google Tag Manager, que é a ferramenta usada para administrar essas medições. Ele não coleta nada por conta própria.',
@@ -88,7 +89,7 @@ export function TextoPrivacidade({ pixel, gtm }: { pixel: boolean; gtm: boolean 
           </li>
           <li>
             <strong className="font-medium text-tinta">3.</strong> Cole os{' '}
-            {paragrafos.length === 3 ? 'três' : 'quatro'} de baixo,{' '}
+            {paragrafos.length === 4 ? 'quatro' : 'cinco'} de baixo,{' '}
             <strong className="font-medium text-tinta">cada um no seu próprio campo</strong> — use o
             botão de adicionar da lista para abrir os que faltarem.
           </li>

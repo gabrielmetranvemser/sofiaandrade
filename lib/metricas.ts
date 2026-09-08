@@ -49,6 +49,19 @@ export interface LinhaOrigem {
   pessoas: number
 }
 
+/**
+ * Uma linha de tráfego pago: a campanha, a cidade e as duas pontas do
+ * funil. É a tela que responde "o anúncio de Vilhena valeu a pena".
+ */
+export interface LinhaCampanha {
+  utm: string
+  municipioSlug: string | null
+  municipio: string | null
+  visitas: number
+  pessoas: number
+  entradas: number
+}
+
 export interface Metricas {
   ativo: boolean
   funil: FunilDia[]
@@ -56,6 +69,7 @@ export interface Metricas {
   porOrigem: LinhaOrigem[]
   porUtm: LinhaSimples[]
   porDispositivo: LinhaSimples[]
+  porCampanha: LinhaCampanha[]
 }
 
 const VAZIO: Metricas = {
@@ -65,6 +79,7 @@ const VAZIO: Metricas = {
   porOrigem: [],
   porUtm: [],
   porDispositivo: [],
+  porCampanha: [],
 }
 
 export async function carregarMetricas(): Promise<Metricas> {
@@ -72,12 +87,14 @@ export async function carregarMetricas(): Promise<Metricas> {
   const sb = criarClienteAdmin()
   if (!sb) return VAZIO
 
-  const [funil, municipios, origens, utms, dispositivos] = await Promise.all([
+  const [funil, municipios, origens, utms, dispositivos, campanhas] = await Promise.all([
     sb.from('metricas_funil_dia').select('*').limit(30),
     sb.from('metricas_por_municipio').select('*').limit(60),
     sb.from('metricas_por_origem').select('*'),
     sb.from('metricas_por_utm').select('*').limit(20),
     sb.from('metricas_por_dispositivo').select('*'),
+    // 60 linhas: a campanha roda um conjunto por município, e são 52.
+    sb.from('metricas_por_campanha').select('*').limit(60),
   ])
 
   return {
@@ -99,6 +116,16 @@ export async function carregarMetricas(): Promise<Metricas> {
       rotulo: String(r.dispositivo),
       valor: Number(r.pessoas ?? 0),
       secundario: Number(r.cliques_grupo ?? 0),
+    })),
+    // A view é nova (migration 0016). Enquanto ela não estiver aplicada,
+    // `data` vem nulo e a tela mostra o estado vazio — nada quebra.
+    porCampanha: (campanhas.data ?? []).map((r: Record<string, unknown>) => ({
+      utm: String(r.utm ?? ''),
+      municipioSlug: r.municipio_slug ? String(r.municipio_slug) : null,
+      municipio: r.municipio ? String(r.municipio) : null,
+      visitas: Number(r.visitas ?? 0),
+      pessoas: Number(r.pessoas ?? 0),
+      entradas: Number(r.entradas ?? 0),
     })),
   }
 }

@@ -1,4 +1,5 @@
-import { carregarMetricas, somarFunil, type LinhaOrigem } from '@/lib/metricas'
+import Link from 'next/link'
+import { carregarMetricas, somarFunil, type LinhaCampanha, type LinhaOrigem } from '@/lib/metricas'
 import { Aviso } from '@/components/ui/Aviso'
 
 export const dynamic = 'force-dynamic'
@@ -56,6 +57,46 @@ function LinhaDeOrigem({ origem, maximo }: { origem: LinhaOrigem; maximo: number
   )
 }
 
+/**
+ * Uma linha de tráfego pago.
+ *
+ * ⚠️ O NÚMERO QUE IMPORTA É O DA DIREITA, e é por isso que ele está em
+ *    negrito e sozinho: a taxa. Volume de visita por anúncio diz quanto
+ *    a campanha gastou; entrada em grupo dividida por visita diz se
+ *    valeu. Um anúncio com 900 cliques e 2% converte pior que um com 80
+ *    cliques e 30% — e é o primeiro que parece bem-sucedido na tela do
+ *    Gerenciador da Meta, que só mostra o clique.
+ */
+function LinhaDeCampanha({ linha, maximo }: { linha: LinhaCampanha; maximo: number }) {
+  const pct = maximo > 0 ? Math.round((linha.visitas / maximo) * 100) : 0
+  const taxa = linha.visitas > 0 ? (linha.entradas / linha.visitas) * 100 : null
+
+  return (
+    <li className="py-2.5">
+      <div className="flex items-baseline justify-between gap-4 text-sm">
+        <span className="min-w-0 flex-1 truncate">
+          <span className="font-medium">{linha.municipio ?? 'Sem cidade no link'}</span>
+          <span className="ml-2 font-mono text-xs text-grafite">{linha.utm}</span>
+        </span>
+        <span className="shrink-0 text-grafite tabular-nums">
+          {linha.visitas} → {linha.entradas}
+          {taxa !== null ? (
+            <strong className="ml-2 font-semibold text-tinta">{taxa.toFixed(0)}%</strong>
+          ) : null}
+        </span>
+      </div>
+      <div className="mt-1.5 h-1.5 overflow-hidden rounded-full bg-areia">
+        <div className="h-full rounded-full bg-azul/30" style={{ width: `${pct}%` }}>
+          <div
+            className="h-full rounded-full bg-azul"
+            style={{ width: `${linha.visitas > 0 ? (linha.entradas / linha.visitas) * 100 : 0}%` }}
+          />
+        </div>
+      </div>
+    </li>
+  )
+}
+
 function Painel({ titulo, nota, children }: { titulo: string; nota?: string; children: React.ReactNode }) {
   return (
     <section className="rounded-2xl border border-linha bg-white p-6">
@@ -74,6 +115,7 @@ export default async function PainelMetricas() {
   const maxMunicipio = Math.max(1, ...m.porMunicipio.map((x) => x.cliques))
   const maxOrigem = Math.max(1, ...m.porOrigem.map((x) => Math.max(x.cliquesNoBotao, x.entradas)))
   const maxUtm = Math.max(1, ...m.porUtm.map((x) => x.valor))
+  const maxCampanha = Math.max(1, ...m.porCampanha.map((x) => x.visitas))
   const maxDisp = Math.max(1, ...m.porDispositivo.map((x) => x.valor))
 
   const etapas = [
@@ -142,6 +184,35 @@ export default async function PainelMetricas() {
             </ul>
           ) : (
             <p className="text-sm text-grafite">Nenhum clique registrado ainda.</p>
+          )}
+        </Painel>
+
+        {/* Antes de "cliques por município", que conta tudo: esta tela é
+            sobre o dinheiro, e quem abre o painel no meio de uma
+            campanha no ar veio ver esta primeiro. */}
+        <Painel
+          titulo="Anúncio por município"
+          nota="Visitas vindas do anúncio → entradas no grupo. Uma linha por peça e cidade."
+        >
+          {m.porCampanha.length ? (
+            <ul className="max-h-96 overflow-y-auto pr-1">
+              {m.porCampanha.map((c) => (
+                <LinhaDeCampanha
+                  key={`${c.utm}-${c.municipioSlug ?? 'sem'}`}
+                  linha={c}
+                  maximo={maxCampanha}
+                />
+              ))}
+            </ul>
+          ) : (
+            <p className="text-sm text-grafite">
+              Nenhum tráfego pago registrado ainda. Os links com{' '}
+              <code className="rounded bg-areia px-1.5 py-0.5">?cidade=</code> e UTM saem de{' '}
+              <Link href="/painel/trafego/links" className="font-medium text-azul underline">
+                Tráfego ▸ Links de anúncio
+              </Link>
+              .
+            </p>
           )}
         </Painel>
 

@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from 'react'
 import type { Evento, TipoEvento } from './tipos'
+import { utmDeParametros } from './campanha/marcas'
 import { EVENTO_META, EVENTOS_PADRAO_META } from './trafego/tipos'
 
 const CHAVE_SESSAO = 'sofia2233.sessao'
@@ -56,13 +57,16 @@ export function dispositivo(): 'celular' | 'desktop' {
   return window.matchMedia('(max-width: 768px)').matches ? 'celular' : 'desktop'
 }
 
+/**
+ * O rótulo da campanha, lido da URL desta página.
+ *
+ * A montagem vive em `lib/campanha/marcas.ts` porque o servidor precisa
+ * dela também, e as duas cópias já divergiram uma vez — ver o comentário
+ * de `CHAVES_UTM`.
+ */
 export function utmDaUrl(): string | null {
   if (typeof window === 'undefined') return null
-  const p = new URLSearchParams(window.location.search)
-  const partes = ['utm_source', 'utm_medium', 'utm_campaign', 'utm_content']
-    .map((k) => p.get(k))
-    .filter(Boolean)
-  return partes.length ? partes.join('|') : null
+  return utmDeParametros(new URLSearchParams(window.location.search))
 }
 
 /**
