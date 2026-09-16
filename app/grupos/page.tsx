@@ -1,10 +1,8 @@
 import type { Metadata } from 'next'
 import { lerSlots } from '@/lib/midia/ler'
 import Link from 'next/link'
-import { headers } from 'next/headers'
 import { lerConteudo } from '@/lib/conteudo/ler'
 import { listarMunicipiosComStatus, municipioPorSlug } from '@/lib/dados'
-import { casarCidadePorHeader } from '@/lib/geo'
 import { resolverCidadeAlvo } from '@/lib/campanha/alvo'
 import { CidadeAlvoProvider } from '@/lib/campanha/contexto'
 import { config, emSilencioEleitoral } from '@/lib/config'
@@ -12,7 +10,6 @@ import { Header } from '@/components/site/Header'
 import { RodapeLegal } from '@/components/site/RodapeLegal'
 import { RegistroDePagina } from '@/components/site/RegistroDePagina'
 import { BuscadorDeGrupo } from '@/components/grupos/BuscadorDeGrupo'
-import { MapaRondonia } from '@/components/grupos/MapaRondonia'
 import { Aviso } from '@/components/ui/Aviso'
 import { TextoComDestaque } from '@/components/ui/TextoComDestaque'
 
@@ -43,19 +40,12 @@ export default async function PaginaGrupos({
   }>
 }) {
   const simboloDaMarca = (await lerSlots())['marca.simbolo']?.url ?? null
-  const [municipios, cabecalhos, params, conteudo] = await Promise.all([
+  const [municipios, params, conteudo] = await Promise.all([
     listarMunicipiosComStatus(),
-    headers(),
     searchParams,
     lerConteudo(),
   ])
   const { ctas, grupos: copy } = conteudo
-
-  const sugerido = casarCidadePorHeader(
-    municipios,
-    cabecalhos.get('x-vercel-ip-city'),
-    cabecalhos.get('x-vercel-ip-country-region'),
-  )
 
   // Quem chegou aqui vindo de /g/[slug] com grupo indisponível merece
   // saber exatamente o que aconteceu, não uma lista muda.
@@ -74,12 +64,12 @@ export default async function PaginaGrupos({
   //    convive com `situacao` em vez de brigar com ele.
   //
   //    Uma é o link do anúncio: `/grupos?cidade=porto-velho`, e a
-  //    cidade aparece pré-selecionada no card do topo.
+  //    cidade aparece já escolhida no painel do buscador.
   //
   //    A outra é o desvio do redirecionador, que manda para cá quando o
   //    grupo está cheio ou ainda não abriu — e aí `situacao` também vem
-  //    junto, o aviso amarelo explica o que houve, e o card mostra o
-  //    selo em vez do botão. As duas leituras são verdadeiras ao mesmo
+  //    junto, o aviso amarelo explica o que houve, e o painel mostra a
+  //    situação em vez do botão. As duas leituras são verdadeiras ao mesmo
   //    tempo; separá-las em dois parâmetros só criaria uma terceira
   //    combinação para alguém errar.
   const alvo = emSilencioEleitoral() ? null : resolverCidadeAlvo(params.cidade, municipios)
@@ -127,7 +117,10 @@ export default async function PaginaGrupos({
               </Aviso>
             ) : null}
 
-            {cidadeVinda && !emSilencio ? (
+            {/* Com a cidade já escolhida no painel logo abaixo, é ele que
+                diz se o grupo está cheio ou ainda não abriu — o aviso
+                repetiria a mesma frase duas vezes na mesma tela. */}
+            {cidadeVinda && !emSilencio && !alvo ? (
               <Aviso tom={situacao === 'cheio' ? 'info' : 'alerta'} className="mb-2">
                 {situacao === 'cheio' ? (
                   <>
@@ -149,21 +142,11 @@ export default async function PaginaGrupos({
 
             {naoEncontrado ? (
               <Aviso tom="info" className="mb-2">
-                Não encontramos essa cidade. Procure na lista abaixo.
+                Não encontramos essa cidade. Digite o nome dela aqui embaixo.
               </Aviso>
             ) : null}
 
-            <BuscadorDeGrupo
-              municipios={municipios}
-              sugerido={sugerido}
-              alvo={alvo}
-              mapa={
-                <MapaRondonia
-                  municipios={municipios}
-                  destacado={alvo?.municipioSlug ?? alvo?.slug ?? sugerido?.slug}
-                />
-              }
-            />
+            <BuscadorDeGrupo municipios={municipios} alvo={alvo} className="mt-8 max-w-xl" />
           </div>
         </section>
       </main>

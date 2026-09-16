@@ -86,7 +86,10 @@ export async function GET(
     })
 
     const destino = new URL('/grupos', req.url)
-    destino.searchParams.set('cidade', municipio.slug)
+    // O lugar que a pessoa pediu, e não a sede: `/grupos` abre o painel
+    // com esta cidade, e o painel do Iata precisa dizer a situação do
+    // Iata — não oferecer o grupo de Guajará-Mirim no lugar dele.
+    destino.searchParams.set('cidade', localidade?.slug ?? municipio.slug)
     destino.searchParams.set('situacao', grupo?.status ?? 'em_breve')
     return NextResponse.redirect(destino, 307)
   }

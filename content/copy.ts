@@ -586,36 +586,23 @@ export const grupos = {
   intro:
     'São 52 grupos de WhatsApp, um para cada município de Rondônia. ' +
     'É por ali que a campanha avisa de carreata, agenda e o que estiver acontecendo perto de você.',
-  rotuloBusca: 'Digite o nome da sua cidade',
-  placeholderBusca: 'Ex.: Ji-Paraná, Vilhena, Porto Velho…',
   botaoGeo: 'Usar minha localização',
   botaoGeoCarregando: 'Localizando…',
-  geoNegado: 'Sem problema. Procure sua cidade na lista abaixo.',
-  sugestaoTitulo: 'Você está em',
-  sugestaoPergunta: 'Confirma para entrar no grupo daqui.',
-  // O card de quem chegou pelo anúncio da própria cidade. Aqui não se
-  // pergunta nada: a cidade veio no link, e perguntar de novo é atrito.
-  anuncioTitulo: 'O grupo da sua cidade',
-  anuncioTexto: 'É por aqui que a campanha fala com quem é daí.',
-  anuncioOutra: 'Sou de outra cidade',
-  sugestaoNao: 'Não é minha cidade',
-  dicaBusca: 'Pode digitar sem acento. Ex.: "ji parana", "sao miguel".',
-  vazio: 'Nenhuma cidade com esse nome. Veja a lista completa.',
-  listaTitulo: 'Todos os 52 municípios',
-  verTodos: 'Ver todos os municípios',
-  abertos: 'grupos abertos',
-  folhaTitulo: 'Encontre sua cidade',
-  folhaFechar: 'Fechar',
-  proximasTitulo: 'As mais perto de você',
-  abertosTitulo: 'Grupos abertos agora',
-  mapaTitulo: 'Onde você mora?',
-  mapaDica: 'Toque na sua cidade. Verde é grupo aberto.',
-  mapaLegendaAberto: 'Grupo aberto',
-  sugestaoSim: 'Sim, entrar no grupo',
-  sugestaoLonge: 'Confira se é mesmo a sua cidade — a sede mais próxima está longe.',
-  emBreve: 'Em breve',
+  geoNegado: 'Sem problema. Digite o nome da sua cidade aqui embaixo.',
+  rotuloBusca: 'Ou digite o nome da sua cidade',
+  // Curto de propósito: com três cidades o exemplo passa de 280px e sai
+  // cortado no meio de "Porto Velho" num celular de 375px.
+  placeholderBusca: 'Ex.: Ji-Paraná, Vilhena…',
+  vazio: 'Nenhuma cidade com esse nome. Confira como está escrito.',
+  // O painel da cidade escolhida — pela busca, pela localização ou pelo
+  // link do anúncio. O botão usa o "Entrar no grupo de" dos Botões do site.
+  cidadeTitulo: 'Sua cidade',
+  trocarCidade: 'Escolher outra cidade',
+  aberto: 'Grupo aberto',
   cheio: 'Grupo cheio',
-  aberto: 'Entrar',
+  emBreve: 'Em breve',
+  avisoCheio:
+    'O grupo desta cidade lotou e estamos abrindo o próximo. Volte daqui a algumas horas.',
   avisoEmBreve:
     'O grupo desta cidade ainda não abriu. Siga o Instagram da campanha que avisamos assim que abrir.',
 } as const
