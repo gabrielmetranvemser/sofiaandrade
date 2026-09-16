@@ -79,7 +79,7 @@ app/
 ├─ sitemap.ts · robots.ts · manifest.ts · llms.txt/route.ts
 │
 ├─ g/[slug]/route.ts            REDIRECIONADOR — conta o clique e vira o grupo
-├─ grupos/page.tsx              lista dos 52 (fallback e destino de erro)
+├─ grupos/page.tsx              o buscador de grupo em página própria (fallback e destino de erro)
 ├─ filtro/page.tsx              gerador de moldura
 ├─ politica-de-privacidade/
 │
@@ -96,7 +96,7 @@ app/
 
 components/
 ├─ site/       as seções da página, uma por arquivo
-├─ grupos/     busca, mapa de Rondônia, lista dos 52
+├─ grupos/     o buscador: localização do aparelho ou nome da cidade
 ├─ filtro/     webview do Instagram, canvas, resultado
 ├─ animacao/   palco de rolagem e cena da bandeira
 ├─ trafego/    pixel e GTM (só carregam se o painel preencher)
@@ -110,7 +110,7 @@ lib/
 ├─ trafego/        pixel, Conversions API e origem do clique
 ├─ video.ts        interpretação de link, enquadramento e medidas
 ├─ dados.ts        grupos e municípios, com fallback local ↔ Supabase
-├─ geo.ts          busca tolerante, haversine, header de cidade da Vercel
+├─ geo.ts          busca tolerante a acento e erro de digitação, haversine
 ├─ imagem.ts       EXIF, downscale, desenho e exportação do canvas
 ├─ painel/         sessão, limite de tentativas, destinos de vídeo
 └─ supabase/       client · server · admin (server-only)
@@ -121,7 +121,7 @@ content/
 ├─ slots.ts        os espaços de imagem, com as exigências de cada um
 └─ mapa.ts         costura tudo na ordem da página
 
-data/              municipios-ro.json (52) · localidades · mapa · grupos.local.json
+data/              municipios-ro.json (52) · localidades · grupos.local.json
 supabase/migrations/   15 migrations, em ordem
 ```
 
@@ -167,10 +167,10 @@ termina com a cidade:
 https://…/?cidade=porto-velho&utm_source=meta&utm_medium=cpc&utm_campaign=grupos-municipios&utm_content=porto-velho
 ```
 
-Quem clica cai na página com **a cidade já escolhida**: o card no topo
-da seção de grupos é o dela, e todo botão de grupo — cabeçalho, hero,
+Quem clica cai na página com **a cidade já escolhida**: a seção de
+grupos abre com o painel dela, e todo botão de grupo — cabeçalho, hero,
 flutuante, CTA final — passa a apontar direto para `/g/porto-velho`, em
-vez de rolar até a lista. Um toque, não três.
+vez de rolar até a busca. Um toque, não três.
 
 Os links saem prontos de **Painel ▸ Tráfego ▸ Links de anúncio**, um por
 município, com o UTM já montado e um aviso nas cidades cujo grupo ainda
@@ -294,9 +294,6 @@ site pode ser indexado e o que alimenta os endereços da tela de Buscas.
 Manter em **URL de preview** até CNPJ, responsável, endereço do comitê e
 domínio estarem confirmados.
 
-A sugestão de cidade por IP usa o header `x-vercel-ip-city`, que só
-existe em produção na Vercel. Em local ela simplesmente não aparece.
-
 ---
 
 ## Como testar
@@ -312,7 +309,8 @@ existe em produção na Vercel. Em local ela simplesmente não aparece.
 - [ ] trocar um vídeo de deitado para em pé no painel e conferir a seção nos dois estados
 - [ ] editar um texto no painel e ver a home mudar sem republicar
 - [ ] cronometrar num celular antigo em 4G — teto de 3s até o botão clicável
-- [ ] conferir 5 municípios distantes no mapa (Porto Velho, Vilhena, Guajará-Mirim, Ji-Paraná, Cabixi)
+- [ ] no celular, digitar "vilh" na busca de grupo: a sugestão aparece acima do teclado e o toque abre o painel da cidade
+- [ ] "Usar minha localização" no celular: o painel mostra a cidade certa; negando a permissão, aparece o aviso para digitar
 - [ ] abrir `/?cidade=porto-velho` e conferir que TODO botão de grupo leva a `/g/porto-velho`
 - [ ] abrir `/?cidade=porto-velo` (errado de propósito): a página cai no comportamento normal, sem adivinhar
 - [ ] com um grupo cheio: clicar no botão, cair em `/grupos`, escolher outra cidade, e conferir no banco que o `clicou_grupo` guardou o UTM do anúncio original

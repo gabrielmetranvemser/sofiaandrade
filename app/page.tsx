@@ -1,7 +1,5 @@
-import { headers } from 'next/headers'
 import { lerSlots } from '@/lib/midia/ler'
 import { listarMunicipiosComStatus } from '@/lib/dados'
-import { casarCidadePorHeader } from '@/lib/geo'
 import { resolverCidadeAlvo } from '@/lib/campanha/alvo'
 import { CidadeAlvoProvider } from '@/lib/campanha/contexto'
 import { config, emSilencioEleitoral } from '@/lib/config'
@@ -45,19 +43,7 @@ export default async function Home({
   const simboloDaMarca = (await lerSlots())['marca.simbolo']?.url ?? null
   // Quais seções estão ligadas. Vem do painel; ver content/copy.ts.
   const { exibir } = await lerConteudo()
-  const [municipios, cabecalhos, params] = await Promise.all([
-    listarMunicipiosComStatus(),
-    headers(),
-    searchParams,
-  ])
-
-  // Sugestão silenciosa por IP: o header vem da Vercel, de graça,
-  // sem pedir permissão nenhuma para a pessoa.
-  const sugerido = casarCidadePorHeader(
-    municipios,
-    cabecalhos.get('x-vercel-ip-city'),
-    cabecalhos.get('x-vercel-ip-country-region'),
-  )
+  const [municipios, params] = await Promise.all([listarMunicipiosComStatus(), searchParams])
 
   const silencio = emSilencioEleitoral()
 
@@ -105,7 +91,7 @@ export default async function Home({
         {exibir.trilha ? <Trilha /> : null}
         {exibir.futuro ? <Futuro /> : null}
         {exibir.grupos ? (
-          <SecaoGrupos municipios={municipios} sugerido={sugerido} alvo={alvo} />
+          <SecaoGrupos municipios={municipios} alvo={alvo} />
         ) : null}
         {exibir.filtro ? <SecaoFiltro /> : null}
         {exibir.compartilhar ? <Compartilhar siteUrl={config.siteUrl} /> : null}

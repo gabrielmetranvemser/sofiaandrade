@@ -3,7 +3,7 @@ import type { Municipio } from './tipos'
 /**
  * Normaliza nome de cidade para busca: sem acento, sem apóstrofo,
  * sem hífen, minúsculo. "Alta Floresta d'Oeste" → "alta floresta doeste".
- * Usado tanto na busca por digitação quanto no casamento do header da Vercel.
+ * Usado na busca por digitação e no casamento da cidade do anúncio.
  */
 export function normalizar(texto: string): string {
   return texto
@@ -41,7 +41,7 @@ export function distanciaTexto(a: string, b: string): number {
  * Busca tolerante. Ordem de prioridade:
  * 1. começa com o termo   2. contém o termo   3. erro de digitação pequeno
  *
- * Pede só um `nome`, e não um município inteiro: a folha de cidades
+ * Pede só um `nome`, e não um município inteiro: o buscador de grupo
  * procura numa lista que tem distrito no meio, e distrito não tem
  * coordenada de sede.
  */
@@ -123,35 +123,4 @@ export function municipiosMaisProximos<T extends Municipio>(
     }))
     .sort((a, b) => a.km - b.km)
     .slice(0, quantos)
-}
-
-/**
- * Casa o header de cidade da Vercel (`x-vercel-ip-city`) com um dos 52.
- * Header vem URL-encoded e sem acento em alguns casos.
- */
-export function casarCidadePorHeader<T extends Municipio>(
-  lista: T[],
-  cidadeHeader: string | null | undefined,
-  regiaoHeader?: string | null,
-): T | null {
-  if (!cidadeHeader) return null
-  // Fora de Rondônia, não sugere nada.
-  if (regiaoHeader && normalizar(regiaoHeader) !== 'ro') return null
-
-  let cidade: string
-  try {
-    cidade = decodeURIComponent(cidadeHeader)
-  } catch {
-    cidade = cidadeHeader
-  }
-  const alvo = normalizar(cidade)
-  if (!alvo) return null
-
-  const exato = lista.find((m) => normalizar(m.nome) === alvo)
-  if (exato) return exato
-
-  const parcial = lista.find(
-    (m) => normalizar(m.nome).startsWith(alvo) || alvo.startsWith(normalizar(m.nome)),
-  )
-  return parcial ?? null
 }

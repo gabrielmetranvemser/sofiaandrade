@@ -1,268 +1,428 @@
 'use client'
 
-import { useState, type ReactNode } from 'react'
+import { useEffect, useId, useMemo, useRef, useState, type KeyboardEvent } from 'react'
 import { useConteudo } from '@/lib/conteudo/contexto'
-import { municipiosMaisProximos } from '@/lib/geo'
-import { evento } from '@/lib/eventos'
-import type { Destino, MunicipioComGrupo } from '@/lib/tipos'
+import { buscarMunicipios, municipioMaisProximo, normalizar } from '@/lib/geo'
+import { evento, caminhoDoGrupo, useSessao } from '@/lib/eventos'
 import { achatarDestinos } from '@/lib/destinos'
-import { CardCidadeSugerida } from './CardCidadeSugerida'
-import { FolhaDeCidades } from './FolhaDeCidades'
-import { LinhaMunicipio } from './LinhaMunicipio'
-import { Aviso } from '@/components/ui/Aviso'
-
-interface Props {
-  municipios: MunicipioComGrupo[]
-  /** Sugestão silenciosa vinda do IP, resolvida no servidor. */
-  sugerido?: MunicipioComGrupo | null
-  /**
-   * A cidade que o anúncio prometeu (`?cidade=porto-velho`).
-   *
-   * Manda sobre o IP e sobre o GPS, e não é preferência de código: as
-   * outras duas são palpites do servidor e do aparelho; esta é o que a
-   * própria pessoa escolheu ao clicar num anúncio que dizia o nome da
-   * cidade. Mostrar duas cidades diferentes na mesma tela — a do IP e a
-   * do anúncio — seria fazer o site contradizer o anúncio que a campanha
-   * pagou para publicar.
-   */
-  alvo?: Destino | null
-  /**
-   * O mapa, montado no servidor e entregue pronto.
-   *
-   * Vem por prop, e não por import, porque este componente é cliente e
-   * o mapa é servidor. Importá-lo aqui arrastaria 32 kB de coordenadas
-   * para o bundle — passado como filho, desce como HTML.
-   */
-  mapa?: ReactNode
-}
+import type { Destino, MunicipioComGrupo, OrigemClique, StatusGrupo } from '@/lib/tipos'
 
 /**
- * Encontrar a sua cidade entre 52.
- *
- * A lista dos 52 saiu da página — eram 2.900px de altura no celular,
- * mais alta que a seção inteira, e ninguém rolava até o fim. Mas a
- * ressalva do plano continua valendo: o público é de 35 a 64 anos e
- * não caça botão escondido. Por isso a lista não virou accordion; ela
- * mudou de lugar, e a cidade certa aparece SEM CLIQUE nos caminhos
- * mais prováveis:
- *
- *   1. o IP, que a Vercel entrega de graça e não pede permissão
- *   2. o GPS, que quando autorizado mostra as SEIS mais próximas
- *   3. o mapa, para quem prefere apontar a digitar
- *   4. os grupos já abertos, quando nada acima resolveu
- *
- * Quem não se encaixar em nenhum continua a um toque da lista inteira,
- * que abre completa, sem accordion.
- *
- * Vale medir: buscou_cidade contra clicou_grupo por origem diz em duas
- * semanas se recolher a lista atrapalhou.
+ * Quantas sugestões aparecem de uma vez. Com o campo no topo, cinco é o
+ * que cabe acima do teclado num celular de 812px — a sexta nasceria
+ * atrás dele.
  */
-export function BuscadorDeGrupo({ municipios, sugerido = null, alvo = null, mapa = null }: Props) {
-  const { grupos: copy } = useConteudo()
-  const [folhaAberta, setFolhaAberta] = useState(false)
-  const [proximas, setProximas] = useState<{ m: MunicipioComGrupo; km: number }[] | null>(null)
-  const [estadoGeo, setEstadoGeo] = useState<'ocioso' | 'carregando' | 'negado' | 'erro'>('ocioso')
-  const [sugestaoDispensada, setDispensada] = useState(false)
+const MAX_SUGESTOES = 5
+
+/**
+ * Onde o campo para quando ganha foco no celular: logo abaixo do
+ * cabeçalho fixo. É o mesmo `scroll-padding-top` de globals.css.
+ */
+const TOPO_LIVRE = 96
+
+interface Sugestao {
+  destino: Destino
+  /** Município que ancora um distrito. Ver `achatarDestinos`. */
+  dentroDe?: string
+  nome: string
+}
+
+interface Escolha {
+  destino: Destino
+  /** Por onde a cidade foi escolhida. Vai no /g/ e responde "qual caminho trabalha". */
+  origem: OrigemClique
+}
+
+const toqueNaTela = () => window.matchMedia('(pointer: coarse)').matches
+
+/**
+ * ACHE O GRUPO DA SUA CIDADE.
+ *
+ * Dois jeitos de dizer onde mora — a localização do aparelho ou o nome
+ * digitado — e, com a cidade escolhida, um botão só. Nada mais.
+ *
+ * ⚠️ POR QUE NÃO HÁ MAIS MODAL, MAPA NEM LISTA.
+ *
+ *    A versão anterior somava card de palpite por IP, mapa em relevo,
+ *    lista de grupos abertos e uma folha de busca que subia do rodapé.
+ *    A folha era o defeito no celular: sem altura fixa e presa ao pé da
+ *    tela, ela encolhia a cada letra digitada. Com "vilh", o campo
+ *    descia de y≈185 para y≈637 numa tela de 812 — exatamente para
+ *    trás do teclado. A pessoa digitava e a busca sumia.
+ *
+ *    Aqui o campo mora na própria página e as sugestões nascem logo
+ *    abaixo dele, no fluxo do documento. Não sobra camada nenhuma para
+ *    o teclado cobrir.
+ *
+ * ⚠️ A CIDADE DO ANÚNCIO JÁ CHEGA ESCOLHIDA, e sem pergunta: quem
+ *    clicou no anúncio de Vilhena já respondeu. O palpite por IP saiu
+ *    junto com o resto — em rede móvel ele costuma apontar a capital, e
+ *    um painel dizendo "Sua cidade: Porto Velho" para quem mora em
+ *    Ji-Paraná é pior que painel nenhum.
+ */
+export function BuscadorDeGrupo({
+  municipios,
+  alvo = null,
+  className = '',
+}: {
+  municipios: MunicipioComGrupo[]
+  /** A cidade que veio no link do anúncio. Ver `lib/campanha/alvo.ts`. */
+  alvo?: Destino | null
+  className?: string
+}) {
+  const { grupos: copy, ctas } = useConteudo()
+  const sessao = useSessao()
+  const id = useId()
+  const idCampo = `${id}-campo`
+  const idLista = `${id}-lista`
+
+  const campo = useRef<HTMLInputElement>(null)
+  const painel = useRef<HTMLDivElement>(null)
+  const timerBusca = useRef<ReturnType<typeof setTimeout> | null>(null)
+  const timerFechar = useRef<ReturnType<typeof setTimeout> | null>(null)
+  /** Invalida uma localização ainda a caminho quando a pessoa escolhe antes. */
+  const pedidoGeo = useRef(0)
+  /** Só a escolha feita agora rola até o painel; a do anúncio já nasce nele. */
+  const levarAoPainel = useRef(false)
+
+  const [escolha, setEscolha] = useState<Escolha | null>(
+    alvo ? { destino: alvo, origem: 'anuncio' } : null,
+  )
+  const [termo, setTermo] = useState('')
+  const [aberta, setAberta] = useState(false)
+  const [ativa, setAtiva] = useState(-1)
+  const [geo, setGeo] = useState<'ocioso' | 'carregando' | 'falhou'>('ocioso')
+
+  // Distrito entra na busca igual a município: quem digita "Iata" acha
+  // Iata, e não Guajará-Mirim, que é o município que o esconderia.
+  const linhas = useMemo<Sugestao[]>(
+    () => achatarDestinos(municipios).map((l) => ({ ...l, nome: l.destino.nome })),
+    [municipios],
+  )
+  // E a sede puxa os seus distritos: quem é do Iata e digita "Guajará"
+  // precisa ver que o Iata tem grupo próprio, e aberto, logo abaixo de
+  // uma Guajará-Mirim que ainda está "em breve".
+  const sugestoes = useMemo(() => {
+    const achadas = buscarMunicipios(linhas, termo, MAX_SUGESTOES)
+    return achadas
+      .flatMap((s) => [
+        s,
+        ...linhas.filter((l) => l.dentroDe === s.nome && !achadas.includes(l)),
+      ])
+      .slice(0, MAX_SUGESTOES)
+  }, [linhas, termo])
+  const listaAberta = aberta && sugestoes.length > 0
+  const semResultado = aberta && normalizar(termo).length >= 2 && sugestoes.length === 0
+
+  useEffect(
+    () => () => {
+      if (timerBusca.current) clearTimeout(timerBusca.current)
+      if (timerFechar.current) clearTimeout(timerFechar.current)
+    },
+    [],
+  )
+
+  // O painel nasce ACIMA do campo. No celular, quando o teclado fecha,
+  // ele costuma ficar fora da tela — e é nele que está o botão.
+  useEffect(() => {
+    if (!levarAoPainel.current) return
+    levarAoPainel.current = false
+    const el = painel.current
+    if (!el) return
+    const { top, bottom } = el.getBoundingClientRect()
+    if (top >= TOPO_LIVRE && bottom <= window.innerHeight) return
+    window.scrollTo({ top: window.scrollY + top - TOPO_LIVRE })
+  }, [escolha])
+
+  function rotuloDoStatus(status: StatusGrupo) {
+    if (status === 'aberto') return copy.aberto
+    if (status === 'cheio') return copy.cheio
+    return copy.emBreve
+  }
+
+  function escolher(destino: Destino, origem: OrigemClique) {
+    pedidoGeo.current += 1
+    levarAoPainel.current = true
+    setEscolha({ destino, origem })
+    setAberta(false)
+    setAtiva(-1)
+    setGeo('ocioso')
+  }
+
+  function escolherSugestao(s: Sugestao) {
+    // A busca que terminou em escolha conta, mesmo quando o toque veio
+    // antes da pausa que dispararia o evento.
+    if (timerBusca.current) {
+      clearTimeout(timerBusca.current)
+      timerBusca.current = null
+      evento('buscou_cidade')
+    }
+    if (!s.destino.disponivel) {
+      evento('entrou_grupo_indisponivel', {
+        municipio_slug: s.destino.municipioSlug ?? s.destino.slug,
+        origem: 'busca',
+      })
+    }
+
+    setTermo(s.destino.nome)
+    escolher(s.destino, 'busca')
+
+    // No celular, fecha o teclado: o que importa agora é o botão do
+    // painel. No computador o foco fica onde está, para quem usa teclado.
+    if (toqueNaTela()) campo.current?.blur()
+  }
 
   function usarLocalizacao() {
     if (!('geolocation' in navigator)) {
-      setEstadoGeo('erro')
+      setGeo('falhou')
       return
     }
-    setEstadoGeo('carregando')
+    const pedido = ++pedidoGeo.current
+    setGeo('carregando')
     evento('usou_localizacao')
 
     navigator.geolocation.getCurrentPosition(
       (pos) => {
+        if (pedido !== pedidoGeo.current) return
         // O cálculo acontece aqui, no aparelho. A coordenada não sai
-        // daqui e é descartada assim que a lista é montada.
-        const achados = municipiosMaisProximos(
-          municipios,
-          pos.coords.latitude,
-          pos.coords.longitude,
-          6,
-        )
-        setProximas(achados.map((a) => ({ m: a.municipio, km: a.km })))
-        setEstadoGeo('ocioso')
+        // daqui e é descartada assim que a cidade é escolhida.
+        const achado = municipioMaisProximo(municipios, pos.coords.latitude, pos.coords.longitude)
+        if (!achado) {
+          setGeo('falhou')
+          return
+        }
+        setTermo('')
+        escolher(achado.municipio, 'geo')
       },
-      () => setEstadoGeo('negado'),
-      { enableHighAccuracy: false, timeout: 8000, maximumAge: 600_000 },
+      () => {
+        if (pedido === pedidoGeo.current) setGeo('falhou')
+      },
+      { enableHighAccuracy: false, timeout: 10_000, maximumAge: 600_000 },
     )
   }
 
-  // Distrito entra nesta lista igual: o que se promete aqui é "grupo
-  // aberto onde o toque leva a algum lugar", e o do Iata leva.
-  const disponiveis = achatarDestinos(municipios).filter((l) => l.destino.disponivel)
-  const abertos = disponiveis.length
-  const primeirosAbertos = disponiveis.slice(0, 6)
-  // O card do anúncio ocupa o lugar do card de sugestão. Ver `alvo`.
-  const mostrarAlvo = Boolean(alvo) && !sugestaoDispensada && !proximas
-  const mostrarSugestao = Boolean(sugerido) && !alvo && !sugestaoDispensada && !proximas
+  function trocarCidade() {
+    pedidoGeo.current += 1
+    setEscolha(null)
+    setTermo('')
+    setGeo('ocioso')
+    campo.current?.focus()
+  }
+
+  function aoDigitar(valor: string) {
+    setTermo(valor)
+    setAberta(true)
+    setAtiva(-1)
+
+    // Uma pessoa digitando "Ji-Paraná" não deve gerar oito eventos.
+    if (timerBusca.current) clearTimeout(timerBusca.current)
+    timerBusca.current = null
+    if (normalizar(valor).length >= 3) {
+      timerBusca.current = setTimeout(() => {
+        timerBusca.current = null
+        evento('buscou_cidade')
+      }, 900)
+    }
+  }
+
+  function aoFocar() {
+    if (timerFechar.current) clearTimeout(timerFechar.current)
+    // O nome já escolhido continua no campo, mas não é busca: reabrir a
+    // lista com ele seria perguntar de novo o que acabou de ser respondido.
+    if (termo !== escolha?.destino.nome) setAberta(true)
+
+    if (!toqueNaTela()) return
+    // ⚠️ O TECLADO COBRE A METADE DE BAIXO DA TELA, e as sugestões
+    //    nascem embaixo do campo. Levar o campo para o topo, logo abaixo
+    //    do cabeçalho, é o que deixa a lista à vista enquanto se digita.
+    //    A espera é a do teclado terminar de subir: antes disso o
+    //    navegador ainda está fazendo a rolagem dele.
+    setTimeout(() => {
+      const el = campo.current
+      if (!el || document.activeElement !== el) return
+      const { top } = el.getBoundingClientRect()
+      if (Math.abs(top - TOPO_LIVRE) > 8) window.scrollTo({ top: window.scrollY + top - TOPO_LIVRE })
+    }, 300)
+  }
+
+  function aoSair() {
+    // Com folga: no toque, o campo pode perder o foco antes de o clique
+    // chegar na sugestão, e fechar na hora apagaria a sugestão tocada.
+    timerFechar.current = setTimeout(() => {
+      setAberta(false)
+      setAtiva(-1)
+    }, 150)
+  }
+
+  function aoTeclar(e: KeyboardEvent<HTMLInputElement>) {
+    if (e.nativeEvent.isComposing) return
+
+    if (e.key === 'ArrowDown' || e.key === 'ArrowUp') {
+      if (sugestoes.length === 0) return
+      e.preventDefault()
+      setAberta(true)
+      const ultima = sugestoes.length - 1
+      setAtiva((i) =>
+        e.key === 'ArrowDown' ? (i >= ultima ? 0 : i + 1) : i <= 0 ? ultima : i - 1,
+      )
+    } else if (e.key === 'Enter') {
+      // Enter sem seta escolhe a primeira: "vilhena" + Enter resolve.
+      const s = listaAberta ? (sugestoes[ativa] ?? sugestoes[0]) : undefined
+      if (!s) return
+      e.preventDefault()
+      escolherSugestao(s)
+    } else if (e.key === 'Escape' && aberta) {
+      e.preventDefault()
+      setAberta(false)
+      setAtiva(-1)
+    }
+  }
 
   return (
-    <div className="mt-12">
-      {/* ── A cidade que veio no link do anúncio ──
-          A saída não dispensa o card em silêncio: ela abre a lista
-          inteira. Quem chegou por um anúncio de outra cidade não pode
-          ficar olhando para uma tela onde a única coisa concreta acabou
-          de sumir. */}
-      {mostrarAlvo && alvo ? (
-        <CardCidadeSugerida
-          municipio={alvo}
-          origem="anuncio"
-          modo="anuncio"
-          onNaoEMinha={() => {
-            setDispensada(true)
-            setFolhaAberta(true)
-          }}
-        />
-      ) : null}
+    <div className={`rounded-xl border border-linha bg-white p-5 shadow-media sm:p-8 ${className}`}>
+      {/* aria-live porque o painel aparece longe de onde a pessoa tocou:
+          quem usa leitor de tela precisa ouvir qual cidade ficou. */}
+      <div aria-live="polite">
+        {escolha ? (
+          <div ref={painel} className="anima-etapa mb-7 rounded-lg bg-azul-suave p-5 sm:p-6">
+            <p className="etiqueta text-azul-escuro">{copy.cidadeTitulo}</p>
+            <p className="mt-1.5 font-[family-name:var(--font-titulo)] text-[1.875rem] leading-[1.08] font-bold tracking-[-0.03em] text-balance text-tinta">
+              {escolha.destino.nome}
+            </p>
 
-      {/* ── A cidade do IP, sem clique e sem permissão ── */}
-      {mostrarSugestao && sugerido ? (
-        <CardCidadeSugerida
-          municipio={sugerido}
-          origem="geo"
-          onNaoEMinha={() => setDispensada(true)}
-        />
-      ) : null}
+            {escolha.destino.disponivel ? (
+              // <a> e não <Link>: /g/ é Route Handler, e a pré-busca do
+              // <Link> contaria um clique no grupo sem ninguém ter tocado.
+              <a
+                href={caminhoDoGrupo(escolha.destino.slug, escolha.origem, sessao)}
+                className="toque mt-5 flex min-h-14 w-full items-center justify-center gap-3 rounded-full bg-azul-escuro px-6 py-3 text-left text-lg leading-snug font-semibold text-white shadow-media transition-colors hover:bg-azul-noite"
+              >
+                {/* O logo inteiro, com o telefone: é a última tela antes
+                    do WhatsApp, e o símbolo diz para onde o toque leva. */}
+                <svg viewBox="0 0 24 24" className="size-6 shrink-0" fill="currentColor" aria-hidden>
+                  <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 0 1-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 0 1-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 0 1 2.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0 0 12.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 0 0 5.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 0 0-3.48-8.413Z" />
+                </svg>
+                <span>
+                  {ctas.grupoDe} {escolha.destino.nome}
+                </span>
+              </a>
+            ) : (
+              // Sem grupo aberto, a cidade continua aparecendo, com o
+              // porquê. Sumir com ela faria a pessoa achar que o site errou.
+              <div className="mt-4">
+                <span className="inline-flex items-center rounded-full bg-white px-3 py-1 text-sm font-semibold text-azul-escuro ring-1 ring-azul/20">
+                  {rotuloDoStatus(escolha.destino.status)}
+                </span>
+                <p className="mt-2.5 text-base text-grafite">
+                  {escolha.destino.status === 'cheio' ? copy.avisoCheio : copy.avisoEmBreve}
+                </p>
+              </div>
+            )}
 
-      {/* ── A cidade do GPS, quando autorizado ── */}
-      {proximas && proximas[0] ? (
-        <CardCidadeSugerida
-          municipio={proximas[0].m}
-          origem="geo"
-          distanciaKm={proximas[0].km}
-          onNaoEMinha={() => setProximas(null)}
-        />
-      ) : null}
-
-      {/* Duas colunas no desktop: o mapa de um lado, o que é controle
-          do outro. Empilhados somavam quase duas telas; lado a lado
-          cabem numa.
-
-          Na ordem do documento os controles vêm PRIMEIRO e o mapa
-          depois, porque no celular a grade vira pilha — e quem chega
-          querendo o grupo da própria cidade resolve mais rápido
-          digitando. No desktop o lg:order devolve o mapa para a
-          esquerda, que é onde o olho começa. */}
-      <div className="mt-6 grid gap-8 lg:grid-cols-[minmax(0,1.05fr)_minmax(0,0.95fr)] lg:items-start lg:gap-10">
-        {/* A coluna de controle.
-
-            Tudo aqui usa a MESMA forma e o MESMO respiro: cartões de
-            raio grande, empilhados com a mesma distância, e cada bloco
-            aberto por uma etiqueta. A versão anterior misturava
-            cápsulas de duas linhas com cápsulas de uma, alinhamento à
-            esquerda com centralizado, e nenhum rótulo — três caixas
-            brancas soltas que não diziam o que eram. */}
-        <div className="lg:order-2">
-          <p className="etiqueta text-azul-escuro">{copy.rotuloBusca}</p>
-
-          {/* O campo é um BOTÃO, não um input: abre a folha, onde o
-              campo de verdade vive junto com a lista. Digitar e
-              procurar viram a mesma superfície, e no celular o teclado
-              sobe sem empurrar a página. */}
-          <button
-            type="button"
-            onClick={() => setFolhaAberta(true)}
-            className="toque mt-3 flex min-h-16 w-full items-center gap-3 rounded-2xl border border-linha bg-white px-5 text-left text-lg text-grafite/70 shadow-suave transition-colors hover:border-azul/40 hover:text-grafite"
-          >
-            <svg viewBox="0 0 24 24" className="size-6 shrink-0 text-azul" fill="currentColor" aria-hidden>
-              <path d="M10 2a8 8 0 1 0 4.9 14.3l5.4 5.4 1.4-1.4-5.4-5.4A8 8 0 0 0 10 2Zm0 2a6 6 0 1 1 0 12 6 6 0 0 1 0-12Z" />
-            </svg>
-            <span className="min-w-0 flex-1 truncate">{copy.placeholderBusca}</span>
-          </button>
-
-          {/* A localização é caminho secundário, então tem peso de
-              link. Como cápsula do mesmo tamanho do campo, competia
-              com ele e a coluna virava uma pilha de botões iguais. */}
-          <button
-            type="button"
-            onClick={usarLocalizacao}
-            disabled={estadoGeo === 'carregando'}
-            className="mt-3 inline-flex min-h-11 items-center gap-2 font-medium text-azul underline decoration-1 underline-offset-[6px] transition-colors hover:text-azul-escuro disabled:opacity-50"
-          >
-            <svg viewBox="0 0 24 24" className="size-5" fill="currentColor" aria-hidden>
-              <path d="M12 2a7 7 0 0 0-7 7c0 5.2 7 13 7 13s7-7.8 7-13a7 7 0 0 0-7-7Zm0 9.5A2.5 2.5 0 1 1 12 6.5a2.5 2.5 0 0 1 0 5Z" />
-            </svg>
-            {estadoGeo === 'carregando' ? copy.botaoGeoCarregando : copy.botaoGeo}
-          </button>
-
-          {estadoGeo === 'negado' || estadoGeo === 'erro' ? (
-            <Aviso tom="info" className="mt-4">
-              {copy.geoNegado}
-            </Aviso>
-          ) : null}
-
-          {/* Seis mais próximas, e não uma: em Rondônia a distância
-              entre sedes é grande e quem mora no interior do município
-              pode estar mais perto da sede vizinha. Mostrar só a
-              primeira faria a pessoa concluir que o site errou. */}
-          {proximas && proximas.length > 1 ? (
-            <div className="mt-8">
-              <p className="etiqueta text-azul-escuro">{copy.proximasTitulo}</p>
-              <ul className="cartao mt-3 grid gap-1 p-2">
-                {proximas.slice(1).map(({ m, km }) => (
-                  <LinhaMunicipio key={m.slug} destino={m} origem="geo" distanciaKm={km} />
-                ))}
-              </ul>
-            </div>
-          ) : null}
-
-          {/* Sem isto, quem chega sem IP resolvido e não autoriza o GPS
-              vê dois controles e nenhuma cidade. Este público não caça
-              botão escondido: precisa de algo concreto para tocar, e
-              grupos abertos são os únicos em que o toque leva a algum
-              lugar. Some quando o GPS responde — ali a lista de perto
-              é melhor. */}
-          {!proximas && primeirosAbertos.length > 0 ? (
-            <div className="mt-8">
-              <p className="etiqueta text-azul-escuro">{copy.abertosTitulo}</p>
-              <ul className="cartao mt-3 grid gap-1 p-2">
-                {primeirosAbertos.map(({ destino, dentroDe }) => (
-                  <LinhaMunicipio
-                    key={destino.slug}
-                    destino={destino}
-                    dentroDe={dentroDe}
-                    origem="lista"
-                  />
-                ))}
-              </ul>
-            </div>
-          ) : null}
-
-          <button
-            type="button"
-            onClick={() => setFolhaAberta(true)}
-            className="mt-6 inline-flex min-h-11 items-center gap-2 font-medium text-azul underline decoration-1 underline-offset-[6px] transition-colors hover:text-azul-escuro"
-          >
-            {copy.verTodos}
-            <span className="text-grafite no-underline">
-              · <strong className="font-semibold text-verde">{abertos}</strong> {copy.abertos}
-            </span>
-            <svg viewBox="0 0 24 24" className="size-4 shrink-0" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" aria-hidden>
-              <path d="M9 6l6 6-6 6" />
-            </svg>
-          </button>
-        </div>
-
-        {/* ── O mapa ──
-            A camada de apontar em vez de digitar, e a peça mais
-            compartilhável da seção depois do filtro: "olha, minha
-            cidade já tem grupo" vira print. */}
-        {mapa ? (
-          <div className="lg:order-1">
-            <h3 className="text-xl">{copy.mapaTitulo}</h3>
-            <div className="mt-3">{mapa}</div>
+            <button
+              type="button"
+              onClick={trocarCidade}
+              className="mt-3 inline-flex min-h-12 items-center text-base font-semibold text-grafite underline decoration-1 underline-offset-[6px] transition-colors hover:text-azul-escuro"
+            >
+              {copy.trocarCidade}
+            </button>
           </div>
         ) : null}
       </div>
 
-      <FolhaDeCidades
-        municipios={municipios}
-        aberta={folhaAberta}
-        onFechar={() => setFolhaAberta(false)}
+      <button
+        type="button"
+        onClick={usarLocalizacao}
+        disabled={geo === 'carregando'}
+        className="toque flex min-h-14 w-full items-center justify-center gap-3 rounded-full border-2 border-azul-escuro bg-white px-5 text-lg font-semibold text-azul-escuro transition-colors hover:bg-azul-suave disabled:cursor-wait disabled:opacity-60"
+      >
+        <svg viewBox="0 0 24 24" className="size-6 shrink-0" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" aria-hidden>
+          <circle cx="12" cy="12" r="7" />
+          <circle cx="12" cy="12" r="2.25" fill="currentColor" stroke="none" />
+          <path d="M12 1.75v3M12 19.25v3M1.75 12h3M19.25 12h3" />
+        </svg>
+        {geo === 'carregando' ? copy.botaoGeoCarregando : copy.botaoGeo}
+      </button>
+
+      {geo === 'falhou' ? (
+        <p role="status" className="mt-3 text-base text-grafite">
+          {copy.geoNegado}
+        </p>
+      ) : null}
+
+      <label htmlFor={idCampo} className="mt-7 block text-base font-semibold text-grafite">
+        {copy.rotuloBusca}
+      </label>
+      <input
+        ref={campo}
+        id={idCampo}
+        type="text"
+        inputMode="search"
+        enterKeyHint="search"
+        autoComplete="off"
+        autoCorrect="off"
+        autoCapitalize="words"
+        spellCheck={false}
+        role="combobox"
+        aria-autocomplete="list"
+        aria-expanded={listaAberta}
+        aria-controls={idLista}
+        aria-activedescendant={listaAberta && ativa >= 0 ? `${id}-opcao-${ativa}` : undefined}
+        value={termo}
+        onChange={(e) => aoDigitar(e.target.value)}
+        onKeyDown={aoTeclar}
+        onFocus={aoFocar}
+        onBlur={aoSair}
+        placeholder={copy.placeholderBusca}
+        // 18px de fonte não é só leitura: abaixo de 16px o iPhone dá
+        // zoom na página inteira quando o campo ganha foco.
+        className="mt-2.5 min-h-14 w-full rounded-full border-2 border-grafite/20 bg-white px-5 text-lg text-tinta transition-[border-color,box-shadow] placeholder:text-grafite/55 focus:border-azul focus:ring-4 focus:ring-azul/15 focus:outline-hidden"
       />
+
+      {/* A lista existe sempre, escondida quando vazia: o campo aponta
+          para ela em aria-controls, e o endereço precisa existir. */}
+      <ul
+        id={idLista}
+        role="listbox"
+        aria-label={copy.rotuloBusca}
+        hidden={!listaAberta}
+        // Segura o foco no campo enquanto o mouse escolhe. Sem isto o
+        // campo perde o foco no clique e a lista fecha antes da escolha.
+        onMouseDown={(e) => e.preventDefault()}
+        className="mt-2 grid gap-0.5 rounded-lg border border-linha bg-white p-1.5 shadow-media"
+      >
+        {sugestoes.map((s, i) => (
+          <li
+            key={s.destino.slug}
+            id={`${id}-opcao-${i}`}
+            role="option"
+            aria-selected={i === ativa}
+            onClick={() => escolherSugestao(s)}
+            // A situação vai para baixo do nome no celular. Ao lado, ela
+            // come metade da linha e "Nova Brasilândia d'Oeste" sai
+            // cortada — e o nome é justamente o que a pessoa procura.
+            className="flex min-h-13 cursor-pointer flex-col justify-center rounded-md px-4 py-1.5 transition-colors hover:bg-areia aria-selected:bg-azul-suave sm:flex-row sm:items-center sm:gap-3"
+          >
+            <span className="min-w-0 text-lg leading-snug sm:flex-1">
+              <span className="font-medium text-tinta">{s.destino.nome}</span>
+              {s.dentroDe ? <span className="text-base text-grafite"> · {s.dentroDe}</span> : null}
+            </span>
+            <span
+              className={`shrink-0 text-xs font-semibold tracking-[0.08em] uppercase ${
+                s.destino.status === 'aberto' ? 'text-verde-escuro' : 'text-grafite'
+              }`}
+            >
+              {rotuloDoStatus(s.destino.status)}
+            </span>
+          </li>
+        ))}
+      </ul>
+
+      {semResultado ? (
+        <p role="status" className="mt-3 text-base text-grafite">
+          {copy.vazio}
+        </p>
+      ) : null}
     </div>
   )
 }

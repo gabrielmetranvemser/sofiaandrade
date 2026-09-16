@@ -30,7 +30,7 @@ const GRUPOS_LOCAIS = gruposLocaisJson as Grupo[]
 
 /**
  * Os distritos com grupo próprio. Ver o comentário de `Localidade`:
- * não entram na contagem dos 52 nem no mapa, mas têm /g/ próprio.
+ * não entram na contagem dos 52, mas têm /g/ próprio.
  */
 export const LOCALIDADES = (localidadesJson as Localidade[])
   .slice()
@@ -83,7 +83,7 @@ const disponivel = (g: Grupo) =>
  * cai para a sede. Do outro lado, a sede também não herda o grupo do
  * distrito — quem clicou em Guajará-Mirim quer Guajará-Mirim, e mandar
  * essa pessoa para o grupo do Iata seria trocar o destino por baixo do
- * pano. O que existe é a escolha, e ela é oferecida na lista e no mapa.
+ * pano. O que existe é a escolha, e ela é oferecida na busca.
  */
 export async function grupoDeDestino(slug: string): Promise<Grupo | null> {
   const todos = await listarGrupos()

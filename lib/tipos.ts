@@ -36,10 +36,9 @@ export interface GrupoPublico {
  * Cada um tem nome, slug e /g/ próprios, e a pessoa de lá escolhe o
  * seu, não o da sede.
  *
- * NÃO é município e não finge ser: fica fora da contagem dos 52, fora
- * do mapa (distrito não tem contorno na malha do IBGE) e fora da
- * geolocalização, que compara sedes municipais. No mapa aparece como
- * segunda opção DENTRO do bloco do município que o ancora.
+ * NÃO é município e não finge ser: fica fora da contagem dos 52 e fora
+ * da geolocalização, que compara sedes municipais. Na busca aparece
+ * pelo próprio nome, com o município que o ancora ao lado.
  *
  * `ordem` é a do grupo na tabela `grupos`: é assim que o distrito acha
  * a própria linha sem precisar de coluna nova no banco.
@@ -65,9 +64,9 @@ export interface LocalidadeComGrupo extends Localidade {
 }
 
 /**
- * O mínimo para uma linha da lista ou um botão do mapa: um nome, um
- * slug para o /g/, e em que pé está o grupo. Município e distrito
- * entram os dois por aqui.
+ * O mínimo para uma sugestão da busca ou o painel da cidade escolhida:
+ * um nome, um slug para o /g/, e em que pé está o grupo. Município e
+ * distrito entram os dois por aqui.
  */
 export interface Destino {
   slug: string
@@ -118,6 +117,8 @@ export const ORIGENS_CLIQUE = [
   'hero',
   'topo',
   'flutuante',
+  // `lista` e `mapa` saíram da página junto com a lista e o mapa. As
+  // origens ficam: os eventos antigos foram gravados com elas.
   'lista',
   'busca',
   'geo',
