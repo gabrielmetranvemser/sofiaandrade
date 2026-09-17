@@ -103,7 +103,7 @@ export function MarcadoresDaCidade({ itens }: { itens: { id: string; texto: stri
  * uma troca de cidade.
  */
 export function AcaoDaEntrada({
-  rotuloDe,
+  modelo,
   nota,
   textos,
   situacoes,
@@ -111,8 +111,8 @@ export function AcaoDaEntrada({
   sobreEscuro = false,
   className = '',
 }: {
-  /** "Entrar no grupo de", de Botões do site. */
-  rotuloDe: string
+  /** O rótulo do botão, com `{cidade}` dentro — de Página de entrada. */
+  modelo: string
   nota?: string
   textos: TextosDoBotao
   /** Rótulos e explicações de grupo cheio e em breve, da seção Grupos. */
@@ -138,7 +138,7 @@ export function AcaoDaEntrada({
             <BotaoEntrarNoGrupo
               slug={destino.slug}
               municipioSlug={destino.municipioSlug ?? destino.slug}
-              rotulo={`${rotuloDe} ${destino.nome}`}
+              rotulo={comCidade(modelo, destino.nome)}
               textos={textos}
             />
             {nota ? (
