@@ -230,12 +230,27 @@ export const ESQUEMA: Record<string, SecaoEsquema> = {
       numeroLegenda: { tipo: 'texto', rotulo: 'Legenda do número', max: 34 },
       ctaPrimario: {
         tipo: 'texto',
-        rotulo: 'Botão principal',
+        rotulo: 'Botão do grupo de WhatsApp',
         max: 42,
-        ajuda: 'Acima de 42 caracteres o botão quebra em celular de 360px.',
+        ajuda: 'O botão principal, com o ícone do WhatsApp. Acima de 42 caracteres ele quebra em celular de 360px.',
       },
-      ctaSecundario: { tipo: 'texto', rotulo: 'Botão secundário', max: 32 },
-      ctaSecundarioHref: { tipo: 'ancora', rotulo: 'Destino do botão secundário' },
+      notaGrupo: {
+        tipo: 'texto',
+        rotulo: 'Frase embaixo dos botões',
+        max: 70,
+        ajuda: 'Diz em uma linha o que é o grupo. Vazio = não aparece.',
+      },
+      ctaSecundario: {
+        tipo: 'texto',
+        rotulo: 'Botão secundário',
+        max: 32,
+        ajuda: 'Fica embaixo do botão do grupo no celular, com contorno. Por padrão leva ao filtro de foto.',
+      },
+      ctaSecundarioHref: {
+        tipo: 'ancora',
+        rotulo: 'Destino do botão secundário',
+        ajuda: 'Começa com / (outra página, como /filtro) ou # (uma seção da home, como #origem).',
+      },
       rodapeHero: { tipo: 'texto', rotulo: 'Linha de apoio', max: 60 },
       lema: {
         tipo: 'texto',
