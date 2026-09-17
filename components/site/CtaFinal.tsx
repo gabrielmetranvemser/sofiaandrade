@@ -4,6 +4,7 @@ import { Imagem } from '@/components/ui/Imagem'
 import { BotaoLink } from '@/components/ui/Botao'
 import { TextoComDestaque } from '@/components/ui/TextoComDestaque'
 import { Numero } from '@/components/ui/Marca'
+import { IconeWhatsApp } from '@/components/ui/IconeWhatsApp'
 import { destinoGrupo } from '@/lib/conteudo/secoes'
 import { CliqueGrupo } from './CliqueGrupo'
 import { RotuloDoGrupo } from './RotuloDoGrupo'
@@ -75,8 +76,15 @@ export async function CtaFinal({ silencio = false }: { silencio?: boolean }) {
             className="mt-12 flex flex-col items-center justify-center gap-3 sm:flex-row"
           >
             <CliqueGrupo origem="cta_final" href={paraOsGrupos} className="contents">
-              <span className="toque inline-flex min-h-14 items-center justify-center gap-2.5 rounded-full bg-amarelo px-8 text-center text-lg font-semibold text-azul-escuro shadow-alta transition-all duration-300 hover:brightness-105">
-                <RotuloDoGrupo padrao={ctaFinal.ctaPrimario} />
+              {/* Verde com o ícone, como todo botão de grupo do site. Sobre
+                  este azul o verde salta; amarelo aqui era a mesma cor do
+                  botão do filtro, ao lado, e os dois pediam coisas
+                  diferentes com a mesma cara. */}
+              <span className="toque inline-flex min-h-14 items-center justify-center gap-3 rounded-full bg-verde px-8 py-2 text-center text-[1.1875rem] leading-snug font-bold text-white shadow-alta transition-all duration-300 hover:brightness-110">
+                <IconeWhatsApp />
+                <span className="text-balance">
+                  <RotuloDoGrupo padrao={ctaFinal.ctaPrimario} />
+                </span>
               </span>
             </CliqueGrupo>
 

@@ -7,6 +7,7 @@ import { evento, marcarToqueDeRobo } from '@/lib/eventos'
 import { useCidadeAlvo, useDestinoDoGrupo } from '@/lib/campanha/contexto'
 import { destinoGrupo } from '@/lib/conteudo/secoes'
 import { Simbolo } from '@/components/ui/Marca'
+import { IconeWhatsApp } from '@/components/ui/IconeWhatsApp'
 
 export function Header({
   silencio = false,
@@ -115,8 +116,11 @@ export function Header({
                 href={paraOGrupo}
                 direto={destino.direto}
                 onClick={() => evento('clicou_cta', { origem: 'topo' })}
-                className="toque hidden min-h-11 items-center rounded-full bg-amarelo px-5 text-[0.9375rem] font-semibold text-azul-escuro shadow-suave transition-all hover:brightness-105 sm:inline-flex"
+                // Verde com o ícone, como todo botão de grupo: amarelo aqui era
+                // a mesma cor do filtro, e nada dizia que abria o WhatsApp.
+                className="toque hidden min-h-11 items-center gap-2 rounded-full bg-verde px-5 text-[0.9375rem] font-bold text-white shadow-suave transition-all hover:brightness-110 sm:inline-flex"
               >
+                <IconeWhatsApp className="size-[1.125rem]" />
                 {ctas.grupoCurto}
               </BotaoGrupo>
             ) : null}
@@ -188,9 +192,10 @@ export function Header({
                   setAberto(false)
                   evento('clicou_cta', { origem: 'topo' })
                 }}
-                className="mt-2 flex min-h-14 items-center justify-center rounded-full bg-amarelo px-6 text-center font-semibold text-azul-escuro"
+                className="mt-2 mb-1 flex min-h-14 items-center justify-center gap-3 rounded-full bg-verde px-6 py-2 text-center text-[1.1875rem] leading-snug font-bold text-white"
               >
-                {rotuloLongo}
+                <IconeWhatsApp />
+                <span className="text-balance">{rotuloLongo}</span>
               </BotaoGrupo>
             ) : null}
           </nav>

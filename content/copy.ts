@@ -148,9 +148,17 @@ export const hero = {
   // número. Veio da capa que a campanha mandou junto com os ajustes.
   // Apagar aqui tira ela da página — não quebra nada.
   lema: 'Fé, coragem e liberdade.',
+  // O botão do grupo de WhatsApp. Com cidade no link, vira "Entrar no
+  // grupo de <cidade>" (Botões do site ▸ grupoDe).
   ctaPrimario: ctas.grupo,
-  ctaSecundario: 'Conhecer minha história',
-  ctaSecundarioHref: '#origem',
+  // ⚠️ ERA "Conhecer minha história" → #origem e NÃO APARECIA em lugar
+  //    nenhum: a primeira dobra desenhava o botão do filtro com texto
+  //    fixo. Agora o campo manda de verdade, e o padrão é o que a página
+  //    já mostrava — o filtro de foto.
+  ctaSecundario: ctas.filtro,
+  ctaSecundarioHref: '/filtro',
+  // Uma linha embaixo dos botões dizendo o que é o grupo. Vazio = some.
+  notaGrupo: 'Agenda, carreatas e avisos da campanha no seu WhatsApp.',
   rodapeHero: 'Vereadora em Porto Velho. Candidata por Rondônia.',
 } as const
 

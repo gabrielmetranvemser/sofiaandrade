@@ -5,6 +5,7 @@ import { Imagem } from '@/components/ui/Imagem'
 import { TextoComDestaque, Texto } from '@/components/ui/TextoComDestaque'
 import { MarcaNumero, MarcaNumeroHorizontal } from '@/components/ui/Marca'
 import { BotaoLink } from '@/components/ui/Botao'
+import { IconeWhatsApp } from '@/components/ui/IconeWhatsApp'
 import { BrilhoCursor } from '@/components/animacao/BrilhoCursor'
 import { destinoGrupo } from '@/lib/conteudo/secoes'
 import { CliqueGrupo } from './CliqueGrupo'
@@ -140,42 +141,67 @@ export async function Hero({ silencio = false }: { silencio?: boolean }) {
             </p>
 
             {!silencio ? (
-              <div
-                className="anima-hero mt-6 flex flex-col items-center gap-3 sm:flex-row sm:justify-center lg:justify-start"
-                style={{ animationDelay: '520ms' }}
-              >
-                {/* ⚠️ O BOTÃO PRINCIPAL ERA AMARELO E VIROU AZUL.
-                    Amarelo sobre azul era o contraste máximo possível
-                    com as cores da marca; sobre o gradiente da capa,
-                    que termina em amarelo, o botão passou a competir
-                    com o próprio fundo. O azul-escuro é a única cor da
-                    paleta que não existe em lugar nenhum deste fundo —
-                    e é justamente isso que faz o botão saltar.
+              <>
+                <div
+                  // `id` no bloco, e não no link: o link é `display: contents`
+                  // e não tem caixa — o observador do botão flutuante precisa
+                  // de algo que ocupe lugar na tela. Ver BotaoFlutuante.
+                  id="cta-hero"
+                  className="anima-hero mt-6 flex flex-col items-center gap-3 sm:flex-row sm:flex-wrap sm:justify-center lg:justify-start"
+                  style={{ animationDelay: '240ms' }}
+                >
+                  {/* ⚠️ O BOTÃO DO GRUPO VOLTOU PARA CÁ NO CELULAR, logo
+                      abaixo do subtítulo. Ele morava na faixa da marca, sobre
+                      as figuras, e a medição de 17/09 mostrou o preço: numa
+                      tela de 360×680 ele começava em y≈677, cortado no pé da
+                      tela, e o primeiro botão inteiro que a pessoa via era o
+                      "🇧🇷" do filtro. Aqui ele fica em y≈400, largo, e é o
+                      primeiro pedido da página.
 
-                    No celular este botão NÃO fica aqui: desce para
-                    junto da marca, sobre as figuras. `hidden` no
-                    próprio link, e não só no miolo, senão sobra um alvo
-                    de toque invisível no meio da coluna. */}
-                <CliqueGrupo origem="hero" href={paraOsGrupos} className="hidden lg:contents">
-                  <span className="toque inline-flex min-h-14 items-center justify-center gap-2.5 rounded-full bg-(--capa-botao) px-8 text-center text-lg font-semibold text-(--capa-botao-texto) shadow-alta transition-all duration-300 hover:brightness-110">
-                    {/* O `whitespace-nowrap` que havia aqui saiu junto
-                        com a chegada do rótulo por cidade: "Entrar no
-                        grupo de Governador Jorge Teixeira" não cabe numa
-                        linha em nenhuma largura de coluna, e forçar a
-                        linha única faria o botão furar a grade. Sem ele,
-                        o texto genérico continua numa linha só — ele é
-                        curto — e o nome longo quebra em duas, centrado. */}
-                    <RotuloDoGrupo padrao={ctas.grupo} />
-                    <svg viewBox="0 0 24 24" className="hidden size-5 shrink-0 sm:block" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" aria-hidden>
-                      <path d="M5 12h14M13 6l6 6-6 6" />
-                    </svg>
-                  </span>
-                </CliqueGrupo>
+                      A COR CONTINUA SENDO A DO ESQUEMA (--capa-botao), e
+                      não o verde dos outros botões de grupo: sobre a capa
+                      verde e amarela um botão verde some no fundo. O que
+                      diz "WhatsApp" é o ícone, igual em todos. */}
+                  <CliqueGrupo origem="hero" href={paraOsGrupos} className="contents">
+                    <span className="toque inline-flex min-h-14 w-full max-w-sm items-center justify-center gap-3 rounded-full bg-(--capa-botao) px-7 text-center text-lg leading-snug font-bold text-(--capa-botao-texto) shadow-alta transition-all duration-300 hover:brightness-110 sm:w-auto sm:max-w-none lg:px-8">
+                      <IconeWhatsApp />
+                      {/* O rótulo sai do painel (Primeira dobra ▸ Botão
+                          principal), que antes era salvo e não aparecia
+                          em lugar nenhum. */}
+                      {/* Equilibrado no celular, onde quebra em duas linhas; numa
+                          linha só a partir de `sm`, onde a fileira quebra antes
+                          e o secundário desce — botão com o rótulo partido ao
+                          meio ao lado de outro inteiro parecia defeito. */}
+                      <span className="text-balance sm:whitespace-nowrap">
+                        <RotuloDoGrupo padrao={hero.ctaPrimario} />
+                      </span>
+                    </span>
+                  </CliqueGrupo>
 
-                <BotaoLink href="/filtro" variante="contorno" tamanho="md" className="text-white sm:whitespace-nowrap lg:min-h-14 lg:px-8 lg:text-lg">
-                  {ctas.filtroCurto}
-                </BotaoLink>
-              </div>
+                  {/* O secundário é contorno e fica embaixo no celular:
+                      existe, mas não disputa com o grupo. Rótulo e destino
+                      vêm do painel — por padrão, o filtro de foto. */}
+                  <BotaoLink
+                    href={hero.ctaSecundarioHref}
+                    variante="contorno"
+                    tamanho="md"
+                    className="w-full max-w-sm text-white sm:w-auto sm:whitespace-nowrap lg:min-h-14 lg:px-8 lg:text-lg"
+                  >
+                    {hero.ctaSecundario}
+                  </BotaoLink>
+                </div>
+
+                {/* O que é o grupo, numa linha. A primeira dobra pedia
+                    para entrar num grupo sem dizer para quê. */}
+                {hero.notaGrupo ? (
+                  <p
+                    className="anima-hero mx-auto mt-3 max-w-sm text-sm text-white/85 [text-shadow:0_1px_8px_rgba(6,48,26,0.35)] lg:mx-0 lg:max-w-xl"
+                    style={{ animationDelay: '300ms' }}
+                  >
+                    {hero.notaGrupo}
+                  </p>
+                ) : null}
+              </>
             ) : (
               <p className="anima-hero mx-auto mt-9 max-w-xl rounded-lg bg-black/20 px-5 py-4 ring-1 ring-white/25 lg:mx-0">
                 {ctas.silencio}
@@ -211,10 +237,17 @@ export async function Hero({ silencio = false }: { silencio?: boolean }) {
               ALTURA, sem isso a largura seria espremida de volta para
               dentro da caixa e as figuras apareceriam achatadas. */}
           <div
-            className="anima-surge relative -mt-6 flex items-end justify-center sm:-mt-8 lg:mt-0 lg:justify-end"
+            className="anima-surge relative mt-2 flex items-end justify-center sm:-mt-8 lg:mt-0 lg:justify-end"
             style={{ animationDelay: '260ms' }}
           >
-            {/* ⚠️ A MARGEM NEGATIVA SÓ EXISTE NO CELULAR, e é ela que
+            {/* ⚠️ NO CELULAR A MARGEM NEGATIVA SAIU EM 17/09. Com o botão do
+                grupo, o secundário e a frase sobre o grupo agora empilhados
+                acima delas, as figuras subindo por cima cobririam texto —
+                e texto coberto não se lê. A sobreposição continua a partir
+                de `sm`, onde os botões ficam lado a lado. O que segue é o
+                porquê original, que ainda vale para telas maiores:
+
+                A MARGEM NEGATIVA SÓ EXISTIA NO CELULAR, e é ela que
                 dá a profundidade que a dobra não tinha ali. Sem ela, a
                 grade de uma coluna empilha texto e depois figuras, cada
                 um no seu andar — plano, como um documento. Puxando as
@@ -394,18 +427,15 @@ export async function Hero({ silencio = false }: { silencio?: boolean }) {
                 </div>
               </div>
 
-              {/* A faixa do celular: marca à esquerda, botão à direita,
-                  correndo por cima do pé das figuras. No desktop ela
-                  não existe — lá a marca é a faixa deitada, no meio
-                  das duas.
+              {/* A faixa do celular: só a marca com o número, centrada, sobre
+                  o pé das figuras. O botão do grupo que dividia a faixa com
+                  ela subiu para baixo do subtítulo — ver o bloco `cta-hero`.
 
-                  ⚠️ `z-20` pelo mesmo motivo da marca deitada: as
-                  figuras estão em 10, e sem declarar andar esta faixa
-                  ficava atrás do ombro dela — a marca sumia e o botão
-                  do grupo aparecia pela metade. Andares desta dobra:
-                  fundo (fitas) · figuras (10) · marca e botão (20). */}
-              <div className="absolute inset-x-0 bottom-5 z-20 flex items-end gap-3 lg:hidden">
-                <div className="shrink-0">
+                  ⚠️ `z-20` porque as figuras estão em 10: sem declarar o
+                  andar, a marca fica atrás do ombro dela. Andares desta
+                  dobra: fundo (fitas) · figuras (10) · marca (20). */}
+              <div className="absolute inset-x-0 bottom-5 z-20 flex justify-center lg:hidden">
+                <div className="shrink-0 text-center">
                   <MarcaNumero
                     prioridade
                     className="w-[5.5rem] drop-shadow-[0_10px_24px_rgba(6,48,26,0.55)] sm:w-28"
@@ -416,20 +446,6 @@ export async function Hero({ silencio = false }: { silencio?: boolean }) {
                     </p>
                   ) : null}
                 </div>
-
-                {!silencio ? (
-                  <CliqueGrupo origem="hero" href={paraOsGrupos} className="min-w-0 flex-1 pb-1">
-                    {/* `whitespace-nowrap`: numa tela de 360px sobram
-                        ~180px para este botão depois da marca, e
-                        "Entrar no grupo" quebrava em duas linhas — o
-                        que empurrava a altura do botão e desalinhava a
-                        faixa inteira. Melhor encolher a letra do que
-                        deixar o rótulo virar parágrafo. */}
-                    <span className="toque flex min-h-[3.25rem] items-center justify-center rounded-full bg-(--capa-botao) px-4 text-[0.9375rem] font-semibold whitespace-nowrap text-(--capa-botao-texto) shadow-alta transition-all duration-300 hover:brightness-110 sm:px-5 sm:text-base">
-                      {ctas.grupoCurto}
-                    </span>
-                  </CliqueGrupo>
-                ) : null}
               </div>
             </div>
           </div>
