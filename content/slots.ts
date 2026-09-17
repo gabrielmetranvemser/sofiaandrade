@@ -81,12 +81,12 @@ export const SLOTS: Slot[] = [
   // o Retrato de fechamento e o Retrato de "Quem é Sofia".
   {
     chave: 'entrada.foto',
-    rotulo: 'Foto redonda do topo',
+    rotulo: 'Foto da tarja do topo',
     onde: 'Página de entrada',
-    proporcao: '1/1',
-    larguraMin: 400,
-    alturaMin: 400,
-    nota: 'O rosto dela bem de perto, olhando para a câmera. Aparece num círculo pequeno ao lado de "Grupo oficial da campanha" — é o rosto que a pessoa acabou de ver no anúncio. Sem imagem aqui, a página usa o Retrato de fechamento.',
+    proporcao: '4/5',
+    larguraMin: 800,
+    alturaMin: 1000,
+    nota: '⚠️ PNG com fundo transparente, recortada: ela entra em cima do painel amarelo da tarja, ao lado do Flávio. Da cabeça até a cintura, com pouca folga acima do cabelo — a tarja mostra só até o peito. Sem imagem aqui, a página usa o recorte da capa.',
   },
   {
     chave: 'entrada.retrato',
@@ -95,7 +95,7 @@ export const SLOTS: Slot[] = [
     proporcao: '4/5',
     larguraMin: 800,
     alturaMin: 1000,
-    nota: 'Vertical, sobre o fundo azul da segunda dobra, com uma borda amarela deslocada atrás. Sem imagem aqui, a página usa o Retrato de "Quem é Sofia" — a foto do espetinho.',
+    nota: 'Vertical, sobre o fundo azul da Trajetória, com uma borda amarela deslocada atrás. Sem imagem aqui, a página usa o Retrato de fechamento.',
   },
 
   // ── Primeira dobra ─────────────────────────────────────────────

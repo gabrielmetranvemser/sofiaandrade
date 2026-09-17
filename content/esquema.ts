@@ -21,8 +21,8 @@ export interface Base {
 export type Campo =
   /** Uma linha. `destaque` libera [[colchetes]]; `tokens` libera {{chaves}}. */
   | (Base & { tipo: 'texto'; max?: number; destaque?: boolean; tokens?: boolean })
-  /** Várias linhas. */
-  | (Base & { tipo: 'longo'; max?: number; linhas?: number; tokens?: boolean })
+  /** Várias linhas. `destaque` libera [[colchetes]]; `tokens` libera {{chaves}}. */
+  | (Base & { tipo: 'longo'; max?: number; linhas?: number; destaque?: boolean; tokens?: boolean })
   /** Endereço externo (https://). */
   | (Base & { tipo: 'url'; prefixo?: string })
   /**
@@ -639,9 +639,21 @@ export const ESQUEMA: Record<string, SecaoEsquema> = {
     rotulo: 'Página de entrada do anúncio',
     grupo: 'Página',
     nota:
-      'É a página que abre quando alguém toca no anúncio de uma cidade. Onde estiver {cidade}, entra o nome da cidade — a do anúncio, ou a que a pessoa escolher. O botão verde usa "Entrar no grupo de", em Botões do site; as mensagens de grupo cheio e em breve vêm de Grupos de WhatsApp.',
+      'É a página que abre quando alguém toca no anúncio de uma cidade. Onde estiver {cidade}, entra o nome da cidade — a do anúncio, ou a que a pessoa escolher. As mensagens de grupo cheio e em breve vêm de Grupos de WhatsApp. ⚠️ Na primeira tela cabem só o selo, o título, a frase de apoio e o botão: tudo que crescer aqui empurra o botão para fora da tela de quem chega pelo anúncio.',
     campos: {
-      etiqueta: { tipo: 'texto', rotulo: 'Etiqueta', max: 40, ajuda: 'Ao lado da foto redonda, no topo.' },
+      contagem: {
+        tipo: 'texto',
+        rotulo: 'Contagem regressiva',
+        max: 40,
+        ajuda:
+          'O selo amarelo do topo. {dias} é calculado sozinho até o dia da eleição. Vazio, ou faltando um dia ou menos, entra a etiqueta no lugar.',
+      },
+      etiqueta: {
+        tipo: 'texto',
+        rotulo: 'Etiqueta (sem a contagem)',
+        max: 40,
+        ajuda: 'Ocupa o mesmo selo amarelo quando não há contagem. Pode usar {cidade}.',
+      },
       titulo: {
         tipo: 'texto',
         rotulo: 'Título',
@@ -649,7 +661,21 @@ export const ESQUEMA: Record<string, SecaoEsquema> = {
         destaque: true,
         ajuda: 'Use {cidade} onde entra o nome da cidade. O trecho destacado fica verde.',
       },
-      apoio: { tipo: 'longo', rotulo: 'Texto de apoio', max: 200, linhas: 3 },
+      apoio: {
+        tipo: 'longo',
+        rotulo: 'Texto de apoio',
+        max: 200,
+        linhas: 3,
+        destaque: true,
+        ajuda: 'Uma frase, no máximo duas. O trecho destacado fica verde.',
+      },
+      botao: {
+        tipo: 'texto',
+        rotulo: 'Botão verde',
+        max: 40,
+        ajuda:
+          'Só desta página. Pode usar {cidade} — com nome comprido, como Alta Floresta d\'Oeste, o texto quebra em duas linhas dentro do botão.',
+      },
       notaBotao: { tipo: 'texto', rotulo: 'Frase embaixo do botão', max: 90 },
       itens: {
         tipo: 'lista',
@@ -657,11 +683,11 @@ export const ESQUEMA: Record<string, SecaoEsquema> = {
         rotuloItem: 'Marcador',
         titulo: 'texto',
         min: 0,
-        max: 4,
-        ajuda: 'Frases curtas com o sinal de visto, logo abaixo do botão. Pode usar {cidade}.',
+        max: 6,
+        ajuda: 'Frases curtas com o sinal de visto, depois do botão. Pode usar {cidade} e [[destaque]].',
         item: {
           id: ID,
-          texto: { tipo: 'texto', rotulo: 'Texto', max: 60 },
+          texto: { tipo: 'texto', rotulo: 'Texto', max: 80, destaque: true },
         },
       },
       trocarCidade: {
@@ -693,7 +719,16 @@ export const ESQUEMA: Record<string, SecaoEsquema> = {
         rotulo: 'Segunda dobra: frases',
         min: 1,
         max: 5,
-        maxItem: 160,
+        maxItem: 260,
+        destaque: true,
+      },
+      quemCitacao: {
+        tipo: 'longo',
+        rotulo: 'Segunda dobra: frase em destaque',
+        max: 220,
+        linhas: 3,
+        destaque: true,
+        ajuda: 'O bloco de convicção, no quadro claro. Vazio, o quadro some.',
       },
       conhecer: {
         tipo: 'texto',

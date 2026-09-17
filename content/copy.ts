@@ -622,25 +622,58 @@ export const grupos = {
 // quem vinha do anúncio não rolava a home (1,5% chegava à metade), e só
 // 6,5% tocavam para entrar no grupo com o botão dela.
 //
-// `{cidade}` é trocado pelo nome da cidade — a do link do anúncio, ou a
-// que a pessoa escolher em "Não é de…?". Vale no título, no apoio, nos
-// marcadores e no link de trocar cidade.
+// ⚠️ A PRIMEIRA TELA CARREGA SEIS COISAS, e essa conta é o que decide o
+//    que entra aqui: a faixa com as fotos, a contagem, o título com a
+//    cidade, UMA frase, o botão e a linha de baixo do botão. Numa tela de
+//    360×640 dentro do Instagram sobram ~530px depois da barra do
+//    aplicativo, e o botão precisa caber inteiro neles. Todo o resto —
+//    marcadores, trajetória, o que o grupo tem dentro — vem depois de
+//    rolar. Texto a mais aqui em cima empurra o botão para fora da tela,
+//    que é exatamente o erro que esta página nasceu para corrigir.
 //
-// O botão verde usa "Entrar no grupo de", de Botões do site, e as
-// situações de grupo cheio e em breve vêm da seção Grupos de WhatsApp.
+// `{cidade}` é trocado pelo nome da cidade — a do link do anúncio, ou a
+// que a pessoa escolher em "Não é de…?". Vale no título, no apoio, no
+// botão, nos marcadores e no link de trocar cidade. `{dias}` é a
+// contagem para a eleição, calculada sozinha.
+//
+// A voz é a dela, em primeira pessoa: "eu falo", "eu leio". Foi assim
+// que a campanha escreveu, e é o que separa o grupo de apoiadores de uma
+// lista de avisos — que é a promessa central desta página.
 // ─────────────────────────────────────────────────────────────
 export const entrada = {
-  etiqueta: 'Grupo oficial da campanha',
+  // Vazio tira a contagem do ar. Ela também some sozinha quando falta
+  // um dia ou menos, que é quando "faltam 2 dias" viraria mentira e o
+  // silêncio eleitoral já está batendo na porta.
+  contagem: 'Faltam {dias} dias para a eleição',
+  // Aparece no lugar da contagem quando ela está desligada ou quando
+  // falta um dia ou menos — o selo nunca fica vazio.
+  etiqueta: 'Grupo de apoiadores · {cidade}',
   // A cidade vai no título porque o anúncio prometeu ela: "grupo de
   // WhatsApp de Cabixi" chega numa página que diz Cabixi logo de cara.
-  titulo: 'Entre no grupo da Sofia em [[{cidade}.]]',
-  apoio:
-    'É por ali que a campanha avisa de carreata, agenda e o que estiver acontecendo perto de você.',
+  // ⚠️ DUAS LINHAS NO CELULAR, e é por isso que o nome dela não está
+  //    aqui: "Grupo de apoiadores da Sofia em Porto Velho" vira três
+  //    linhas em 360px e empurra o botão para fora da tela. O nome está
+  //    logo acima, na assinatura, e o rosto está na tarja.
+  titulo: 'Grupo de apoiadores em [[{cidade}.]]',
+  // A frase que diferencia. "Não é lista de aviso" é o que a campanha
+  // escreveu, e é a melhor linha do texto: diz o que a pessoa ganha
+  // entrando e, na mesma frase, por que a vaga acaba.
+  apoio: 'Não é lista de aviso. É onde eu falo com [[quem está do meu lado.]]',
+  // O rótulo do botão verde desta página. No lugar de "Entrar no grupo
+  // de", dos Botões do site: aqui a vaga é o assunto.
+  // Curto porque o botão tem 296px no celular: com a cidade dentro,
+  // "Quero minha vaga em Porto Velho" quebra em duas linhas e o botão
+  // cresce 16px justo na parte mais apertada da tela. A cidade está no
+  // título, uma linha acima.
+  botao: 'Quero minha vaga',
   notaBotao: 'Abre no seu WhatsApp. Lá, é só tocar em "Entrar no grupo".',
   itens: [
-    { id: 'entrada-01', texto: 'Agenda e carreatas em {cidade} e região' },
-    { id: 'entrada-02', texto: 'Avisos da campanha direto no seu WhatsApp' },
-    { id: 'entrada-03', texto: 'É de graça, e você sai quando quiser' },
+    { id: 'entrada-01', texto: 'Cabem só [[1.024 pessoas.]] Quando encher, o WhatsApp não deixa entrar mais ninguém' },
+    { id: 'entrada-02', texto: 'Grupo fechado, de gente de direita, cristã e que acorda cedo pra trabalhar' },
+    { id: 'entrada-03', texto: 'Só entra por este link: não acha no Google nem no Instagram' },
+    { id: 'entrada-04', texto: 'Vídeo e arte prontos pra você mandar no grupo da família' },
+    { id: 'entrada-05', texto: 'Dúvida sobre mim? Pergunta lá dentro. [[Eu leio.]]' },
+    { id: 'entrada-06', texto: 'De graça, sem spam, e você sai quando quiser' },
   ],
   trocarCidade: 'Não é de {cidade}? Escolher outra cidade',
   botaoAbrindo: 'Abrindo o WhatsApp…',
@@ -649,14 +682,17 @@ export const entrada = {
   naoAbriuDica:
     'Se aparecer uma página do WhatsApp, toque no botão verde dela. No aplicativo, toque em "Entrar no grupo".',
   // A segunda dobra, no azul.
-  quemEtiqueta: 'Quem é a Sofia',
-  quemTitulo: 'Da calçada da Rio Madeira [[para Brasília.]]',
+  quemEtiqueta: 'Trajetória',
+  quemTitulo: 'Sofia é [[direita raiz.]]',
   quem: [
-    'Vereadora em Porto Velho, candidata a Deputada Federal por Rondônia pelo PL. Número 2233.',
-    'Nasceu em Cacoal, cresceu no Iata e vendia espetinho na calçada da Avenida Rio Madeira.',
-    'Na pandemia, quando mandaram fechar o comércio, foi pra rua defender quem trabalha.',
+    'Empreendedora, cristã, vereadora, rondoniense. Nasceu em Cacoal, cresceu no Iata, distrito de Guajará-Mirim. Montou seu ponto de espetinho na calçada da Avenida Rio Madeira e mantém até hoje.',
+    'Em 2020, quando mandaram fechar o comércio, foi pra rua defender o direito de trabalhar. Foi assim que entrou na política.',
+    'Vereadora de Porto Velho, preside a Comissão de Segurança Pública. Propôs a Guarda Municipal, o videomonitoramento e as escolas cívico-militares. Nove leis sancionadas, todas com número no registro público.',
   ],
-  conhecer: 'Conhecer a história da Sofia',
+  // A frase de convicção, destacada. Vazia, o bloco some.
+  quemCitacao:
+    'Deus, Pátria, Família e Liberdade não são palavra bonita de campanha. São o que me move. Mas nada disso acontece se cada um esperar que o outro faça.',
+  conhecer: 'Conhecer a história completa',
 } as const
 
 // ─────────────────────────────────────────────────────────────
