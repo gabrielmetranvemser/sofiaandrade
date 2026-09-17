@@ -745,6 +745,11 @@
   to   { opacity: 1; transform: none; }
 }
 
+@keyframes surge-leve {
+  from { transform: scale(0.985); }
+  to   { transform: none; }
+}
+
 @keyframes entra-lateral {
   from { opacity: 0; transform: translate3d(1.25rem, 0, 0); }
   to   { opacity: 1; transform: none; }
@@ -752,6 +757,11 @@
 
 @utility anima-hero { animation: sobe-suave 0.8s var(--ease-suave) both; }
 @utility anima-surge { animation: surge 1s var(--ease-suave) both; }
+/* A entrada das figuras da capa, SEM OPACIDADE. A foto dela é o LCP da
+   home, e o navegador não conta elemento com opacidade zero: começar
+   invisível adiava o LCP pelo tempo da animação inteira. Só a escala
+   continua — o movimento é o mesmo, sem o sumiço. */
+@utility anima-surge-leve { animation: surge-leve 1s var(--ease-suave) both; }
 
 /* Troca de etapa no fluxo do filtro: o bloco de controle entra pela
    direita, como tela de aplicativo. O palco não se mexe — se ele
@@ -974,7 +984,11 @@
     align-items: center;
   }
 
-  .cena-verde   { background-color: var(--color-verde); color: var(--color-branco); }
+  /* ⚠️ VERDE-ESCURO, e não o verde. Sobre o verde (#509c47) o destaque
+     amarelo do título ("às cinco.") dava 2,4:1 de contraste — abaixo até
+     do mínimo de texto grande — e o PageSpeed reprovou em 17/09. No
+     verde-escuro o amarelo passa com 5,3:1 e o branco com 7,6:1. */
+  .cena-verde   { background-color: var(--color-verde-escuro); color: var(--color-branco); }
   .cena-amarelo { background-color: var(--color-amarelo); color: var(--color-azul-escuro); }
   .cena-azul    { background-color: var(--color-azul-escuro); color: var(--color-branco); }
 

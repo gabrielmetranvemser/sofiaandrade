@@ -110,7 +110,7 @@ export async function RodapeLegal() {
           ) : null}
         </div>
 
-        <p className="mt-8 text-sm text-white/45">
+        <p className="mt-8 text-sm text-white/70">
           © {anoAtual} {candidata.nome}. Todos os direitos reservados.
         </p>
       </div>

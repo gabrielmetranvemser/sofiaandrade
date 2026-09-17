@@ -105,28 +105,36 @@ export async function Hero({ silencio = false }: { silencio?: boolean }) {
                 ⚠️ A PRIMEIRA ERA VERDE e virou branca. Sobre o azul
                 antigo, verde era uma das três cores da bandeira; sobre
                 o verde da capa ela simplesmente sumia no fundo. */}
-            <p className="anima-hero flex items-center justify-center gap-3 lg:justify-start">
-              <span className="flex items-end gap-[3px]" aria-hidden>
-                <span className="block h-3.5 w-[3px] rounded-full bg-white/70" />
-                <span className="block h-5 w-[3px] rounded-full bg-(--capa-realce)" />
-                <span className="block h-3.5 w-[3px] rounded-full bg-white" />
-              </span>
-              <span className="text-[0.8125rem] font-semibold tracking-[0.16em] text-white uppercase">
-                {hero.etiqueta}
-              </span>
-            </p>
+            {/* ⚠️ SÓ COM TEXTO. Em 17/09 a campanha pediu a capa mais
+                limpa e tirou a etiqueta ("Fé, coragem e liberdade") pelo
+                painel. Sem esta condição, apagar o texto deixava as três
+                barrinhas sozinhas em cima do título. */}
+            {hero.etiqueta ? (
+              <p className="anima-hero flex items-center justify-center gap-3 lg:justify-start">
+                <span className="flex items-end gap-[3px]" aria-hidden>
+                  <span className="block h-3.5 w-[3px] rounded-full bg-white/70" />
+                  <span className="block h-5 w-[3px] rounded-full bg-(--capa-realce)" />
+                  <span className="block h-3.5 w-[3px] rounded-full bg-white" />
+                </span>
+                <span className="text-[0.8125rem] font-semibold tracking-[0.16em] text-white uppercase">
+                  {hero.etiqueta}
+                </span>
+              </p>
+            ) : null}
 
             {/* ⚠️ A SOMBRA NÃO É ENFEITE. No fim do gradiente o verde
                 já está claro, e branco puro sobre verde-claro perde o
                 contorno da letra. Uma sombra escura de raio curto
                 devolve a borda sem escurecer o fundo — é mais barato
                 que uma camada de escurecimento por cima da arte. */}
-            <h1 className="mt-6 titulo-cartaz text-white [text-shadow:0_2px_18px_rgba(6,48,26,0.35)]">
+            <h1
+              className={`${hero.etiqueta ? 'mt-6' : ''} titulo-cartaz text-white [text-shadow:0_2px_18px_rgba(6,48,26,0.35)]`}
+            >
               {hero.titulo.map((linha, i) => (
                 <span
                   key={i}
                   className="anima-hero block"
-                  style={{ animationDelay: `${100 + i * 80}ms` }}
+                  style={{ animationDelay: `${40 + i * 60}ms` }}
                 >
                   <TextoComDestaque texto={linha} tom="capa" />
                 </span>
@@ -135,7 +143,7 @@ export async function Hero({ silencio = false }: { silencio?: boolean }) {
 
             <p
               className="anima-hero mx-auto mt-4 max-w-xl text-base text-white/90 [text-shadow:0_1px_10px_rgba(6,48,26,0.3)] sm:text-lg md:text-xl lg:mx-0"
-              style={{ animationDelay: '440ms' }}
+              style={{ animationDelay: '160ms' }}
             >
               <Texto tom="capa">{hero.subtitulo}</Texto>
             </p>
@@ -148,7 +156,7 @@ export async function Hero({ silencio = false }: { silencio?: boolean }) {
                   // de algo que ocupe lugar na tela. Ver BotaoFlutuante.
                   id="cta-hero"
                   className="anima-hero mt-6 flex flex-col items-center gap-3 sm:flex-row sm:flex-wrap sm:justify-center lg:justify-start"
-                  style={{ animationDelay: '240ms' }}
+                  style={{ animationDelay: '200ms' }}
                 >
                   {/* ⚠️ O BOTÃO DO GRUPO VOLTOU PARA CÁ NO CELULAR, logo
                       abaixo do subtítulo. Ele morava na faixa da marca, sobre
@@ -196,7 +204,7 @@ export async function Hero({ silencio = false }: { silencio?: boolean }) {
                 {hero.notaGrupo ? (
                   <p
                     className="anima-hero mx-auto mt-3 max-w-sm text-sm text-white/85 [text-shadow:0_1px_8px_rgba(6,48,26,0.35)] lg:mx-0 lg:max-w-xl"
-                    style={{ animationDelay: '300ms' }}
+                    style={{ animationDelay: '240ms' }}
                   >
                     {hero.notaGrupo}
                   </p>
@@ -214,7 +222,7 @@ export async function Hero({ silencio = false }: { silencio?: boolean }) {
                 botão caberem acima da dobra. */}
             <p
               className="anima-hero mt-5 hidden items-center gap-2 text-sm text-white/85 lg:flex"
-              style={{ animationDelay: '600ms' }}
+              style={{ animationDelay: '280ms' }}
             >
               <svg viewBox="0 0 24 24" className="size-4 text-(--capa-realce)" fill="currentColor" aria-hidden>
                 <path d="M12 2a7 7 0 0 0-7 7c0 5.2 7 13 7 13s7-7.8 7-13a7 7 0 0 0-7-7Zm0 9.5A2.5 2.5 0 1 1 12 6.5a2.5 2.5 0 0 1 0 5Z" />
@@ -237,8 +245,12 @@ export async function Hero({ silencio = false }: { silencio?: boolean }) {
               ALTURA, sem isso a largura seria espremida de volta para
               dentro da caixa e as figuras apareceriam achatadas. */}
           <div
-            className="anima-surge relative mt-2 flex items-end justify-center sm:-mt-8 lg:mt-0 lg:justify-end"
-            style={{ animationDelay: '260ms' }}
+            // ⚠️ `anima-surge-leve`, SEM ATRASO E SEM OPACIDADE. A foto dela
+            //    é o LCP da home, e o navegador não conta elemento invisível:
+            //    com a entrada que começava em opacidade zero depois de
+            //    260 ms, o PageSpeed media quase um segundo de "atraso de
+            //    renderização" numa imagem que já tinha chegado.
+            className="anima-surge-leve relative mt-2 flex items-end justify-center sm:-mt-8 lg:mt-0 lg:justify-end"
           >
             {/* ⚠️ NO CELULAR A MARGEM NEGATIVA SAIU EM 17/09. Com o botão do
                 grupo, o secundário e a frase sobre o grupo agora empilhados
@@ -351,7 +363,10 @@ export async function Hero({ silencio = false }: { silencio?: boolean }) {
                   alt=""
                   width={1755}
                   height={2200}
-                  priority
+                  // Na primeira tela, mas atrás dela: carrega logo, sem
+                  // disputar banda com a foto dela, que é o LCP.
+                  loading="eager"
+                  fetchPriority="low"
                   sizes="(max-width: 1024px) 55vw, 26vw"
                   aria-hidden
                   className="hero-fundo pointer-events-none order-2 -ml-36 h-full w-auto max-w-none shrink-0 object-contain object-bottom drop-shadow-[0_18px_40px_rgba(6,48,26,0.35)] sm:-ml-48 lg:-ml-[17rem]"
@@ -363,7 +378,7 @@ export async function Hero({ silencio = false }: { silencio?: boolean }) {
                   slot="hero.retrato"
                   slots={slots}
                   vazio="silhueta"
-                  prioridade
+                  lcp
                   sizes="(max-width: 1024px) 65vw, 32vw"
                   className="hero-foto pointer-events-none relative z-10 order-1 h-[112%] w-auto max-w-none shrink-0 object-contain object-bottom drop-shadow-[0_18px_40px_rgba(6,48,26,0.3)]"
                 />
@@ -414,8 +429,9 @@ export async function Hero({ silencio = false }: { silencio?: boolean }) {
                   4px de altura. Lá continua valendo a empilhada, ao
                   lado do botão. */}
                   <div className="pointer-events-none absolute bottom-[15%] left-[53%] z-20 hidden w-[46%] -translate-x-1/2 lg:block">
+                    {/* Sem `prioridade`: ela só existe no desktop, e o
+                        preload a baixava também no celular, escondida. */}
                     <MarcaNumeroHorizontal
-                      prioridade
                       className="w-full drop-shadow-[0_8px_26px_rgba(6,48,26,0.55)]"
                     />
                     {hero.lema ? (
@@ -437,7 +453,6 @@ export async function Hero({ silencio = false }: { silencio?: boolean }) {
               <div className="absolute inset-x-0 bottom-5 z-20 flex justify-center lg:hidden">
                 <div className="shrink-0 text-center">
                   <MarcaNumero
-                    prioridade
                     className="w-[5.5rem] drop-shadow-[0_10px_24px_rgba(6,48,26,0.55)] sm:w-28"
                   />
                   {hero.lema ? (

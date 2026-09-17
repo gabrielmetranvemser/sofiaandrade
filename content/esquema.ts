@@ -216,7 +216,12 @@ export const ESQUEMA: Record<string, SecaoEsquema> = {
     grupo: 'Página',
     nota: 'É a parte que mais gente vê, e a única que muita gente vê. Frase curta ganha de frase certa.',
     campos: {
-      etiqueta: { tipo: 'texto', rotulo: 'Etiqueta', max: 40, ajuda: 'A pílula acima do título.' },
+      etiqueta: {
+        tipo: 'texto',
+        rotulo: 'Etiqueta',
+        max: 40,
+        ajuda: 'A linha com as três barrinhas acima do título. Vazio = não aparece.',
+      },
       titulo: {
         tipo: 'listaTexto',
         rotulo: 'Título',
