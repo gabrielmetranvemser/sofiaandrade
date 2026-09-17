@@ -6,9 +6,9 @@ import { Imagem } from '@/components/ui/Imagem'
  * A FAIXA DO TOPO DA PÁGINA DE ENTRADA — ela, o Flávio e o número.
  *
  * Três painéis inclinados: amarelo com a Sofia, azul com o Flávio,
- * branco com o 2233. É a arte da campanha reduzida a uma tarja — foi o
- * que a campanha pediu, e é o que a página precisa: reconhecimento em
- * meio segundo, sem gastar a primeira tela.
+ * azul-escuro com o 2233 da campanha. É a arte da campanha reduzida a
+ * uma tarja — foi o que a campanha pediu, e é o que a página precisa:
+ * reconhecimento em meio segundo, sem gastar a primeira tela.
  *
  * ⚠️ A ALTURA É O ORÇAMENTO DA PRIMEIRA TELA, e por isso é `clamp` e não
  *    uma proporção. Num telefone de 360×640 dentro do Instagram sobram
@@ -22,13 +22,17 @@ import { Imagem } from '@/components/ui/Imagem'
  *    distorceria os dois rostos. Aqui a inclinação está só nos
  *    retângulos de cor, que são chapados, e as fotos vão por cima, em
  *    pé. As bordas de fora passam da faixa de propósito: o `overflow`
- *    do cartão corta o bico do amarelo e o do branco, e o que sobra na
- *    borda é um corte reto.
+ *    do cartão corta o bico do amarelo e o do azul-escuro, e o que sobra
+ *    na borda é um corte reto.
  *
- * ⚠️ ELA MAIOR QUE ELE. Não é detalhe de estilo: a candidata é ela, e a
- *    campanha já reprovou uma composição em que o Flávio aparecia
- *    grande demais ao lado dela (ver o comentário no Hero). Aqui cada um
- *    tem seu painel, e ela entra com mais altura.
+ * ⚠️ AS DUAS FOTOS TÊM A MESMA ALTURA E O MESMO TOPO. Esta é a terceira
+ *    tentativa: com alturas diferentes — para "compensar" o
+ *    enquadramento de cada recorte — uma cabeça sempre saía maior que a
+ *    outra, e a campanha reprovou duas vezes. Os dois recortes têm a
+ *    cabeça ocupando quase a mesma fração da foto (~29%), então altura
+ *    igual é o que faz as duas cabeças saírem iguais. Cada uma fica
+ *    CENTRADA na sua coluna, e não encostada numa borda: é o
+ *    alinhamento que o olho lê como "do mesmo tamanho".
  */
 export function FaixaDoTopo({
   slots,
@@ -45,65 +49,84 @@ export function FaixaDoTopo({
   aliado?: string
   aliadoAlt?: string
 }) {
+  // A mesma medida para as duas: 104% da faixa, então o tronco é cortado
+  // pela borda de baixo e ninguém fica flutuando.
+  const foto =
+    'absolute bottom-0 left-1/2 h-[104%] w-auto max-w-none -translate-x-1/2 object-contain object-top drop-shadow-[0_10px_22px_rgba(1,58,103,0.28)]'
+
   return (
-    <div className="relative isolate h-[clamp(7rem,19vh,9.5rem)] sm:h-44 overflow-hidden bg-azul-escuro">
-      {/* Os três painéis. `-left`/`w` passam da borda para o bico da
-          inclinação ser cortado pelo cartão, e não ficar dentro dele. */}
-      <div aria-hidden className="absolute inset-y-0 -left-10 -z-10 w-[56%] -skew-x-[9deg] bg-amarelo" />
-      <div aria-hidden className="absolute inset-y-0 left-[46%] -z-10 w-[29%] -skew-x-[9deg] bg-azul" />
+    <div className="relative isolate flex h-[clamp(7rem,19vh,9.5rem)] items-end overflow-hidden bg-azul-escuro sm:h-44">
+      {/* ── Os painéis de cor ──────────────────────────────────
+          Em degradê, e não chapados: a luz de cima para baixo dá
+          profundidade à tarja sem custar uma imagem de fundo.
+
+          As bordas batem com as colunas abaixo (34,5% e 68,5%), e os
+          dois extremos passam da faixa para o `overflow` do cartão
+          cortar o bico da inclinação. */}
+      <div
+        aria-hidden
+        className="absolute inset-y-0 -left-10 right-[65.5%] -z-10 -skew-x-[9deg] bg-[linear-gradient(165deg,#ffe98a_0%,#fbd83f_55%,#f0c419_100%)]"
+      />
+      <div
+        aria-hidden
+        className="absolute inset-y-0 left-[34.5%] right-[31.5%] -z-10 -skew-x-[9deg] bg-[linear-gradient(165deg,#0a80d6_0%,#066db9_55%,#01518f_100%)]"
+      />
+      <div
+        aria-hidden
+        className="absolute inset-y-0 left-[68.5%] -right-10 -z-10 -skew-x-[9deg] bg-[linear-gradient(165deg,#01518f_0%,#013a67_100%)]"
+      />
 
       {/* ⚠️ OS FIOS BRANCOS SEPARAM OS DOIS AZUIS. Sem eles, o painel do
           Flávio e o do número viram uma mancha só e a inclinação some —
           é a mesma função da guia branca na arte impressa da campanha. */}
-      <div aria-hidden className="absolute inset-y-0 left-[45.5%] -z-10 w-[3px] -skew-x-[9deg] bg-white" />
-      <div aria-hidden className="absolute inset-y-0 left-[74.5%] -z-10 w-[3px] -skew-x-[9deg] bg-white" />
+      <div aria-hidden className="absolute inset-y-0 left-[34.2%] -z-10 w-[3px] -skew-x-[9deg] bg-white" />
+      <div aria-hidden className="absolute inset-y-0 left-[68.2%] -z-10 w-[3px] -skew-x-[9deg] bg-white" />
 
-      {/* ⚠️ ESTA FOTO É A CANDIDATA NA PRIMEIRA TELA, e é a maior imagem
-          dela — o LCP desta página. Vai `eager` e com prioridade alta;
-          o `sizes` é pequeno porque ela desenha com ~150px de largura,
-          então o Next entrega um arquivo de telefone, não o original.
+      {/* ── As três colunas ───────────────────────────────────── */}
+      <div className="relative h-full w-[35%]">
+        {/* ⚠️ ESTA FOTO É A CANDIDATA NA PRIMEIRA TELA, e é a maior imagem
+            dela — o LCP desta página. Vai `eager` e com prioridade alta;
+            o `sizes` é pequeno porque ela desenha com ~130px de largura,
+            então o Next entrega um arquivo de telefone, não o original. */}
+        <Imagem
+          slot={slotDaFoto}
+          slots={slots}
+          vazio="silhueta"
+          lcp
+          sizes="(max-width: 640px) 40vw, 180px"
+          className={foto}
+        />
+      </div>
 
-          ⚠️ A ALTURA DELA É MENOR QUE A DELE, e é o contrário do que
-             parece: os dois recortes têm enquadramentos diferentes — a
-             cabeça dela ocupa mais da própria foto do que a dele. Com a
-             mesma altura, ela aparecia com a cabeça um terço maior, e a
-             campanha reprovou ("fica esquisito"). Estas duas medidas
-             foram ajustadas até as duas cabeças ficarem do mesmo tamanho
-             na tela; mexer numa sem a outra desequilibra de novo. */}
-      <Imagem
-        slot={slotDaFoto}
-        slots={slots}
-        vazio="silhueta"
-        lcp
-        sizes="(max-width: 640px) 45vw, 200px"
-        className="absolute top-[3%] left-[1%] h-[112%] sm:left-[4%] w-auto max-w-none object-contain object-top drop-shadow-[0_10px_20px_rgba(1,58,103,0.25)]"
-      />
+      <div className="relative h-full w-[33%]">
+        {/* Ele carrega junto, mas atrás dela na fila da banda. */}
+        <Image
+          src={aliado}
+          alt={aliadoAlt}
+          width={1755}
+          height={2200}
+          loading="eager"
+          fetchPriority="low"
+          sizes="(max-width: 640px) 40vw, 180px"
+          className={foto}
+        />
+      </div>
 
-      {/* Ele carrega junto, mas atrás dela na fila da banda. */}
-      <Image
-        src={aliado}
-        alt={aliadoAlt}
-        width={1755}
-        height={2200}
-        loading="eager"
-        fetchPriority="low"
-        sizes="(max-width: 640px) 36vw, 160px"
-        className="absolute top-[3%] left-[45%] h-[124%] w-auto max-w-none object-contain object-top drop-shadow-[0_10px_20px_rgba(1,58,103,0.25)]"
-      />
-
-      {/* O número na letra da campanha, e não em fonte: é a arte que a
-          peça impressa usa. Amarelo sobre azul-escuro, que é o par de
-          cores em que ele foi desenhado. */}
-      <Image
-        src="/marca/numero-2233-amarelo.png"
-        alt={`Número ${numero}`}
-        width={700}
-        height={188}
-        loading="eager"
-        fetchPriority="low"
-        sizes="120px"
-        className="absolute right-[3%] bottom-[16%] w-[21%] max-w-32 min-w-16"
-      />
+      <div className="relative flex h-full w-[32%] items-center justify-center px-1.5">
+        {/* O número na letra da campanha, e não em fonte: é a arte que a
+            peça impressa usa. Amarelo sobre azul-escuro, que é o par de
+            cores em que ele foi desenhado, e centrado na coluna. */}
+        <Image
+          src="/marca/numero-2233-amarelo.png"
+          alt={`Número ${numero}`}
+          width={700}
+          height={188}
+          loading="eager"
+          fetchPriority="low"
+          sizes="140px"
+          className="w-full max-w-36"
+        />
+      </div>
     </div>
   )
 }
