@@ -6,6 +6,7 @@ import { EVENTO_META } from '@/lib/trafego/tipos'
 import { veioDeOutroSite } from '@/lib/trafego/origem'
 import { marcasDoPedido } from '@/lib/campanha/marcas'
 import { ehEquipe, ehRobo } from '@/lib/trafego/robo'
+import { autorizouPublicidade, COOKIE_CONSENTIMENTO } from '@/lib/consentimento'
 import { ORIGENS_CLIQUE, type TipoEvento } from '@/lib/tipos'
 
 export const dynamic = 'force-dynamic'
@@ -125,6 +126,10 @@ function repassarParaMeta(req: NextRequest, corpo: Record<string, unknown>): voi
   //    olhando a tabela; pixel envenenado gasta verba de anúncio
   //    perseguindo conversão que não existiu.
   if (veioDeOutroSite(req)) return
+  // Sem autorização de publicidade no aviso de cookies, nada vai para a
+  // Meta. A métrica própria segue: não usa cookie e não identifica
+  // ninguém — ver a seção "O que medimos" da política de privacidade.
+  if (!autorizouPublicidade(req.cookies.get(COOKIE_CONSENTIMENTO)?.value)) return
 
   const nome = EVENTO_META[String(corpo.tipo) as TipoEvento]
   if (!nome) return

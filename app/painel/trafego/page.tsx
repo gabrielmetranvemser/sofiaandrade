@@ -4,7 +4,6 @@ import { lerTrafego } from '@/lib/trafego/ler'
 import { EVENTO_META, EXPLICACAO_EVENTO, EVENTOS_PADRAO_META } from '@/lib/trafego/tipos'
 import type { TipoEvento } from '@/lib/tipos'
 import { EditorTrafego } from './EditorTrafego'
-import { TextoPrivacidade } from './TextoPrivacidade'
 
 export const dynamic = 'force-dynamic'
 export const metadata = { title: 'Tráfego', robots: { index: false } }
@@ -60,33 +59,31 @@ export default async function PaginaTrafego() {
         </p>
       </header>
 
-      {/* ⚠️ ESTE AVISO NÃO É ZELO EXCESSIVO. A política de privacidade
-          publicada afirma, com estas palavras, que o site "não usa
-          cookies de rastreamento e não monta perfil de navegação". O
-          pixel grava o cookie `_fbp` e existe para montar público de
-          remarketing: ligá-lo sem mexer no texto deixa no ar uma
-          afirmação falsa, assinada pela campanha, numa página que é
-          propaganda eleitoral.
-
-          Fica na tela, e não só no commit, porque quem liga o pixel
-          seis meses depois é outra pessoa — e é ela que precisa ler. */}
+      {/* ⚠️ ESTE AVISO EXPLICA POR QUE A META VAI CONTAR MENOS QUE O
+          PAINEL, e fica na tela porque é a primeira dúvida de quem
+          compara os dois números. Desde 17/09 nada daqui carrega sem
+          autorização no aviso de cookies — ver lib/consentimento.ts. */}
       <div className="mt-8 rounded-2xl border border-amarelo bg-amarelo/15 p-5 text-sm">
-        <h2 className="text-base font-semibold">Antes de ligar: a política de privacidade</h2>
-        <p className="mt-2">
-          A política publicada hoje diz, na seção <em>O que medimos</em>:{' '}
-          <q className="italic">
-            Não usamos cookies de rastreamento e não montamos perfil de navegação.
-          </q>
-        </p>
-        <p className="mt-2">
-          Com o pixel ligado isso deixa de ser verdade — ele grava o cookie{' '}
-          <code className="font-mono">_fbp</code> e serve justamente para montar público. Numa
-          página que é propaganda eleitoral, é uma afirmação falsa assinada pela campanha.
-        </p>
-        <p className="mt-2">
-          O texto de substituição está pronto no fim desta tela, com botão de copiar. São dois
-          minutos, e é a diferença entre uma página que cumpre o que promete e uma que não.
-        </p>
+        <h2 className="text-base font-semibold">Tudo aqui depende do aviso de cookies</h2>
+        <ul className="mt-2 list-disc space-y-1 pl-5">
+          <li>
+            <strong className="font-medium">Google Tag Manager</strong> (e o GA4 e o Clarity dentro
+            dele) só carrega para quem autorizou <em>desempenho</em>.
+          </li>
+          <li>
+            <strong className="font-medium">Pixel e Conversions API</strong> só enviam para quem
+            autorizou <em>publicidade</em> — inclusive o <code className="font-mono">Lead</code> do
+            clique no grupo.
+          </li>
+          <li>
+            Quem rejeita continua contando nas métricas do painel, que não usam cookie. Por isso o
+            Gerenciador de Eventos vai mostrar menos que o painel, e isso é o esperado.
+          </li>
+          <li>
+            Ferramenta nova no GTM? Diga qual em <em>Aviso de cookies</em> e na{' '}
+            <em>Política de privacidade</em>, no painel, antes de publicar o contêiner.
+          </li>
+        </ul>
       </div>
 
       <ul className="mt-8 grid gap-3 sm:grid-cols-3">
@@ -210,7 +207,9 @@ export default async function PaginaTrafego() {
           </li>
           <li>
             <strong className="font-medium text-tinta">2.</strong> Com o código de teste preenchido,
-            abra o site em outra aba e entre num grupo. O <code className="font-mono">Lead</code>{' '}
+            abra o site numa janela anônima (o navegador em que você entrou no painel não conta), toque
+            em <em>Aceitar todos</em> no aviso de cookies e entre num grupo — sem autorização de
+            publicidade, nada sai para a Meta. O <code className="font-mono">Lead</code>{' '}
             deve aparecer em <em>Eventos de teste</em> uma vez só — se aparecer duas, há um pixel
             duplicado (quase sempre dentro do GTM).
           </li>
@@ -226,8 +225,6 @@ export default async function PaginaTrafego() {
           </li>
         </ol>
       </section>
-
-      <TextoPrivacidade pixel={Boolean(t.metaPixelId)} gtm={Boolean(t.gtmId)} />
     </>
   )
 }

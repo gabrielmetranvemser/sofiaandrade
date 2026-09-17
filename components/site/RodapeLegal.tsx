@@ -2,6 +2,7 @@ import Link from 'next/link'
 import { lerConteudo } from '@/lib/conteudo/ler'
 import { LogoHorizontal } from '@/components/ui/Marca'
 import { Texto } from '@/components/ui/TextoComDestaque'
+import { GerenciarCookies } from '@/components/consentimento/GerenciarCookies'
 
 /**
  * RODAPÉ DE IDENTIFICAÇÃO ELEITORAL.
@@ -13,7 +14,7 @@ import { Texto } from '@/components/ui/TextoComDestaque'
  *    Confirmar com a campanha antes de publicar.
  */
 export async function RodapeLegal() {
-  const { candidata, rodape } = await lerConteudo()
+  const { candidata, rodape, cookies } = await lerConteudo()
   const anoAtual = new Date().getFullYear()
   const legal = rodape.legal
 
@@ -56,6 +57,15 @@ export async function RodapeLegal() {
                   </Link>
                 </li>
               ))}
+              {/* Fora da lista editável de links: retirar a autorização
+                  precisa estar sempre a um toque, e um link removido no
+                  painel levaria isso junto. */}
+              <li>
+                <GerenciarCookies
+                  rotulo={cookies.gerenciar}
+                  className="inline-flex min-h-11 items-center text-base text-white/80 transition-colors hover:text-amarelo"
+                />
+              </li>
             </ul>
           </nav>
 

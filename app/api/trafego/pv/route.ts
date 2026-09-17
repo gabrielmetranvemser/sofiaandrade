@@ -3,6 +3,7 @@ import { config } from '@/lib/config'
 import { enviarEvento, identidadeDoPedido } from '@/lib/trafego/meta'
 import { veioDeOutroSite } from '@/lib/trafego/origem'
 import { ehEquipe, ehRobo } from '@/lib/trafego/robo'
+import { autorizouPublicidade, COOKIE_CONSENTIMENTO } from '@/lib/consentimento'
 
 export const dynamic = 'force-dynamic'
 export const runtime = 'nodejs'
@@ -34,6 +35,10 @@ export async function POST(req: NextRequest) {
     if (veioDeOutroSite(req)) return ok()
     // Nem robô, nem aparelho da equipe. Ver lib/trafego/robo.ts.
     if (ehRobo(req) || ehEquipe(req)) return ok()
+    // ⚠️ Nem quem não autorizou publicidade no aviso de cookies. O
+    //    navegador só chama esta rota com autorização, mas quem promete
+    //    é o servidor: é daqui que o envio à Meta sai.
+    if (!autorizouPublicidade(req.cookies.get(COOKIE_CONSENTIMENTO)?.value)) return ok()
 
     const bruto = await req.text()
     if (bruto.length > LIMITE_CORPO) return ok()

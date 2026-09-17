@@ -1001,6 +1001,61 @@ export const ESQUEMA: Record<string, SecaoEsquema> = {
   },
 
   // ── Identidade ─────────────────────────────────────────────────
+  cookies: {
+    rotulo: 'Aviso de cookies',
+    grupo: 'Textos gerais',
+    nota:
+      'O cartão que aparece no pé da tela na primeira visita. As categorias ligam e desligam ferramentas de verdade: desempenho carrega o Google Tag Manager (GA4 e Clarity) e publicidade carrega o pixel e a API de Conversões da Meta. Se uma ferramenta nova entrar numa delas, diga aqui.',
+    campos: {
+      titulo: { tipo: 'texto', rotulo: 'Título', max: 50 },
+      texto: {
+        tipo: 'longo',
+        rotulo: 'Texto',
+        max: 120,
+        linhas: 2,
+        ajuda: 'Até uns 90 caracteres cabe em duas linhas no celular. Mais que isso, o cartão cresce e cobre mais da página.',
+      },
+      aceitar: { tipo: 'texto', rotulo: 'Botão aceitar', max: 22 },
+      rejeitar: { tipo: 'texto', rotulo: 'Botão rejeitar', max: 22 },
+      personalizar: { tipo: 'texto', rotulo: 'Link personalizar', max: 22 },
+      politica: { tipo: 'texto', rotulo: 'Link da política', max: 30 },
+      escolhasTitulo: { tipo: 'texto', rotulo: 'Personalizar: título', max: 40 },
+      escolhasTexto: { tipo: 'longo', rotulo: 'Personalizar: texto', max: 160, linhas: 2 },
+      sempreAtivos: { tipo: 'texto', rotulo: 'Selo dos necessários', max: 20 },
+      salvar: { tipo: 'texto', rotulo: 'Botão salvar escolhas', max: 22 },
+      gerenciar: {
+        tipo: 'texto',
+        rotulo: 'Link "Gerenciar cookies"',
+        max: 30,
+        ajuda: 'No rodapé de todas as páginas e na política de privacidade.',
+      },
+      necessarios: {
+        tipo: 'grupo',
+        rotulo: 'Categoria: necessários',
+        campos: {
+          titulo: { tipo: 'texto', rotulo: 'Nome', max: 30 },
+          texto: { tipo: 'texto', rotulo: 'Descrição', max: 110 },
+        },
+      },
+      desempenho: {
+        tipo: 'grupo',
+        rotulo: 'Categoria: desempenho',
+        campos: {
+          titulo: { tipo: 'texto', rotulo: 'Nome', max: 30 },
+          texto: { tipo: 'texto', rotulo: 'Descrição', max: 110 },
+        },
+      },
+      publicidade: {
+        tipo: 'grupo',
+        rotulo: 'Categoria: publicidade',
+        campos: {
+          titulo: { tipo: 'texto', rotulo: 'Nome', max: 30 },
+          texto: { tipo: 'texto', rotulo: 'Descrição', max: 110 },
+        },
+      },
+    },
+  },
+
   candidata: {
     rotulo: 'A candidata',
     grupo: 'Identidade',
