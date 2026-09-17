@@ -3,8 +3,9 @@
 import Link from 'next/link'
 import { useEffect, useState } from 'react'
 import { useConteudo } from '@/lib/conteudo/contexto'
-import { evento } from '@/lib/eventos'
+import { evento, marcarToqueDeRobo } from '@/lib/eventos'
 import { useCidadeAlvo, useDestinoDoGrupo } from '@/lib/campanha/contexto'
+import { destinoGrupo } from '@/lib/conteudo/secoes'
 import { Simbolo } from '@/components/ui/Marca'
 
 export function Header({
@@ -24,7 +25,8 @@ export function Header({
   // O botão do próprio cabeçalho seguia com destino fixo. Com a seção
   // de grupos desligada ele virava clique morto — o pior tipo de bug,
   // porque não dá erro nenhum.
-  const paraOsGrupos = ocultas.includes('grupos') ? '/grupos' : '/#grupos'
+  // `/grupos`, e não a âncora: ver `destinoGrupo` em lib/conteudo/secoes.ts.
+  const paraOsGrupos = destinoGrupo()
 
   // Quem chegou pelo anúncio de uma cidade entra no grupo dela direto,
   // do topo da página. Ver `lib/campanha/contexto.tsx`.
@@ -221,7 +223,14 @@ function BotaoGrupo({
 }) {
   if (direto) {
     return (
-      <a href={href} onClick={onClick} className={className}>
+      <a
+        href={href}
+        onClick={(e) => {
+          marcarToqueDeRobo(e.currentTarget, e.nativeEvent.isTrusted)
+          onClick()
+        }}
+        className={className}
+      >
         {children}
       </a>
     )

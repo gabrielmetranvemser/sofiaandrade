@@ -44,7 +44,7 @@ import { AcoesDoResultado } from './Resultado'
 const TOTAL = 4
 
 export function Fluxo({ molduras, apoios }: { molduras: Moldura[]; apoios: string | null }) {
-  const { filtro: copy } = useConteudo()
+  const { filtro: copy, candidata } = useConteudo()
 
   const [etapa, setEtapa] = useState(0)
   const [formato, setFormato] = useState<FormatoMoldura>('story')
@@ -178,7 +178,10 @@ export function Fluxo({ molduras, apoios }: { molduras: Moldura[]; apoios: strin
             <strong className="font-[family-name:var(--font-titulo)] text-lg font-bold tabular-nums">
               {apoios}
             </strong>{' '}
-            {copy.apoios}
+            {/* `{{candidata.numero}}` resolvido aqui: o resolvedor completo
+                (lib/conteudo/tokens.ts) pede o conteúdo inteiro, e o
+                cliente só recebe o recorte. */}
+            {copy.apoios.replaceAll('{{candidata.numero}}', candidata.numero)}
           </p>
         ) : null}
       </div>

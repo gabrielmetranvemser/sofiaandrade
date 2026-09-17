@@ -2,6 +2,7 @@ import { after, NextResponse, type NextRequest } from 'next/server'
 import { config } from '@/lib/config'
 import { enviarEvento, identidadeDoPedido } from '@/lib/trafego/meta'
 import { veioDeOutroSite } from '@/lib/trafego/origem'
+import { ehEquipe, ehRobo } from '@/lib/trafego/robo'
 
 export const dynamic = 'force-dynamic'
 export const runtime = 'nodejs'
@@ -31,6 +32,8 @@ export async function POST(req: NextRequest) {
   try {
     // Evento vindo de página de terceiro não é evento desta campanha.
     if (veioDeOutroSite(req)) return ok()
+    // Nem robô, nem aparelho da equipe. Ver lib/trafego/robo.ts.
+    if (ehRobo(req) || ehEquipe(req)) return ok()
 
     const bruto = await req.text()
     if (bruto.length > LIMITE_CORPO) return ok()

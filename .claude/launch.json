@@ -10,6 +10,20 @@
       ],
       "port": 3000,
       "autoPort": true
+    },
+    {
+      "name": "sofia-2233-sem-medicao",
+      "runtimeExecutable": "env",
+      "runtimeArgs": [
+        "MEDICAO_DESLIGADA=1",
+        "npm",
+        "run",
+        "dev",
+        "--",
+        "-p",
+        "3100"
+      ],
+      "port": 3100
     }
   ]
 }

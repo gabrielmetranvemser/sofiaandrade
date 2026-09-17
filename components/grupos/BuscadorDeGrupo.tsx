@@ -3,7 +3,7 @@
 import { useEffect, useId, useMemo, useRef, useState, type KeyboardEvent } from 'react'
 import { useConteudo } from '@/lib/conteudo/contexto'
 import { buscarMunicipios, municipioMaisProximo, normalizar } from '@/lib/geo'
-import { evento, caminhoDoGrupo, useSessao } from '@/lib/eventos'
+import { evento, caminhoDoGrupo, marcarToqueDeRobo, useSessao } from '@/lib/eventos'
 import { achatarDestinos } from '@/lib/destinos'
 import type { Destino, MunicipioComGrupo, OrigemClique, StatusGrupo } from '@/lib/tipos'
 
@@ -63,11 +63,24 @@ const toqueNaTela = () => window.matchMedia('(pointer: coarse)').matches
 export function BuscadorDeGrupo({
   municipios,
   alvo = null,
+  aoEscolher,
   className = '',
 }: {
   municipios: MunicipioComGrupo[]
   /** A cidade que veio no link do anúncio. Ver `lib/campanha/alvo.ts`. */
   alvo?: Destino | null
+  /**
+   * Quando existe, a busca SÓ ESCOLHE a cidade: entrega a escolha para
+   * quem a usa e não desenha painel nem botão de grupo próprios.
+   *
+   * ⚠️ NASCEU DE UM TESTE DA CAMPANHA na página de entrada: trocar de
+   *    Cabixi para Porto Velho fazia aparecer um segundo botão, azul,
+   *    "Entrar no grupo de Porto Velho", enquanto o verde lá em cima
+   *    continuava dizendo Cabixi. Dois botões de grupo, com duas
+   *    cidades, na mesma tela. Ali quem mostra a cidade e o botão é a
+   *    página — ver components/grupos/EntradaDoGrupo.tsx.
+   */
+  aoEscolher?: (destino: Destino, origem: OrigemClique) => void
   className?: string
 }) {
   const { grupos: copy, ctas } = useConteudo()
@@ -142,6 +155,14 @@ export function BuscadorDeGrupo({
 
   function escolher(destino: Destino, origem: OrigemClique) {
     pedidoGeo.current += 1
+    if (aoEscolher) {
+      setTermo('')
+      setAberta(false)
+      setAtiva(-1)
+      setGeo('ocioso')
+      aoEscolher(destino, origem)
+      return
+    }
     levarAoPainel.current = true
     setEscolha({ destino, origem })
     setAberta(false)
@@ -164,7 +185,8 @@ export function BuscadorDeGrupo({
       })
     }
 
-    setTermo(s.destino.nome)
+    // No modo que só escolhe, o campo esvazia: a cidade aparece na página.
+    if (!aoEscolher) setTermo(s.destino.nome)
     escolher(s.destino, 'busca')
 
     // No celular, fecha o teclado: o que importa agora é o botão do
@@ -295,6 +317,7 @@ export function BuscadorDeGrupo({
               // <Link> contaria um clique no grupo sem ninguém ter tocado.
               <a
                 href={caminhoDoGrupo(escolha.destino.slug, escolha.origem, sessao)}
+                onClick={(e) => marcarToqueDeRobo(e.currentTarget, e.nativeEvent.isTrusted)}
                 className="toque mt-5 flex min-h-14 w-full items-center justify-center gap-3 rounded-full bg-azul-escuro px-6 py-3 text-left text-lg leading-snug font-semibold text-white shadow-media transition-colors hover:bg-azul-noite"
               >
                 {/* O logo inteiro, com o telefone: é a última tela antes

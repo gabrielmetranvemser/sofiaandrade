@@ -608,6 +608,50 @@ export const grupos = {
 } as const
 
 // ─────────────────────────────────────────────────────────────
+// 7b. PÁGINA DE ENTRADA — quem chega pelo anúncio de uma cidade
+//
+// Nasceu em 17/09, com a campanha na reta final. Os números de antes:
+// quem vinha do anúncio não rolava a home (1,5% chegava à metade), e só
+// 6,5% tocavam para entrar no grupo com o botão dela.
+//
+// `{cidade}` é trocado pelo nome da cidade — a do link do anúncio, ou a
+// que a pessoa escolher em "Não é de…?". Vale no título, no apoio, nos
+// marcadores e no link de trocar cidade.
+//
+// O botão verde usa "Entrar no grupo de", de Botões do site, e as
+// situações de grupo cheio e em breve vêm da seção Grupos de WhatsApp.
+// ─────────────────────────────────────────────────────────────
+export const entrada = {
+  etiqueta: 'Grupo oficial da campanha',
+  // A cidade vai no título porque o anúncio prometeu ela: "grupo de
+  // WhatsApp de Cabixi" chega numa página que diz Cabixi logo de cara.
+  titulo: 'Entre no grupo da Sofia em [[{cidade}.]]',
+  apoio:
+    'É por ali que a campanha avisa de carreata, agenda e o que estiver acontecendo perto de você.',
+  notaBotao: 'Abre no seu WhatsApp. Lá, é só tocar em "Entrar no grupo".',
+  itens: [
+    { id: 'entrada-01', texto: 'Agenda e carreatas em {cidade} e região' },
+    { id: 'entrada-02', texto: 'Avisos da campanha direto no seu WhatsApp' },
+    { id: 'entrada-03', texto: 'É de graça, e você sai quando quiser' },
+  ],
+  trocarCidade: 'Não é de {cidade}? Escolher outra cidade',
+  botaoAbrindo: 'Abrindo o WhatsApp…',
+  naoAbriuTitulo: 'O WhatsApp não abriu?',
+  naoAbriuBotao: 'Tocar aqui de novo',
+  naoAbriuDica:
+    'Se aparecer uma página do WhatsApp, toque no botão verde dela. No aplicativo, toque em "Entrar no grupo".',
+  // A segunda dobra, no azul.
+  quemEtiqueta: 'Quem é a Sofia',
+  quemTitulo: 'Da calçada da Rio Madeira [[para Brasília.]]',
+  quem: [
+    'Vereadora em Porto Velho, candidata a Deputada Federal por Rondônia pelo PL. Número 2233.',
+    'Nasceu em Cacoal, cresceu no Iata e vendia espetinho na calçada da Avenida Rio Madeira.',
+    'Na pandemia, quando mandaram fechar o comércio, foi pra rua defender quem trabalha.',
+  ],
+  conhecer: 'Conhecer a história da Sofia',
+} as const
+
+// ─────────────────────────────────────────────────────────────
 // 8. FILTRO
 // ─────────────────────────────────────────────────────────────
 export const filtro = {
@@ -1111,6 +1155,7 @@ export const PADRAO = {
   trilha,
   futuro,
   grupos,
+  entrada,
   filtro,
   compartilhar,
   ctaFinal,

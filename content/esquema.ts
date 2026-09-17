@@ -615,6 +615,75 @@ export const ESQUEMA: Record<string, SecaoEsquema> = {
     },
   },
 
+  entrada: {
+    rotulo: 'Página de entrada do anúncio',
+    grupo: 'Página',
+    nota:
+      'É a página que abre quando alguém toca no anúncio de uma cidade. Onde estiver {cidade}, entra o nome da cidade — a do anúncio, ou a que a pessoa escolher. O botão verde usa "Entrar no grupo de", em Botões do site; as mensagens de grupo cheio e em breve vêm de Grupos de WhatsApp.',
+    campos: {
+      etiqueta: { tipo: 'texto', rotulo: 'Etiqueta', max: 40, ajuda: 'Ao lado da foto redonda, no topo.' },
+      titulo: {
+        tipo: 'texto',
+        rotulo: 'Título',
+        max: 80,
+        destaque: true,
+        ajuda: 'Use {cidade} onde entra o nome da cidade. O trecho destacado fica verde.',
+      },
+      apoio: { tipo: 'longo', rotulo: 'Texto de apoio', max: 200, linhas: 3 },
+      notaBotao: { tipo: 'texto', rotulo: 'Frase embaixo do botão', max: 90 },
+      itens: {
+        tipo: 'lista',
+        rotulo: 'Marcadores',
+        rotuloItem: 'Marcador',
+        titulo: 'texto',
+        min: 0,
+        max: 4,
+        ajuda: 'Frases curtas com o sinal de visto, logo abaixo do botão. Pode usar {cidade}.',
+        item: {
+          id: ID,
+          texto: { tipo: 'texto', rotulo: 'Texto', max: 60 },
+        },
+      },
+      trocarCidade: {
+        tipo: 'texto',
+        rotulo: 'Link para trocar de cidade',
+        max: 60,
+        ajuda: 'Abre a busca. A cidade escolhida passa a valer para o título e para o botão.',
+      },
+      botaoAbrindo: { tipo: 'texto', rotulo: 'Botão, enquanto abre o WhatsApp', max: 40 },
+      naoAbriuTitulo: { tipo: 'texto', rotulo: 'Se o WhatsApp não abrir: título', max: 50 },
+      naoAbriuBotao: { tipo: 'texto', rotulo: 'Se o WhatsApp não abrir: link', max: 40 },
+      naoAbriuDica: {
+        tipo: 'longo',
+        rotulo: 'Se o WhatsApp não abrir: dica',
+        max: 200,
+        linhas: 2,
+        ajuda: 'Aparece seis segundos depois do toque, se a página continuar na tela.',
+      },
+      quemEtiqueta: { tipo: 'texto', rotulo: 'Segunda dobra: etiqueta', max: 40 },
+      quemTitulo: {
+        tipo: 'texto',
+        rotulo: 'Segunda dobra: título',
+        max: 60,
+        destaque: true,
+        ajuda: 'Fica ao lado da foto, no fundo azul. O trecho destacado fica amarelo.',
+      },
+      quem: {
+        tipo: 'listaTexto',
+        rotulo: 'Segunda dobra: frases',
+        min: 1,
+        max: 5,
+        maxItem: 160,
+      },
+      conhecer: {
+        tipo: 'texto',
+        rotulo: 'Link para a página completa',
+        max: 50,
+        ajuda: 'Leva à home, com a história inteira.',
+      },
+    },
+  },
+
   filtro: {
     rotulo: 'Coloque o 2233 na foto',
     grupo: 'Página',

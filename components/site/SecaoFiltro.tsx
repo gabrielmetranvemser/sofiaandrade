@@ -1,4 +1,5 @@
 import { lerConteudo } from '@/lib/conteudo/ler'
+import { resolverTokens } from '@/lib/conteudo/tokens'
 import { lerSlots } from '@/lib/midia/ler'
 import { lerApoios, formatarApoios } from '@/lib/apoios'
 import { resolverExemplos, resolverMolduras } from '@/lib/molduras'
@@ -19,12 +20,13 @@ import { VitrineFiltro } from './VitrineFiltro'
  * quem vê um retângulo vazio não tem por que tocar no botão.
  */
 export async function SecaoFiltro() {
-  const [{ filtro }, slots, apoios] = await Promise.all([
+  const [conteudo, slots, apoios] = await Promise.all([
     lerConteudo(),
     lerSlots(),
     lerApoios(),
   ])
 
+  const { filtro } = conteudo
   const molduras = resolverMolduras(slots)
   // Resolvido AQUI, no servidor, porque a vitrine é Client Component e
   // não alcança o Storage — mesma razão de `resolverMolduras`.
@@ -76,7 +78,9 @@ export async function SecaoFiltro() {
                 <strong className="font-[family-name:var(--font-titulo)] text-xl font-bold tabular-nums">
                   {formatarApoios(apoios)}
                 </strong>{' '}
-                {filtro.apoios}
+                {/* O texto traz `{{candidata.numero}}`. Sem resolver, a
+                    página mostrava as chaves literais para o eleitor. */}
+                {resolverTokens(filtro.apoios, conteudo)}
               </span>
             </p>
           ) : null}

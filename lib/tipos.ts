@@ -99,6 +99,14 @@ export type TipoEvento =
   | 'compartilhou_filtro'
   | 'compartilhou_pagina'
   | 'clicou_instagram'
+  /**
+   * Depois do toque no botão da página de entrada, a página saiu da
+   * tela: o WhatsApp (app ou página dele) tomou a frente. Não é entrada
+   * no grupo — é a prova de que o caminho até lá não travou.
+   */
+  | 'saiu_para_whatsapp'
+  /** Seis segundos depois do toque a página continuava na tela: travou. */
+  | 'whatsapp_nao_abriu'
 
 /**
  * De onde no layout partiu o clique. Responde "qual botão trabalha".
@@ -130,6 +138,14 @@ export const ORIGENS_CLIQUE = [
   /** Chegou pelo link de anúncio, com a cidade já escolhida na URL. */
   'anuncio',
   'direto',
+  /**
+   * A página de entrada (`/grupos` com cidade). Na chegada, marca a
+   * visita; no botão, o toque. É o que separa página de entrada de home
+   * na conta de conversão do anúncio.
+   */
+  'lp',
+  /** O "tocar aqui de novo" de quando o WhatsApp não abriu. */
+  'lp_de_novo',
 ] as const
 
 export type OrigemClique = (typeof ORIGENS_CLIQUE)[number]

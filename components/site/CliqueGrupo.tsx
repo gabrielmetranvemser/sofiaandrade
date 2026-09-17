@@ -2,7 +2,7 @@
 
 import Link from 'next/link'
 import type { ReactNode } from 'react'
-import { evento } from '@/lib/eventos'
+import { evento, marcarToqueDeRobo } from '@/lib/eventos'
 import { useDestinoDoGrupo } from '@/lib/campanha/contexto'
 import type { OrigemClique } from '@/lib/tipos'
 
@@ -49,7 +49,14 @@ export function CliqueGrupo({
 
   if (destino.direto) {
     return (
-      <a href={destino.href} className={className} onClick={registrar}>
+      <a
+        href={destino.href}
+        className={className}
+        onClick={(e) => {
+          marcarToqueDeRobo(e.currentTarget, e.nativeEvent.isTrusted)
+          registrar()
+        }}
+      >
         {children}
       </a>
     )

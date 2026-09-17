@@ -19,15 +19,18 @@ export function secoesOcultas(exibir: Exibir): string[] {
 }
 
 /**
- * Para onde os botões de grupo devem apontar.
+ * Para onde os botões de grupo devem apontar quando não há cidade no link.
  *
- * Com a seção de grupos no ar, é a âncora — rolar é mais rápido que
- * carregar página. Com ela desligada, a âncora não existe, e o destino
- * passa a ser `/grupos`, que é a mesma lista numa página própria e já
- * existia. Assim desligar a seção encurta a home sem derrubar o funil
- * inteiro da campanha, que é o que aconteceria se os botões virassem
- * cliques mortos.
+ * ⚠️ ERA A ÂNCORA `#grupos`, com a ideia de que rolar é mais rápido que
+ *    carregar página. Não é: a seção fica a ~20 mil px do topo, depois
+ *    de duas seções que travam a rolagem, e para quem chegou com UTM na
+ *    URL o toque ainda virava uma navegação completa, sem aviso, antes
+ *    de rolar. `/grupos` é leve (uma imagem) e abre com a busca logo
+ *    abaixo do título.
+ *
+ * O parâmetro fica: é a assinatura que as telas já chamam, e a seção
+ * desligada no painel continua levando ao mesmo lugar.
  */
-export function destinoGrupo(exibir: Exibir): string {
-  return exibir.grupos ? '/#grupos' : '/grupos'
+export function destinoGrupo(_exibir?: Exibir): string {
+  return '/grupos'
 }

@@ -1,5 +1,11 @@
 import Link from 'next/link'
-import { carregarMetricas, somarFunil, type LinhaCampanha, type LinhaOrigem } from '@/lib/metricas'
+import {
+  carregarMetricas,
+  somarFunil,
+  type LinhaCampanha,
+  type LinhaEntrada,
+  type LinhaOrigem,
+} from '@/lib/metricas'
 import { Aviso } from '@/components/ui/Aviso'
 
 export const dynamic = 'force-dynamic'
@@ -97,6 +103,96 @@ function LinhaDeCampanha({ linha, maximo }: { linha: LinhaCampanha; maximo: numb
   )
 }
 
+/**
+ * Página de entrada × home, para quem veio do anúncio com cidade.
+ *
+ * ⚠️ É A TELA DA REGRA DE PARADA de 17/09. Antes da página de entrada, a
+ *    home com cidade no link fazia 6,5% das visitas de celular tocarem
+ *    para entrar. Com ~250 visitas na página de entrada, se a taxa dela
+ *    ficar abaixo disso, o tráfego volta para a home: `PAGINA_DE_ENTRADA=0`
+ *    na Vercel e um novo deploy.
+ *
+ *    "Não abriu" só existe na página de entrada — é o botão dela que
+ *    acompanha o que acontece depois do toque.
+ */
+const NOME_DA_PAGINA: Record<LinhaEntrada['pagina'], string> = {
+  lp: 'Página de entrada',
+  anuncio: 'Home',
+}
+
+function porcento(parte: number, todo: number): string {
+  return todo > 0 ? `${((parte / todo) * 100).toFixed(1)}%` : '—'
+}
+
+function QuadroPaginaDeEntrada({ linhas }: { linhas: LinhaEntrada[] }) {
+  const total = (pagina: LinhaEntrada['pagina']) =>
+    linhas
+      .filter((l) => l.pagina === pagina)
+      .reduce(
+        (t, l) => ({
+          visitas: t.visitas + l.visitas,
+          tocaram: t.tocaram + l.tocaram,
+          naoAbriu: t.naoAbriu + l.naoAbriu,
+        }),
+        { visitas: 0, tocaram: 0, naoAbriu: 0 },
+      )
+
+  return (
+    <>
+      <dl className="grid gap-3 sm:grid-cols-2">
+        {(['lp', 'anuncio'] as const).map((pagina) => {
+          const t = total(pagina)
+          return (
+            <div key={pagina} className="rounded-xl bg-areia p-4">
+              <dt className="text-sm text-grafite">{NOME_DA_PAGINA[pagina]}</dt>
+              <dd className="mt-1 font-[family-name:var(--font-titulo)] text-3xl font-bold tabular-nums">
+                {porcento(t.tocaram, t.visitas)}
+              </dd>
+              <dd className="text-sm text-grafite tabular-nums">
+                {t.tocaram} de {t.visitas} visitas tocaram para entrar
+                {pagina === 'lp' && t.tocaram > 0
+                  ? ` · WhatsApp não abriu em ${porcento(t.naoAbriu, t.tocaram)}`
+                  : ''}
+              </dd>
+            </div>
+          )
+        })}
+      </dl>
+
+      <div className="mt-4 overflow-x-auto">
+        <table className="w-full min-w-[34rem] text-left text-sm tabular-nums">
+          <thead className="text-grafite">
+            <tr>
+              <th className="py-2 pr-3 font-medium">Dia</th>
+              <th className="py-2 pr-3 font-medium">Página</th>
+              <th className="py-2 pr-3 text-right font-medium">Visitas</th>
+              <th className="py-2 pr-3 text-right font-medium">Tocaram</th>
+              <th className="py-2 pr-3 text-right font-medium">Taxa</th>
+              <th className="py-2 pr-3 text-right font-medium">Saíram p/ WhatsApp</th>
+              <th className="py-2 text-right font-medium">Não abriu</th>
+            </tr>
+          </thead>
+          <tbody>
+            {linhas.map((l) => (
+              <tr key={`${l.dia}-${l.pagina}`} className="border-t border-linha">
+                <td className="py-2 pr-3">{l.dia.split('-').reverse().slice(0, 2).join('/')}</td>
+                <td className="py-2 pr-3">{NOME_DA_PAGINA[l.pagina]}</td>
+                <td className="py-2 pr-3 text-right">{l.visitas}</td>
+                <td className="py-2 pr-3 text-right">{l.tocaram}</td>
+                <td className="py-2 pr-3 text-right font-semibold text-tinta">
+                  {porcento(l.tocaram, l.visitas)}
+                </td>
+                <td className="py-2 pr-3 text-right">{l.pagina === 'lp' ? l.sairam : '—'}</td>
+                <td className="py-2 text-right">{l.pagina === 'lp' ? l.naoAbriu : '—'}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+    </>
+  )
+}
+
 function Painel({ titulo, nota, children }: { titulo: string; nota?: string; children: React.ReactNode }) {
   return (
     <section className="rounded-2xl border border-linha bg-white p-6">
@@ -186,6 +282,23 @@ export default async function PainelMetricas() {
             <p className="text-sm text-grafite">Nenhum clique registrado ainda.</p>
           )}
         </Painel>
+
+        {/* Larga, logo depois do funil: é onde se decide se a página de
+            entrada fica no ar. */}
+        <div className="lg:col-span-2">
+          <Painel
+            titulo="Anúncio: página de entrada × home"
+            nota="Quem veio do anúncio com cidade, no celular. Regra de parada: com ~250 visitas na página de entrada, abaixo de 6,5% volta para a home (PAGINA_DE_ENTRADA=0 na Vercel)."
+          >
+            {m.porPaginaDeEntrada.length ? (
+              <QuadroPaginaDeEntrada linhas={m.porPaginaDeEntrada} />
+            ) : (
+              <p className="text-sm text-grafite">
+                Sem visitas de anúncio com cidade ainda — ou a migration 0017 não foi aplicada.
+              </p>
+            )}
+          </Painel>
+        </div>
 
         {/* Antes de "cliques por município", que conta tudo: esta tela é
             sobre o dinheiro, e quem abre o painel no meio de uma

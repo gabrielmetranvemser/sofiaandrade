@@ -75,6 +75,29 @@ export const SLOTS: Slot[] = [
     nota: 'A imagem que aparece quando alguém cola o link do site no WhatsApp, no Facebook ou no Telegram. Deitada, com o rosto e o número no meio — as bordas são aparadas em telas pequenas. Sem imagem aqui, o site desenha o cartão sozinho, com o nome e o número. O WhatsApp guarda o cartão de um link por semanas: trocar aqui não muda os links já enviados.',
   },
 
+  // ── Página de entrada ──────────────────────────────────────────
+  // A página que abre para quem toca no anúncio de uma cidade. As duas
+  // fotos têm substituta: enquanto ninguém subir nada aqui, a página usa
+  // o Retrato de fechamento e o Retrato de "Quem é Sofia".
+  {
+    chave: 'entrada.foto',
+    rotulo: 'Foto redonda do topo',
+    onde: 'Página de entrada',
+    proporcao: '1/1',
+    larguraMin: 400,
+    alturaMin: 400,
+    nota: 'O rosto dela bem de perto, olhando para a câmera. Aparece num círculo pequeno ao lado de "Grupo oficial da campanha" — é o rosto que a pessoa acabou de ver no anúncio. Sem imagem aqui, a página usa o Retrato de fechamento.',
+  },
+  {
+    chave: 'entrada.retrato',
+    rotulo: 'Foto de "Quem é a Sofia"',
+    onde: 'Página de entrada',
+    proporcao: '4/5',
+    larguraMin: 800,
+    alturaMin: 1000,
+    nota: 'Vertical, sobre o fundo azul da segunda dobra, com uma borda amarela deslocada atrás. Sem imagem aqui, a página usa o Retrato de "Quem é Sofia" — a foto do espetinho.',
+  },
+
   // ── Primeira dobra ─────────────────────────────────────────────
   {
     chave: 'hero.retrato',
@@ -332,6 +355,7 @@ const SECAO_DO_ESPACO: Record<string, string> = {
   'marca.simbolo': 'candidata',
   'marca.favicon': 'meta',
   'marca.cartaoLink': 'meta',
+  entrada: 'entrada',
   hero: 'hero',
   origem: 'origem',
   album: 'album',

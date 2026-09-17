@@ -5,6 +5,7 @@ import { enviarEvento, identidadeDoPedido } from '@/lib/trafego/meta'
 import { EVENTO_META } from '@/lib/trafego/tipos'
 import { veioDeOutroSite } from '@/lib/trafego/origem'
 import { marcasDoPedido } from '@/lib/campanha/marcas'
+import { ehEquipe, ehRobo } from '@/lib/trafego/robo'
 import { ORIGENS_CLIQUE, type TipoEvento } from '@/lib/tipos'
 
 export const dynamic = 'force-dynamic'
@@ -29,6 +30,7 @@ const TIPOS = new Set([
   'abriu_filtro', 'subiu_foto', 'gerou_filtro',
   'baixou_filtro', 'compartilhou_filtro',
   'compartilhou_pagina', 'clicou_instagram',
+  'saiu_para_whatsapp', 'whatsapp_nao_abriu',
 ])
 
 // ⚠️ VEM DE `lib/tipos.ts`, e não é uma cópia escrita à mão. A cópia
@@ -48,6 +50,11 @@ function texto(v: unknown, max = 120): string | null {
 export async function POST(req: NextRequest) {
   // 204 em qualquer falha: o navegador não deve nem saber que houve erro.
   const ok = () => new NextResponse(null, { status: 204 })
+
+  // ⚠️ ANTES DE LER O CORPO, e antes do repasse à Meta. Robô, aparelho
+  //    da equipe e servidor de teste não viram visita no painel nem
+  //    PageView na campanha — ver lib/trafego/robo.ts.
+  if (config.medicaoDesligada || ehRobo(req) || ehEquipe(req)) return ok()
 
   try {
     const bruto = await req.text()

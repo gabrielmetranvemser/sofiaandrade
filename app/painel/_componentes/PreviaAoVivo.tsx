@@ -74,9 +74,13 @@ export function PreviaAoVivo({
   // envenenaria o funil da campanha.
   const separador = (ancora ?? '/').includes('?') ? '&' : '?'
   const endereco = `${ancora ?? '/'}${separador}previa=1`.replace('#', `${separador}anc=`)
+  // ⚠️ COM O SEPARADOR, e não `?` fixo: a página de entrada tem a
+  //    cidade na própria âncora (`/grupos?cidade=porto-velho`), e um
+  //    segundo `?` virava parte do nome da cidade — a prévia caía na
+  //    busca em vez da página.
   const destino = ancora?.includes('#')
-    ? `${ancora.split('#')[0]}?previa=1#${ancora.split('#')[1]}`
-    : `${ancora ?? '/'}?previa=1`
+    ? `${ancora.split('#')[0]}${separador}previa=1#${ancora.split('#')[1]}`
+    : `${ancora ?? '/'}${separador}previa=1`
 
   return (
     <div className="flex h-full flex-col">

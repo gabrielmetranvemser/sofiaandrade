@@ -2,6 +2,7 @@ import 'server-only'
 
 import { createHmac, timingSafeEqual } from 'node:crypto'
 import { cookies } from 'next/headers'
+import { COOKIE_EQUIPE } from '@/lib/trafego/robo'
 
 /**
  * Sessão do painel — FASE LOCAL.
@@ -65,6 +66,21 @@ export async function abrirSessao(): Promise<void> {
     //    defesa em profundidade, não organização.
     path: '/painel',
     maxAge: DURACAO,
+  })
+
+  // ⚠️ APARELHO DA EQUIPE PARA DE CONTAR, e fica marcado mesmo depois de
+  //    sair do painel. 489 dos 948 cliques em grupo até 17/09 eram da
+  //    equipe testando link — e cada um mandava `Lead` para a Meta.
+  //
+  //    Este cookie NÃO É CREDENCIAL: não abre o painel nem nada. Só diz
+  //    a `/g/` e `/api/evento` para não contar. Por isso vai em `/`, dura
+  //    um ano e sobrevive ao `fecharSessao`. Ver lib/trafego/robo.ts.
+  jar.set(COOKIE_EQUIPE, '1', {
+    httpOnly: true,
+    sameSite: 'lax',
+    secure: process.env.NODE_ENV === 'production',
+    path: '/',
+    maxAge: 60 * 60 * 24 * 365,
   })
 }
 

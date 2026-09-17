@@ -52,6 +52,33 @@ export function caminhoDoGrupo(slug: string, origem: string, sessao: string): st
   return `/g/${slug}?de=${origem}${sessao ? `&s=${sessao}` : ''}`
 }
 
+/** Navegador pilotado por automação (Selenium, Puppeteer, Playwright…)? */
+function navegadorAutomatizado(): boolean {
+  try {
+    return navigator.webdriver === true
+  } catch {
+    return false
+  }
+}
+
+/**
+ * Marca o link de `/g/` como toque de robô, no instante do clique.
+ *
+ * ⚠️ O ROBÔ QUE INFLOU OS CLIQUES RODAVA JAVASCRIPT e tocava nos botões
+ *    14 segundos depois de a página abrir. Clique disparado por código
+ *    chega com `isTrusted` falso; navegador de automação expõe
+ *    `navigator.webdriver`. Qualquer um dos dois põe `wd=1` no endereço
+ *    e o redirecionador deixa de contar — o link continua funcionando.
+ *
+ *    Chamar no `onClick` de todo `<a>` que aponta para `/g/`. O navegador
+ *    só lê o `href` depois do evento, então a troca vale para este toque.
+ */
+export function marcarToqueDeRobo(ancora: HTMLAnchorElement, confiavel: boolean): void {
+  if (confiavel && !navegadorAutomatizado()) return
+  if (!ancora.pathname.startsWith('/g/') || ancora.search.includes('wd=1')) return
+  ancora.search += `${ancora.search ? '&' : '?'}wd=1`
+}
+
 export function dispositivo(): 'celular' | 'desktop' {
   if (typeof window === 'undefined') return 'desktop'
   return window.matchMedia('(max-width: 768px)').matches ? 'celular' : 'desktop'
@@ -129,6 +156,8 @@ export function evento(
   extra: Omit<Evento, 'tipo' | 'sessao' | 'dispositivo' | 'utm'> = {},
 ): void {
   if (typeof window === 'undefined') return
+  // Automação não vira visita no painel nem evento na Meta.
+  if (navegadorAutomatizado()) return
 
   const eventId = novoIdDeEvento()
 
