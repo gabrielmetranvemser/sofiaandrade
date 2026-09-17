@@ -17,6 +17,7 @@ export function Imagem({
   className = '',
   sizes,
   prioridade = false,
+  lcp = false,
   vazio = 'quadro',
 }: {
   slot: string
@@ -24,6 +25,17 @@ export function Imagem({
   className?: string
   sizes?: string
   prioridade?: boolean
+  /**
+   * A imagem é o maior elemento da primeira tela (LCP).
+   *
+   * ⚠️ NÃO É O MESMO QUE `prioridade`. `prioridade` vira `<link rel=
+   *    preload>` sem `fetchpriority` — e na home eram QUATRO desses
+   *    brigando pela banda (as duas figuras e as duas marcas, uma delas
+   *    escondida no celular). O PageSpeed de 17/09 apontou a foto dela
+   *    como LCP e sem `fetchpriority=high`. Aqui ela vai `eager` e com
+   *    prioridade alta, e o resto sai da frente.
+   */
+  lcp?: boolean
   vazio?: 'quadro' | 'silhueta'
 }) {
   const def = SLOTS_POR_CHAVE[slot]
@@ -64,7 +76,9 @@ export function Imagem({
       width={img.largura}
       height={img.altura}
       sizes={sizes ?? '(max-width: 768px) 100vw, 50vw'}
-      priority={prioridade}
+      priority={lcp ? undefined : prioridade}
+      loading={lcp ? 'eager' : undefined}
+      fetchPriority={lcp ? 'high' : undefined}
       placeholder={img.blur ? 'blur' : 'empty'}
       blurDataURL={img.blur ?? undefined}
       className={className}

@@ -3,7 +3,7 @@
 import { createContext, useContext, useRef, useState, type ComponentProps, type ReactNode } from 'react'
 import type { Destino, MunicipioComGrupo } from '@/lib/tipos'
 import { TextoComDestaque } from '@/components/ui/TextoComDestaque'
-import { BuscadorDeGrupo } from './BuscadorDeGrupo'
+import dynamic from 'next/dynamic'
 import { BotaoEntrarNoGrupo, type TextosDoBotao } from './BotaoEntrarNoGrupo'
 
 /**
@@ -23,6 +23,19 @@ import { BotaoEntrarNoGrupo, type TextosDoBotao } from './BotaoEntrarNoGrupo'
  */
 
 const ID_DO_BOTAO = 'entrar-no-grupo'
+
+/**
+ * A busca só baixa quando alguém abre "Não é de…?".
+ *
+ * Quase todo mundo que chega pelo anúncio é da cidade do anúncio e toca
+ * direto no botão. A busca (componente, geolocalização, comparação de
+ * nomes) era JavaScript que todo celular baixava e executava para uma
+ * minoria usar — no PageSpeed de 17/09, tarefa longa na abertura.
+ */
+const BuscadorDeGrupo = dynamic(
+  () => import('./BuscadorDeGrupo').then((m) => m.BuscadorDeGrupo),
+  { ssr: false },
+)
 
 type Tom = ComponentProps<typeof TextoComDestaque>['tom']
 

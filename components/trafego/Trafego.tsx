@@ -1,6 +1,5 @@
 'use client'
 
-import Script from 'next/script'
 import { useEffect, useRef } from 'react'
 import type { TrafegoPublico } from '@/lib/trafego/tipos'
 
@@ -71,7 +70,92 @@ function apenasSeSeguro(valor: string, formato: RegExp): string {
   return formato.test(valor) ? valor : ''
 }
 
-export function Trafego(props: TrafegoPublico) {
+/**
+ * ⚠️ OS TERCEIROS CARREGAM DEPOIS, e o motivo está no PageSpeed de 17/09.
+ *
+ *    GTM (com GA4, Clarity e o que mais estiver no contêiner) e o pixel
+ *    da Meta somavam ~520 KB e o grosso do tempo bloqueado da página: na
+ *    página de entrada, 590 ms de TBT, quase tudo deles; na home, 330 ms,
+ *    disputando a CPU com a foto que é o LCP. Num celular mediano em 4G,
+ *    é esse o tempo em que o botão do grupo não responde ao toque.
+ *
+ *    Agora eles entram no PRIMEIRO SINAL DE GENTE — toque, rolagem,
+ *    tecla, mouse — ou cinco segundos depois do `load`, o que vier antes.
+ *
+ * ⚠️ A META NÃO PERDE NADA COM ISSO, e é por isso que o pixel virou
+ *    fila. O `fbq` passa a existir na hora, como o trecho oficial faz
+ *    (fila e `init`), só sem baixar o fbevents.js. O PageView e os
+ *    eventos do site entram na fila com o `eventID` de sempre, e a cópia
+ *    de cada um sai pelo SERVIDOR imediatamente (Conversions API) — é ela
+ *    que a campanha usa. Quando o script chega, a fila é enviada e a
+ *    Meta deduplica pelo id.
+ *
+ *    O que muda de verdade: quem sai em menos de cinco segundos sem
+ *    tocar em nada não entra no GA4 nem no Clarity. `TERCEIROS_NA_HORA=1`
+ *    na Vercel volta ao carregamento imediato.
+ */
+const ESPERA_SEM_TOQUE_MS = 5_000
+
+const SINAIS_DE_GENTE = ['pointerdown', 'touchstart', 'keydown', 'scroll', 'wheel', 'mousemove'] as const
+
+/** Uma vez por carga de página, mesmo com o StrictMode remontando. */
+let terceirosInseridos = false
+
+type FilaDoPixel = ((...args: unknown[]) => void) & {
+  callMethod?: (...args: unknown[]) => void
+  queue: unknown[]
+  push: unknown
+  loaded: boolean
+  version: string
+}
+
+/**
+ * O trecho oficial do pixel, SEM a linha que baixa o fbevents.js.
+ *
+ * É a mesma fila que a Meta entrega: quem chama `fbq` antes do script
+ * chegar é enfileirado, e o script processa a fila ao carregar.
+ */
+function criarFilaDoPixel(pixelId: string): void {
+  const w = window as unknown as { fbq?: FilaDoPixel; _fbq?: FilaDoPixel }
+  if (w.fbq) return
+
+  const fila = function (...args: unknown[]) {
+    if (fila.callMethod) fila.callMethod(...args)
+    else fila.queue.push(args)
+  } as FilaDoPixel
+  fila.push = fila
+  fila.loaded = true
+  fila.version = '2.0'
+  fila.queue = []
+  w.fbq = fila
+  if (!w._fbq) w._fbq = fila
+
+  fila('set', 'autoConfig', false, pixelId)
+  fila('init', pixelId)
+}
+
+function inserirScript(src: string): void {
+  const script = document.createElement('script')
+  script.async = true
+  script.src = src
+  document.head.appendChild(script)
+}
+
+/** O trecho oficial do GTM, no momento em que ele deve rodar. */
+function iniciarGtm(gtmId: string): void {
+  const w = window as unknown as { dataLayer?: unknown[] }
+  w.dataLayer = w.dataLayer || []
+  w.dataLayer.push({ 'gtm.start': new Date().getTime(), event: 'gtm.js' })
+  inserirScript(`https://www.googletagmanager.com/gtm.js?id=${encodeURIComponent(gtmId)}`)
+}
+
+export function Trafego({
+  adiar = true,
+  ...props
+}: TrafegoPublico & {
+  /** Carregar GTM e pixel só no primeiro sinal de gente. Ver acima. */
+  adiar?: boolean
+}) {
   const metaPixelId = apenasSeSeguro(props.metaPixelId, /^\d{6,20}$/)
   const gtmId = apenasSeSeguro(props.gtmId, /^GTM-[A-Z0-9]{4,12}$/)
 
@@ -115,6 +199,49 @@ export function Trafego(props: TrafegoPublico) {
   const previa =
     typeof window !== 'undefined' &&
     new URLSearchParams(window.location.search).has('previa')
+
+  // ⚠️ ANTES DO EFEITO DO PAGEVIEW, e a ordem importa: efeitos rodam na
+  //    ordem em que são declarados. A fila do pixel precisa existir quando
+  //    o PageView for disparado logo abaixo — senão ele esperaria o script
+  //    de verdade, que agora só chega no primeiro toque.
+  useEffect(() => {
+    if (previa || (!metaPixelId && !gtmId)) return
+    if (metaPixelId) criarFilaDoPixel(metaPixelId)
+    if (terceirosInseridos) return
+
+    let relogio: ReturnType<typeof setTimeout> | undefined
+
+    const carregar = () => {
+      if (terceirosInseridos) return
+      terceirosInseridos = true
+      desligar()
+      if (gtmId) iniciarGtm(gtmId)
+      if (metaPixelId) inserirScript('https://connect.facebook.net/en_US/fbevents.js')
+    }
+
+    const depoisDoLoad = () => {
+      relogio = setTimeout(carregar, ESPERA_SEM_TOQUE_MS)
+    }
+
+    function desligar() {
+      for (const sinal of SINAIS_DE_GENTE) window.removeEventListener(sinal, carregar)
+      window.removeEventListener('load', depoisDoLoad)
+      if (relogio) clearTimeout(relogio)
+    }
+
+    if (!adiar) {
+      carregar()
+      return
+    }
+
+    for (const sinal of SINAIS_DE_GENTE) {
+      window.addEventListener(sinal, carregar, { passive: true })
+    }
+    if (document.readyState === 'complete') depoisDoLoad()
+    else window.addEventListener('load', depoisDoLoad, { once: true })
+
+    return desligar
+  }, [metaPixelId, gtmId, previa, adiar])
 
   useEffect(() => {
     if (!metaPixelId || previa) return
@@ -173,30 +300,17 @@ export function Trafego(props: TrafegoPublico) {
 
   if (previa) return null
 
-  return (
-    <>
-      {gtmId ? (
-        <>
-          <Script id="gtm" strategy="afterInteractive">
-            {`(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src='https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);})(window,document,'script','dataLayer','${gtmId}');`}
-          </Script>
-          <noscript>
-            <iframe
-              src={`https://www.googletagmanager.com/ns.html?id=${gtmId}`}
-              height="0"
-              width="0"
-              style={{ display: 'none', visibility: 'hidden' }}
-              title="Google Tag Manager"
-            />
-          </noscript>
-        </>
-      ) : null}
-
-      {metaPixelId ? (
-        <Script id="meta-pixel" strategy="afterInteractive">
-          {`!function(f,b,e,v,n,t,s){if(f.fbq)return;n=f.fbq=function(){n.callMethod?n.callMethod.apply(n,arguments):n.queue.push(arguments)};if(!f._fbq)f._fbq=n;n.push=n;n.loaded=!0;n.version='2.0';n.queue=[];t=b.createElement(e);t.async=!0;t.src=v;s=b.getElementsByTagName(e)[0];s.parentNode.insertBefore(t,s)}(window,document,'script','https://connect.facebook.net/en_US/fbevents.js');fbq('set','autoConfig',false,'${metaPixelId}');fbq('init','${metaPixelId}');`}
-        </Script>
-      ) : null}
-    </>
-  )
+  // Sem JavaScript, o GTM ainda tem o iframe dele. O resto — GTM e pixel —
+  // é inserido pelo efeito acima, no primeiro sinal de gente.
+  return gtmId ? (
+    <noscript>
+      <iframe
+        src={`https://www.googletagmanager.com/ns.html?id=${gtmId}`}
+        height="0"
+        width="0"
+        style={{ display: 'none', visibility: 'hidden' }}
+        title="Google Tag Manager"
+      />
+    </noscript>
+  ) : null
 }

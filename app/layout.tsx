@@ -178,7 +178,7 @@ export default async function LayoutRaiz({ children }: { children: React.ReactNo
         <Revelar />
         {/* Só os ids públicos atravessam. O token da Conversions API
             fica no servidor — ver lib/trafego/ler.ts. */}
-        <Trafego {...trafego} />
+        <Trafego {...trafego} adiar={config.terceirosAdiados} />
       </body>
     </html>
   )

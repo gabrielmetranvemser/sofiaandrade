@@ -107,6 +107,8 @@ export function Video({
 }: Props) {
   const [abertoLocal, setAbertoLocal] = useState(false)
   const [naTela, setNaTela] = useState(false)
+  /** A caixa está a menos de ~uma tela de distância? Ver o efeito abaixo. */
+  const [perto, setPerto] = useState(false)
   const [mudo, setMudo] = useState(true)
   const caixa = useRef<HTMLDivElement>(null)
 
@@ -137,6 +139,34 @@ export function Video({
     observador.observe(el)
     return () => observador.disconnect()
   }, [automatico])
+
+  // ⚠️ A PRÉVIA DE ARQUIVO PRÓPRIO SÓ BAIXA PERTO DA TELA. Com
+  //    `preload="metadata"` desde o carregamento, o vídeo da história
+  //    (72 MB, três dobras abaixo) começava a pedir pedaços ao CDN na
+  //    abertura da home — banda de 4G gasta antes de a pessoa rolar, e um
+  //    erro no console quando a conexão falhava (PageSpeed de 17/09).
+  //    A 200 px da tela, e não mais longe: na home o vídeo da história
+  //    fica em y≈1.200 no celular, e uma margem de 600 px já o alcançava
+  //    na abertura da página, sem ninguém rolar.
+  useEffect(() => {
+    if (perto) return
+    const el = caixa.current
+    if (!el || !('IntersectionObserver' in window)) {
+      setPerto(true)
+      return
+    }
+    const observador = new IntersectionObserver(
+      ([entrada]) => {
+        if (entrada.isIntersecting) {
+          setPerto(true)
+          observador.disconnect()
+        }
+      },
+      { rootMargin: '200px 200px' },
+    )
+    observador.observe(el)
+    return () => observador.disconnect()
+  }, [perto])
 
   if (!video) return null
 
@@ -240,9 +270,9 @@ export function Video({
       {video.provedor === 'arquivo' ? (
         // eslint-disable-next-line jsx-a11y/media-has-caption
         <video
-          src={`${video.embed}#t=0.1`}
+          src={perto ? `${video.embed}#t=0.1` : undefined}
           className="absolute inset-0 size-full object-cover"
-          preload={opcoes.carregamento === 'com-previa' ? 'metadata' : 'none'}
+          preload={perto && opcoes.carregamento === 'com-previa' ? 'metadata' : 'none'}
           muted
           playsInline
           tabIndex={-1}

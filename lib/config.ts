@@ -44,6 +44,15 @@ export const config = {
    * em anúncio — é a regra de parada do plano de 17/09.
    */
   paginaDeEntrada: process.env.PAGINA_DE_ENTRADA !== '0',
+
+  /**
+   * GTM e pixel da Meta só no primeiro toque, rolagem ou tecla — ou 5 s
+   * depois do `load`. Ver components/trafego/Trafego.tsx.
+   *
+   * `TERCEIROS_NA_HORA=1` na Vercel volta ao carregamento imediato, se o
+   * GA4 ou o Clarity precisarem contar quem sai sem tocar em nada.
+   */
+  terceirosAdiados: process.env.TERCEIROS_NA_HORA !== '1',
 } as const
 
 /**

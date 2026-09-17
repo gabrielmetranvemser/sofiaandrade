@@ -38,7 +38,10 @@ const buscarOverrides = unstable_cache(
     }
     return saida
   },
-  ['conteudo-v1'], // trocar se o formato de armazenamento mudar
+  // Trocar se o formato de armazenamento mudar — ou para forçar uma
+  // leitura nova depois de edição feita fora do painel. v2 em 17/09: a
+  // etiqueta da capa foi apagada direto no banco, sem o `updateTag`.
+  ['conteudo-v2'],
   { tags: [TAG_CONTEUDO], revalidate: 3600 },
 )
 
