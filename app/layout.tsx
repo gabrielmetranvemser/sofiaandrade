@@ -9,6 +9,7 @@ import { lerConteudoCliente } from '@/lib/conteudo/subconjunto'
 import { lerConteudo } from '@/lib/conteudo/ler'
 import { lerTrafegoPublico } from '@/lib/trafego/ler'
 import { Trafego } from '@/components/trafego/Trafego'
+import { AvisoDeCookies } from '@/components/consentimento/AvisoDeCookies'
 import './globals.css'
 
 /**
@@ -139,7 +140,7 @@ export const viewport: Viewport = {
 
 export default async function LayoutRaiz({ children }: { children: React.ReactNode }) {
   // Só o recorte que a árvore de cliente consome atravessa a fronteira.
-  const [conteudoCliente, { aparencia }, trafego] = await Promise.all([
+  const [conteudoCliente, { aparencia, cookies }, trafego] = await Promise.all([
     lerConteudoCliente(),
     lerConteudo(),
     lerTrafegoPublico(),
@@ -179,6 +180,9 @@ export default async function LayoutRaiz({ children }: { children: React.ReactNo
         {/* Só os ids públicos atravessam. O token da Conversions API
             fica no servidor — ver lib/trafego/ler.ts. */}
         <Trafego {...trafego} adiar={config.terceirosAdiados} />
+        {/* O aviso de cookies é quem destranca o <Trafego>. Ver
+            components/consentimento/AvisoDeCookies.tsx. */}
+        <AvisoDeCookies textos={cookies} />
       </body>
     </html>
   )

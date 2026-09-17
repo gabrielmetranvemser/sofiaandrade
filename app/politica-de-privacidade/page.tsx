@@ -7,6 +7,7 @@ import { config, emSilencioEleitoral } from '@/lib/config'
 import { Header } from '@/components/site/Header'
 import { RodapeLegal } from '@/components/site/RodapeLegal'
 import { Aviso } from '@/components/ui/Aviso'
+import { GerenciarCookies } from '@/components/consentimento/GerenciarCookies'
 
 export async function generateMetadata(): Promise<Metadata> {
   const { paginas } = await lerConteudo()
@@ -26,7 +27,7 @@ export async function generateMetadata(): Promise<Metadata> {
 export default async function PaginaPrivacidade() {
   const simboloDaMarca = (await lerSlots())['marca.simbolo']?.url ?? null
   const conteudo = await lerConteudo()
-  const { privacidade } = conteudo
+  const { privacidade, cookies } = conteudo
 
   return (
     <>
@@ -55,6 +56,11 @@ export default async function PaginaPrivacidade() {
             <Aviso tom="sucesso" className="mt-8 max-w-3xl">
               <strong className="font-semibold">{privacidade.resumo}</strong>
             </Aviso>
+
+            <GerenciarCookies
+              rotulo={cookies.gerenciar}
+              className="mt-6 inline-flex min-h-12 items-center rounded-full border border-azul px-6 font-semibold text-azul transition-colors hover:bg-azul hover:text-white"
+            />
           </div>
         </section>
 

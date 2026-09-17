@@ -87,8 +87,15 @@ export function BotaoFlutuante({
   return (
     <div
       // pb inclui a área segura do iPhone: sem isso o botão fica
-      // debaixo do indicador de home e o toque cai no gesto do sistema
-      style={{ paddingBottom: 'max(1rem, env(safe-area-inset-bottom))' }}
+      // debaixo do indicador de home e o toque cai no gesto do sistema.
+      //
+      // ⚠️ `--aviso-cookies` é a altura do aviso de cookies enquanto ele
+      //    está aberto (zero depois). Os dois moram no pé da tela; sem
+      //    isto, o aviso cobriria o botão do grupo. Ver AvisoDeCookies.
+      style={{
+        paddingBottom: 'max(1rem, env(safe-area-inset-bottom))',
+        marginBottom: 'var(--aviso-cookies, 0px)',
+      }}
       className={`fixed inset-x-0 bottom-0 z-40 px-4 pt-4 transition-all duration-500 md:inset-x-auto md:right-6 md:bottom-6 md:p-0 ${
         visivel ? 'translate-y-0 opacity-100' : 'pointer-events-none translate-y-8 opacity-0'
       }`}

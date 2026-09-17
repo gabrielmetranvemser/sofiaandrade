@@ -10,6 +10,7 @@ import { config, emSilencioEleitoral } from '@/lib/config'
 import { enviarEvento, identidadeDoPedido } from '@/lib/trafego/meta'
 import { marcasDoPedido } from '@/lib/campanha/marcas'
 import { ehEquipe, ehRobo } from '@/lib/trafego/robo'
+import { autorizouPublicidade, COOKIE_CONSENTIMENTO } from '@/lib/consentimento'
 import { ORIGENS_CLIQUE, type OrigemClique } from '@/lib/tipos'
 
 /**
@@ -188,17 +189,25 @@ export async function GET(
   //    esta função. Esperar 300ms da Graph API antes de redirecionar
   //    seria cobrar da pessoa o preço da nossa medição — e no celular,
   //    em 4G ruim, é assim que se perde alguém no meio do caminho.
-  const identidade = identidadeDoPedido(req, req.nextUrl.searchParams.get('s'))
-  const eventId = `grupo-${grupo.id}-${identidade.sessao ?? 'sem-sessao'}-${Date.now()}`
-  after(async () => {
-    await enviarEvento({
-      nome: 'Lead',
-      eventId,
-      url: new URL(req.nextUrl.pathname + req.nextUrl.search, config.siteUrl).toString(),
-      identidade,
-      dados: { municipio: municipio.slug, origem, conteudo: 'grupo-whatsapp' },
+  //
+  // ⚠️ SÓ COM AUTORIZAÇÃO DE PUBLICIDADE no aviso de cookies. O clique
+  //    continua contando no grupo e no painel logo acima; o que não sai
+  //    sem autorização é o envio à Meta, com endereço de rede e cookies
+  //    do pixel. É a conversão da campanha, e é justamente o que o aviso
+  //    promete não mandar sem um "sim".
+  if (autorizouPublicidade(req.cookies.get(COOKIE_CONSENTIMENTO)?.value)) {
+    const identidade = identidadeDoPedido(req, req.nextUrl.searchParams.get('s'))
+    const eventId = `grupo-${grupo.id}-${identidade.sessao ?? 'sem-sessao'}-${Date.now()}`
+    after(async () => {
+      await enviarEvento({
+        nome: 'Lead',
+        eventId,
+        url: new URL(req.nextUrl.pathname + req.nextUrl.search, config.siteUrl).toString(),
+        identidade,
+        dados: { municipio: municipio.slug, origem, conteudo: 'grupo-whatsapp' },
+      })
     })
-  })
+  }
 
   const resposta = NextResponse.redirect(grupo.link!, 307)
   resposta.headers.set('cache-control', 'no-store, max-age=0')

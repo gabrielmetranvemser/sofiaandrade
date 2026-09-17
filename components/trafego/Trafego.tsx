@@ -2,12 +2,20 @@
 
 import { useEffect, useRef } from 'react'
 import type { TrafegoPublico } from '@/lib/trafego/tipos'
+import { salvoAgoraPouco, useConsentimento } from '@/lib/consentimento-cliente'
 
 /**
  * O PIXEL DA META E O GOOGLE TAG MANAGER.
  *
  * Os dois só existem se a tela de Tráfego, no painel, tiver o id. Campo
  * vazio não carrega nada — nem uma tag, nem uma requisição.
+ *
+ * ⚠️ E SÓ COM AUTORIZAÇÃO, desde 17/09. O GTM (GA4 e Clarity) precisa
+ *    de "desempenho" no aviso de cookies; o pixel precisa de
+ *    "publicidade". Sem escolha feita, nenhum dos dois carrega — nem a
+ *    fila do `fbq` é criada, e sem ela `lib/eventos.ts` também não conta
+ *    nada no pixel. O lado do servidor (Conversions API) lê o mesmo
+ *    cookie e obedece igual. Ver `lib/consentimento.ts`.
  *
  * ⚠️ `afterInteractive`, e não `beforeInteractive`. Rastreamento não
  *    pode competir com o botão principal pela banda do celular: o teto
@@ -98,8 +106,15 @@ const ESPERA_SEM_TOQUE_MS = 5_000
 
 const SINAIS_DE_GENTE = ['pointerdown', 'touchstart', 'keydown', 'scroll', 'wheel', 'mousemove'] as const
 
-/** Uma vez por carga de página, mesmo com o StrictMode remontando. */
-let terceirosInseridos = false
+/**
+ * Uma vez por carga de página, mesmo com o StrictMode remontando.
+ *
+ * Um para cada, e não um só: as autorizações chegam separadas. Quem
+ * aceitou só desempenho e depois liga publicidade em "Gerenciar cookies"
+ * precisa receber o pixel sem o GTM ser inserido de novo.
+ */
+let gtmInserido = false
+let pixelInserido = false
 
 type FilaDoPixel = ((...args: unknown[]) => void) & {
   callMethod?: (...args: unknown[]) => void
@@ -159,6 +174,12 @@ export function Trafego({
   const metaPixelId = apenasSeSeguro(props.metaPixelId, /^\d{6,20}$/)
   const gtmId = apenasSeSeguro(props.gtmId, /^GTM-[A-Z0-9]{4,12}$/)
 
+  // `undefined` no servidor e na hidratação, `null` sem escolha: nos dois
+  // casos, nada carrega. Ver `useConsentimento`.
+  const consentimento = useConsentimento()
+  const comGtm = Boolean(gtmId && consentimento?.desempenho)
+  const comPixel = Boolean(metaPixelId && consentimento?.publicidade)
+
   /**
    * Já contamos esta carga de página?
    *
@@ -205,18 +226,22 @@ export function Trafego({
   //    o PageView for disparado logo abaixo — senão ele esperaria o script
   //    de verdade, que agora só chega no primeiro toque.
   useEffect(() => {
-    if (previa || (!metaPixelId && !gtmId)) return
-    if (metaPixelId) criarFilaDoPixel(metaPixelId)
-    if (terceirosInseridos) return
+    if (previa || (!comGtm && !comPixel)) return
+    if (comPixel) criarFilaDoPixel(metaPixelId)
+    if ((!comGtm || gtmInserido) && (!comPixel || pixelInserido)) return
 
     let relogio: ReturnType<typeof setTimeout> | undefined
 
     const carregar = () => {
-      if (terceirosInseridos) return
-      terceirosInseridos = true
       desligar()
-      if (gtmId) iniciarGtm(gtmId)
-      if (metaPixelId) inserirScript('https://connect.facebook.net/en_US/fbevents.js')
+      if (comGtm && !gtmInserido) {
+        gtmInserido = true
+        iniciarGtm(gtmId)
+      }
+      if (comPixel && !pixelInserido) {
+        pixelInserido = true
+        inserirScript('https://connect.facebook.net/en_US/fbevents.js')
+      }
     }
 
     const depoisDoLoad = () => {
@@ -229,7 +254,11 @@ export function Trafego({
       if (relogio) clearTimeout(relogio)
     }
 
-    if (!adiar) {
+    // ⚠️ AUTORIZAÇÃO DADA AGORA, NO AVISO, CARREGA NA HORA. O toque no
+    //    botão foi o sinal de gente — só que aconteceu antes de haver
+    //    quem o escutasse. Esperar outro deixaria a primeira tela de quem
+    //    aceitou sem PageView, e muita gente aceita e já toca no grupo.
+    if (!adiar || salvoAgoraPouco()) {
       carregar()
       return
     }
@@ -241,10 +270,12 @@ export function Trafego({
     else window.addEventListener('load', depoisDoLoad, { once: true })
 
     return desligar
-  }, [metaPixelId, gtmId, previa, adiar])
+  }, [metaPixelId, gtmId, comGtm, comPixel, previa, adiar])
 
+  // Sem autorização de publicidade, sem PageView. Com ela dada no meio da
+  // visita, o PageView sai nessa hora — é a mesma visita, agora autorizada.
   useEffect(() => {
-    if (!metaPixelId || previa) return
+    if (!comPixel || previa) return
     if (jaContada.current) return
     jaContada.current = true
 
@@ -296,21 +327,10 @@ export function Trafego({
       cancelado = true
       if (relogio) clearInterval(relogio)
     }
-  }, [metaPixelId, previa])
+  }, [comPixel, previa])
 
-  if (previa) return null
-
-  // Sem JavaScript, o GTM ainda tem o iframe dele. O resto — GTM e pixel —
-  // é inserido pelo efeito acima, no primeiro sinal de gente.
-  return gtmId ? (
-    <noscript>
-      <iframe
-        src={`https://www.googletagmanager.com/ns.html?id=${gtmId}`}
-        height="0"
-        width="0"
-        style={{ display: 'none', visibility: 'hidden' }}
-        title="Google Tag Manager"
-      />
-    </noscript>
-  ) : null
+  // ⚠️ SEM O `<noscript>` DO GTM. Sem JavaScript o aviso de cookies não
+  //    aparece, ninguém autoriza nada — e o iframe do GTM carregaria
+  //    mesmo assim. Tudo o que este componente faz está nos efeitos.
+  return null
 }

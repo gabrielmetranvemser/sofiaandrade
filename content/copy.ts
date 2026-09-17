@@ -771,8 +771,11 @@ export const rodape = {
     { id: 'link-03', rotulo: 'Política de privacidade', href: '/politica-de-privacidade' },
   ],
   legalRotulo: 'Propaganda eleitoral',
+  // ⚠️ ERA "não coleta dados pessoais dos visitantes", e deixou de ser
+  //    verdade quando o pixel e a Conversions API foram ligados. Desde
+  //    17/09 eles só funcionam com autorização, e é isso que se diz.
   aviso:
-    'Esta página é propaganda eleitoral e não coleta dados pessoais dos visitantes.',
+    'Esta página é propaganda eleitoral. Cookies de medição e de anúncio só funcionam com a sua autorização.',
 
   /**
    * ⚠️ IDENTIFICAÇÃO ELEITORAL OBRIGATÓRIA.
@@ -799,12 +802,49 @@ export const rodape = {
   },
 } as const
 
+// ─────────────────────────────────────────────────────────────
+// AVISO DE COOKIES
+//
+// O cartão no pé da tela na primeira visita, e as categorias de
+// "Personalizar". O que cada categoria liga de verdade está em
+// lib/consentimento.ts — se uma ferramenta nova entrar no GTM ou no
+// pixel, o texto da categoria dela precisa dizer.
+// ─────────────────────────────────────────────────────────────
+export const cookies = {
+  titulo: 'Privacidade sob seu controle',
+  // ⚠️ ATÉ UNS 90 CARACTERES: é o que cabe em duas linhas num telefone
+  //    de 360 px. Cada linha a mais é o cartão subindo sobre a página.
+  texto: 'Usamos cookies necessários e, só com a sua autorização, de desempenho e de publicidade.',
+  aceitar: 'Aceitar todos',
+  rejeitar: 'Rejeitar opcionais',
+  personalizar: 'Personalizar',
+  politica: 'Política de privacidade',
+  escolhasTitulo: 'Suas escolhas',
+  escolhasTexto:
+    'Os cookies necessários ficam sempre ativos. Os outros só funcionam com a sua autorização.',
+  sempreAtivos: 'Sempre ativos',
+  salvar: 'Salvar escolhas',
+  gerenciar: 'Gerenciar cookies',
+  necessarios: {
+    titulo: 'Necessários',
+    texto: 'Fazem o site funcionar e guardam esta sua escolha.',
+  },
+  desempenho: {
+    titulo: 'Desempenho e análise',
+    texto: 'Google Analytics e Microsoft Clarity: medem como a página é usada, para melhorá-la.',
+  },
+  publicidade: {
+    titulo: 'Publicidade',
+    texto: 'Pixel e API de Conversões da Meta: medem os anúncios da campanha no Facebook e no Instagram.',
+  },
+} as const
+
 export const privacidade = {
   titulo: 'Política de Privacidade',
-  atualizadoEm: '19 de agosto de 2026',
+  atualizadoEm: '17 de setembro de 2026',
   resumo:
     'Resumo em uma frase: esta página não pede seu nome, não pede seu telefone, ' +
-    'não guarda sua foto e não guarda sua localização.',
+    'não guarda sua foto, não guarda sua localização e só usa cookies de medição e de anúncio se você autorizar.',
 
   // Os textos aceitam {{candidata.nome}} e afins. A lista de tokens
   // permitidos está em lib/conteudo/tokens.ts — é uma whitelist, não
@@ -854,12 +894,33 @@ export const privacidade = {
         'A cada visita é gerado um identificador aleatório, guardado apenas enquanto a aba estiver aberta, ' +
           'cuja única função é evitar que a mesma visita seja contada várias vezes. ' +
           'Ele não contém nome, telefone, e-mail nem endereço de rede, e desaparece quando você fecha a aba.',
-        'Não usamos cookies de rastreamento e não montamos perfil de navegação.',
+        'Esses eventos não usam cookies e não identificam você. As ferramentas de medição e de anúncio, ' +
+          'descritas na seção seguinte, só funcionam com a sua autorização.',
+      ],
+    },
+    {
+      id: 'priv-10',
+      titulo: '5. Cookies e a sua autorização',
+      conteudo: [
+        'Na primeira visita, um aviso pergunta quais cookies você autoriza. Os necessários ficam sempre ativos: ' +
+          'guardam a sua escolha e evitam contar duas vezes o mesmo toque no botão do grupo.',
+        'Desempenho e análise: com a sua autorização, a página carrega o Google Tag Manager, e com ele o ' +
+          'Google Analytics e o Microsoft Clarity, que medem como a página é usada para melhorá-la.',
+        'Publicidade: com a sua autorização, a página carrega o pixel da Meta, a empresa do Facebook e do ' +
+          'Instagram. Parte dessas informações também sai do nosso servidor direto para a Meta, pela API de ' +
+          'Conversões: o seu endereço de rede, o modelo do seu navegador, os identificadores que o pixel gravou e ' +
+          'o identificador aleatório da visita. Isso serve para medir o resultado dos anúncios da campanha. ' +
+          'Não enviamos nome, telefone, e-mail nem qualquer foto.',
+        'Quando você chega por um anúncio, guardamos num cookie de sessão de qual anúncio foi — o identificador ' +
+          'do clique e o nome da peça, que já vinham no endereço que você abriu. Ele só é repassado à Meta se ' +
+          'você autorizar publicidade, e apaga sozinho quando você fecha o navegador.',
+        'Você pode mudar a sua escolha quando quiser em "Gerenciar cookies", no rodapé de todas as páginas. ' +
+          'Sem autorização, a página funciona igual.',
       ],
     },
     {
       id: 'priv-09',
-      titulo: '5. Os vídeos da página',
+      titulo: '6. Os vídeos da página',
       conteudo: [
         'Os vídeos desta página são hospedados no YouTube e no Vimeo, e não neste site. ' +
           'Enquanto você não toca no botão de play, nada é pedido a esses serviços: o que aparece na tela ' +
@@ -871,7 +932,7 @@ export const privacidade = {
     },
     {
       id: 'priv-05',
-      titulo: '6. Grupos de WhatsApp',
+      titulo: '7. Grupos de WhatsApp',
       conteudo: [
         'Ao entrar num grupo de WhatsApp da campanha, o tratamento dos seus dados dentro do aplicativo ' +
           'passa a seguir a política de privacidade do próprio WhatsApp e as regras do grupo. ' +
@@ -880,25 +941,28 @@ export const privacidade = {
     },
     {
       id: 'priv-06',
-      titulo: '7. Compartilhamento com terceiros',
+      titulo: '8. Compartilhamento com terceiros',
       conteudo: [
         'Não vendemos, alugamos nem cedemos dados de visitantes. ' +
           'Os serviços de hospedagem e de banco de dados utilizados pelo site processam dados ' +
           'exclusivamente para manter a página no ar e gerar as métricas agregadas descritas acima.',
+        'Só com a sua autorização, e apenas nos termos da seção 5, dados de navegação são enviados ao Google ' +
+          'e à Microsoft (desempenho) e à Meta (publicidade).',
       ],
     },
     {
       id: 'priv-07',
-      titulo: '8. Seus direitos',
+      titulo: '9. Seus direitos',
       conteudo: [
-        'Como não coletamos dados que identifiquem você, não há cadastro para consultar, corrigir ou apagar. ' +
+        'Você pode retirar a autorização de cookies a qualquer momento em "Gerenciar cookies", no rodapé. ' +
+          'Como não pedimos nome, telefone nem e-mail, não há cadastro para consultar, corrigir ou apagar. ' +
           'Ainda assim, se tiver qualquer dúvida sobre esta política ou sobre o tratamento de dados, ' +
           'a campanha responde pelos canais indicados no rodapé.',
       ],
     },
     {
       id: 'priv-08',
-      titulo: '9. Mudanças nesta política',
+      titulo: '10. Mudanças nesta política',
       conteudo: [
         'Se esta política mudar, a data de atualização no topo desta página muda junto. ' +
           'Recomendamos conferir esta página caso tenha alguma dúvida.',
@@ -1169,6 +1233,7 @@ export const PADRAO = {
   ctaFinal,
   rodape,
   privacidade,
+  cookies,
   exibir,
 } as const
 

@@ -285,8 +285,14 @@ export function Fluxo({ molduras, apoios }: { molduras: Moldura[]; apoios: strin
             // ponta a ponta fica correta enquanto está grudada e vira um
             // traço solto no meio da página quando a coluna acaba —
             // sticky não avisa ao CSS que parou de grudar.
+            //
+            // `--aviso-cookies`: enquanto o aviso de cookies está aberto no
+            // pé da tela, a barra gruda logo acima dele, e não por baixo.
             className="sticky bottom-0 z-30 mt-8 flex gap-3 lg:static"
-            style={{ paddingBottom: 'max(0.75rem, env(safe-area-inset-bottom))' }}
+            style={{
+              paddingBottom: 'max(0.75rem, env(safe-area-inset-bottom))',
+              bottom: 'var(--aviso-cookies, 0px)',
+            }}
           >
             {/* Só a seta no celular. "Gerar minha foto" ao lado de
                 "Voltar" não cabe em 335px: o texto quebra em duas

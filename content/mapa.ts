@@ -113,6 +113,7 @@ const RESUMO: Record<string, string> = {
   ctas: 'Os botões que se repetem em vários pontos do site.',
   navegacao: 'Os itens do menu do topo.',
   privacidade: 'A página de política de privacidade.',
+  cookies: 'O aviso de cookies da primeira visita e as categorias de "Personalizar".',
   candidata: 'Nome, número, partido e redes. Usado em toda a página.',
   aparencia: 'Cores da primeira dobra e textura de fundo.',
   meta: 'Título da aba e o cartão que aparece ao compartilhar o link.',

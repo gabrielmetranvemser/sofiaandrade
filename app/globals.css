@@ -769,6 +769,10 @@
    ruído em cima da única coisa que a pessoa está olhando. */
 @utility anima-etapa { animation: entra-lateral 0.34s var(--ease-saida) both; }
 
+/* O aviso de cookies sobe do pé da tela, rápido: ele pede uma decisão, e
+   uma entrada lenta só atrasa quem quer responder e seguir. */
+@utility anima-aviso { animation: sobe-suave 0.35s var(--ease-saida) both; }
+
 @layer components {
   [data-revelar] {
     opacity: 0;
