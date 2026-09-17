@@ -91,7 +91,7 @@ const ANCORA: Record<string, string | null> = {
  */
 const RESUMO: Record<string, string> = {
   entrada:
-    'A página que abre para quem toca no anúncio de uma cidade: título com a cidade, o botão do WhatsApp e a dobra azul "Quem é a Sofia".',
+    'A página que abre para quem toca no anúncio de uma cidade: tarja com as fotos, contagem regressiva, título com a cidade, o botão do WhatsApp e a dobra azul da trajetória.',
   hero: 'A primeira tela: título, botões e a foto com o número.',
   faixa: 'A tarja amarela que corre logo abaixo da primeira tela.',
   origem: 'A história de origem, com retrato, fotos de detalhe e vídeo.',
