@@ -2,6 +2,7 @@ import 'server-only'
 
 import { createHash } from 'node:crypto'
 import { fbcDeMarcas, marcasDoPedido } from '@/lib/campanha/marcas'
+import { config } from '@/lib/config'
 import { lerTrafego } from './ler'
 import type { Trafego } from './tipos'
 
@@ -148,6 +149,7 @@ export interface EventoMeta {
  * respondeu para o navegador.
  */
 export async function enviarEvento(evento: EventoMeta): Promise<Resultado> {
+  if (config.medicaoDesligada) return { ok: false, mensagem: 'Medição desligada neste servidor.' }
   const cfg = await lerTrafego()
   return enviarComConfig(cfg, evento)
 }

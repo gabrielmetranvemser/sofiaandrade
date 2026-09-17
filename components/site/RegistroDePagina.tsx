@@ -2,7 +2,7 @@
 
 import { useEffect } from 'react'
 import { evento, observarRolagem } from '@/lib/eventos'
-import type { TipoEvento } from '@/lib/tipos'
+import type { OrigemClique, TipoEvento } from '@/lib/tipos'
 
 /**
  * Dispara `pagina_vista` uma vez e liga as marcas de rolagem.
@@ -29,16 +29,22 @@ import type { TipoEvento } from '@/lib/tipos'
 export function RegistroDePagina({
   tipo = 'pagina_vista',
   cidadeDoAnuncio = null,
+  origem = 'anuncio',
 }: {
   tipo?: TipoEvento
   /** Slug do município, quando a visita chegou por um link de anúncio. */
   cidadeDoAnuncio?: string | null
+  /**
+   * Em que página o anúncio caiu: `anuncio` é a home, `lp` é a página de
+   * entrada. É o par que responde se a página de entrada converte mais.
+   */
+  origem?: Extract<OrigemClique, 'anuncio' | 'lp'>
 }) {
   useEffect(() => {
     if (new URLSearchParams(window.location.search).has('previa')) return
-    evento(tipo, cidadeDoAnuncio ? { municipio_slug: cidadeDoAnuncio, origem: 'anuncio' } : {})
+    evento(tipo, cidadeDoAnuncio ? { municipio_slug: cidadeDoAnuncio, origem } : {})
     return observarRolagem()
-  }, [tipo, cidadeDoAnuncio])
+  }, [tipo, cidadeDoAnuncio, origem])
 
   return null
 }

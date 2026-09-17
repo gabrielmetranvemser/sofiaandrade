@@ -20,6 +20,30 @@ export const config = {
   silencioEleitoralEm: process.env.NEXT_PUBLIC_SILENCIO_ELEITORAL_EM || '',
 
   metaPixelId: process.env.NEXT_PUBLIC_META_PIXEL_ID || '',
+
+  /**
+   * Medição desligada NESTE PROCESSO: nada vai para `eventos`, nada soma
+   * no contador dos grupos, nada sai para a Meta e o pixel não carrega.
+   *
+   * ⚠️ EXISTE PORQUE O `.env.local` APONTA PARA PRODUÇÃO. Abrir o site
+   *    local para conferir uma mudança gravava visita de verdade no
+   *    painel e mandava PageView e Lead para a campanha — já aconteceu,
+   *    com 27 eventos de teste. Com `MEDICAO_DESLIGADA=1` o servidor
+   *    local lê grupos e conteúdo normalmente e não escreve nada.
+   *
+   *    Nunca ligar na Vercel: o site continuaria no ar, sem medir.
+   */
+  medicaoDesligada: process.env.MEDICAO_DESLIGADA === '1',
+
+  /**
+   * Quem chega pelo anúncio de uma cidade (`/?cidade=`) vê a página de
+   * entrada (`/grupos`) em vez da home. Ver `proxy.ts`.
+   *
+   * Ligada por padrão. `PAGINA_DE_ENTRADA=0` na Vercel, e um novo
+   * deploy, devolvem esse tráfego para a home sem mexer em código nem
+   * em anúncio — é a regra de parada do plano de 17/09.
+   */
+  paginaDeEntrada: process.env.PAGINA_DE_ENTRADA !== '0',
 } as const
 
 /**

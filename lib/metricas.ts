@@ -62,6 +62,20 @@ export interface LinhaCampanha {
   entradas: number
 }
 
+/**
+ * Um dia de tráfego de anúncio numa das duas páginas em que ele pode
+ * cair: a home (`anuncio`) ou a página de entrada (`lp`). É a tela da
+ * regra de parada de 17/09 — ver a migration 0017.
+ */
+export interface LinhaEntrada {
+  dia: string
+  pagina: 'anuncio' | 'lp'
+  visitas: number
+  tocaram: number
+  sairam: number
+  naoAbriu: number
+}
+
 export interface Metricas {
   ativo: boolean
   funil: FunilDia[]
@@ -70,6 +84,7 @@ export interface Metricas {
   porUtm: LinhaSimples[]
   porDispositivo: LinhaSimples[]
   porCampanha: LinhaCampanha[]
+  porPaginaDeEntrada: LinhaEntrada[]
 }
 
 const VAZIO: Metricas = {
@@ -80,6 +95,7 @@ const VAZIO: Metricas = {
   porUtm: [],
   porDispositivo: [],
   porCampanha: [],
+  porPaginaDeEntrada: [],
 }
 
 export async function carregarMetricas(): Promise<Metricas> {
@@ -87,7 +103,7 @@ export async function carregarMetricas(): Promise<Metricas> {
   const sb = criarClienteAdmin()
   if (!sb) return VAZIO
 
-  const [funil, municipios, origens, utms, dispositivos, campanhas] = await Promise.all([
+  const [funil, municipios, origens, utms, dispositivos, campanhas, entradas] = await Promise.all([
     sb.from('metricas_funil_dia').select('*').limit(30),
     sb.from('metricas_por_municipio').select('*').limit(60),
     sb.from('metricas_por_origem').select('*'),
@@ -95,6 +111,8 @@ export async function carregarMetricas(): Promise<Metricas> {
     sb.from('metricas_por_dispositivo').select('*'),
     // 60 linhas: a campanha roda um conjunto por município, e são 52.
     sb.from('metricas_por_campanha').select('*').limit(60),
+    // Duas linhas por dia (home e página de entrada), duas semanas.
+    sb.from('metricas_pagina_de_entrada').select('*').limit(28),
   ])
 
   return {
@@ -126,6 +144,15 @@ export async function carregarMetricas(): Promise<Metricas> {
       visitas: Number(r.visitas ?? 0),
       pessoas: Number(r.pessoas ?? 0),
       entradas: Number(r.entradas ?? 0),
+    })),
+    // Mesma regra da view acima: sem a migration 0017, vem vazio.
+    porPaginaDeEntrada: (entradas.data ?? []).map((r: Record<string, unknown>) => ({
+      dia: String(r.dia ?? ''),
+      pagina: r.pagina === 'lp' ? 'lp' : 'anuncio',
+      visitas: Number(r.visitas ?? 0),
+      tocaram: Number(r.tocaram ?? 0),
+      sairam: Number(r.sairam_para_whatsapp ?? 0),
+      naoAbriu: Number(r.whatsapp_nao_abriu ?? 0),
     })),
   }
 }

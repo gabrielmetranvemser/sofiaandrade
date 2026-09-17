@@ -25,8 +25,16 @@ import { SLOTS_POR_SECAO, type Slot } from './slots'
  *    DA PÁGINA e o endereço de cada seção no site.
  */
 
-/** A ordem em que as seções aparecem na página. */
+/**
+ * A ordem em que as seções aparecem na página.
+ *
+ * ⚠️ A PÁGINA DE ENTRADA VEM PRIMEIRO, e ela nem é da home. É a primeira
+ *    coisa que quem toca num anúncio vê — desde 17/09 é a página que mais
+ *    recebe gente paga —, e quem abre o painel para mexer "na página do
+ *    anúncio" não deve precisar rolar a lista da home inteira até achá-la.
+ */
 const ORDEM_DA_PAGINA = [
+  'entrada',
   'hero',
   'faixa',
   'origem',
@@ -55,6 +63,9 @@ const ORDEM_DA_PAGINA = [
  * primeira dobra é o topo, e a cena da bandeira não é endereçável.
  */
 const ANCORA: Record<string, string | null> = {
+  // Porto Velho porque o grupo de lá está sempre aberto: com cidade de
+  // grupo fechado, a prévia mostraria a busca, e não a página de entrada.
+  entrada: '/grupos?cidade=porto-velho',
   hero: '/',
   faixa: '/',
   origem: '/#origem',
@@ -79,6 +90,8 @@ const ANCORA: Record<string, string | null> = {
  * ter a página aberta do lado. O rótulo diz o nome; isto diz a função.
  */
 const RESUMO: Record<string, string> = {
+  entrada:
+    'A página que abre para quem toca no anúncio de uma cidade: título com a cidade, o botão do WhatsApp e a dobra azul "Quem é a Sofia".',
   hero: 'A primeira tela: título, botões e a foto com o número.',
   faixa: 'A tarja amarela que corre logo abaixo da primeira tela.',
   origem: 'A história de origem, com retrato, fotos de detalhe e vídeo.',
@@ -115,7 +128,7 @@ const RESUMO: Record<string, string> = {
  * corresponde ao que se está editando, o que é pior que não mostrar.
  */
 const VISUAIS = new Set([
-  'hero', 'faixa', 'origem', 'album', 'rua', 'problema', 'valores', 'cena',
+  'entrada', 'hero', 'faixa', 'origem', 'album', 'rua', 'problema', 'valores', 'cena',
   'provas', 'social', 'trilha', 'futuro', 'grupos', 'filtro', 'compartilhar',
   'ctaFinal', 'rodape',
 ])

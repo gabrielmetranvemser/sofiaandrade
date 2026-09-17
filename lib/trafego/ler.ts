@@ -62,5 +62,8 @@ export const lerTrafego = cache(async () => buscar())
  */
 export async function lerTrafegoPublico(): Promise<TrafegoPublico> {
   const t = await lerTrafego()
+  // Sem pixel e sem GTM no servidor de teste: é deles que saem os
+  // PageView que a campanha lê. Ver `config.medicaoDesligada`.
+  if (config.medicaoDesligada) return { metaPixelId: '', gtmId: '', metaDominio: t.metaDominio }
   return { metaPixelId: t.metaPixelId, gtmId: t.gtmId, metaDominio: t.metaDominio }
 }

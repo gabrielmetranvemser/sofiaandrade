@@ -3,7 +3,7 @@
 import Link from 'next/link'
 import { useEffect, useState } from 'react'
 import { useConteudo } from '@/lib/conteudo/contexto'
-import { evento } from '@/lib/eventos'
+import { evento, marcarToqueDeRobo } from '@/lib/eventos'
 import { useCidadeAlvo, useDestinoDoGrupo } from '@/lib/campanha/contexto'
 
 /**
@@ -105,7 +105,14 @@ function Envelope({
 }) {
   if (direto) {
     return (
-      <a href={href} onClick={onClick} className={className}>
+      <a
+        href={href}
+        onClick={(e) => {
+          marcarToqueDeRobo(e.currentTarget, e.nativeEvent.isTrusted)
+          onClick()
+        }}
+        className={className}
+      >
         {children}
       </a>
     )

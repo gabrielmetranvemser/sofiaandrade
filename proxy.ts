@@ -1,4 +1,5 @@
 import { NextResponse, type NextRequest } from 'next/server'
+import { config as ambiente } from '@/lib/config'
 import {
   analisarMarcas,
   combinarMarcas,
@@ -88,7 +89,8 @@ export async function proxy(req: NextRequest) {
     novas,
   )
 
-  const resposta = NextResponse.next()
+  const entrada = paginaDeEntrada(req)
+  const resposta = entrada ? NextResponse.rewrite(entrada) : NextResponse.next()
   resposta.cookies.set(COOKIE_CAMPANHA, serializarMarcas(marcas), {
     httpOnly: true,
     sameSite: 'lax',
@@ -98,6 +100,36 @@ export async function proxy(req: NextRequest) {
     path: '/',
   })
   return resposta
+}
+
+/**
+ * QUEM CLICOU NO ANÚNCIO DE UMA CIDADE VÊ A PÁGINA DE ENTRADA.
+ *
+ * `/?cidade=cabixi` mostra `/grupos?cidade=cabixi` — um pedido só, com a
+ * cidade no título — em vez da home. O endereço na barra não muda.
+ *
+ * ⚠️ REESCRITA, E NÃO TROCA DE LINK NOS ANÚNCIOS. Editar a URL dos 22
+ *    anúncios da campanha de grupos mandaria cada um de volta para a
+ *    revisão da Meta — que reinicia o aprendizado e dispara a rajada de
+ *    robô que inflou os cliques em 06, 07, 13 e 15/09. Aqui a troca
+ *    acontece do nosso lado, num deploy, e desfaz do mesmo jeito:
+ *    `PAGINA_DE_ENTRADA=0` na Vercel.
+ *
+ * ⚠️ SÓ A HOME, E SÓ COM CIDADE. Sem cidade não há o que prometer no
+ *    título, e a home segue sendo a página de quem vem da bio do
+ *    Instagram. `?previa` é a prévia do painel, que precisa mostrar a
+ *    home que está sendo editada.
+ */
+function paginaDeEntrada(req: NextRequest): URL | null {
+  if (!ambiente.paginaDeEntrada) return null
+
+  const { pathname, searchParams } = req.nextUrl
+  if (pathname !== '/') return null
+  if (!searchParams.get('cidade')?.trim() || searchParams.has('previa')) return null
+
+  const destino = req.nextUrl.clone()
+  destino.pathname = '/grupos'
+  return destino
 }
 
 /**

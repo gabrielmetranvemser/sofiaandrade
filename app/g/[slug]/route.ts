@@ -9,6 +9,7 @@ import { criarClienteAdmin } from '@/lib/supabase/admin'
 import { config, emSilencioEleitoral } from '@/lib/config'
 import { enviarEvento, identidadeDoPedido } from '@/lib/trafego/meta'
 import { marcasDoPedido } from '@/lib/campanha/marcas'
+import { ehEquipe, ehRobo } from '@/lib/trafego/robo'
 import { ORIGENS_CLIQUE, type OrigemClique } from '@/lib/tipos'
 
 /**
@@ -26,6 +27,40 @@ export const dynamic = 'force-dynamic'
 export const revalidate = 0
 
 const ORIGENS_VALIDAS = new Set<string>(ORIGENS_CLIQUE)
+
+/**
+ * O segundo toque no mesmo grupo, em menos de dez minutos, não conta.
+ *
+ * ⚠️ NÃO É HIPÓTESE. Entre 15 e 17/09, de 44 pessoas que tocaram para
+ *    entrar, 6 tocaram 2 ou 3 vezes seguidas — o WhatsApp demora a abrir
+ *    dentro do navegador do Instagram e a pessoa aperta de novo. Cada
+ *    toque virava um clique no limite do grupo e um `Lead` com id novo.
+ */
+const COOKIE_TOQUE = 'sofia_toque'
+const JANELA_TOQUE_S = 600
+
+/**
+ * Por que este pedido conta — ou não — como entrada.
+ *
+ * Vai no cabeçalho `x-sofia-contagem` da resposta: `curl -I` num link
+ * `/g/` diz na hora se o filtro funcionou, sem precisar abrir o banco.
+ */
+type Contagem = 'contado' | 'repetido' | 'robo' | 'equipe' | 'desligada'
+
+function motivoParaNaoContar(req: NextRequest): Contagem | null {
+  if (config.medicaoDesligada) return 'desligada'
+  if (ehRobo(req)) return 'robo'
+  if (ehEquipe(req)) return 'equipe'
+  return null
+}
+
+function toqueRepetido(req: NextRequest, grupoId: string): boolean {
+  const valor = req.cookies.get(COOKIE_TOQUE)?.value
+  if (!valor) return false
+  // O id do grupo é uuid: tem hífen, nunca ponto.
+  const [id, quando] = valor.split('.')
+  return id === grupoId && Date.now() / 1000 - Number(quando) < JANELA_TOQUE_S
+}
 
 export async function GET(
   req: NextRequest,
@@ -72,18 +107,24 @@ export async function GET(
     Boolean(grupo.link) &&
     (grupo.limite_cliques === null || grupo.cliques < grupo.limite_cliques)
 
+  // Robô, equipe e servidor de teste seguem o mesmo caminho de quem é
+  // gente — o link funciona igual para eles —, só não deixam rastro.
+  const semContagem = motivoParaNaoContar(req)
+
   // Sem grupo aberto: volta para a lista com a mensagem certa.
   // "cheio" e "em breve" são situações diferentes e a pessoa merece
   // saber qual das duas é.
   if (!grupo || !podeEntrar) {
-    await gravarEvento({
-      tipo: 'entrou_grupo_indisponivel',
-      municipio_slug: municipio.slug,
-      grupo_id: grupo?.id ?? null,
-      origem,
-      req,
-      utm: marcas?.utm ?? null,
-    })
+    if (!semContagem) {
+      await gravarEvento({
+        tipo: 'entrou_grupo_indisponivel',
+        municipio_slug: municipio.slug,
+        grupo_id: grupo?.id ?? null,
+        origem,
+        req,
+        utm: marcas?.utm ?? null,
+      })
+    }
 
     const destino = new URL('/grupos', req.url)
     // O lugar que a pessoa pediu, e não a sede: `/grupos` abre o painel
@@ -91,7 +132,31 @@ export async function GET(
     // Iata — não oferecer o grupo de Guajará-Mirim no lugar dele.
     destino.searchParams.set('cidade', localidade?.slug ?? municipio.slug)
     destino.searchParams.set('situacao', grupo?.status ?? 'em_breve')
-    return NextResponse.redirect(destino, 307)
+    const desvio = NextResponse.redirect(destino, 307)
+    desvio.headers.set('x-sofia-contagem', semContagem ?? 'indisponivel')
+    return desvio
+  }
+
+  const contagem: Contagem = semContagem ?? (toqueRepetido(req, grupo.id) ? 'repetido' : 'contado')
+
+  // ⚠️ DIAGNÓSTICO TEMPORÁRIO — tirar depois de 24/09/2026. O robô que
+  //    inflou os cliques usava computador, e ninguém sabe ainda com
+  //    que user-agent. Uma semana de log da Vercel com os cliques de
+  //    computador basta para achar a assinatura e pôr na lista de
+  //    lib/trafego/robo.ts. Celular não entra: é gente, e é muito.
+  const agente = req.headers.get('user-agent') ?? ''
+  if (!/Mobile|Android|iPhone/i.test(agente)) {
+    console.info(
+      '[g] clique de computador',
+      JSON.stringify({ slug, origem, contagem, agente: agente.slice(0, 300) }),
+    )
+  }
+
+  if (contagem !== 'contado') {
+    const resposta = NextResponse.redirect(grupo.link!, 307)
+    resposta.headers.set('cache-control', 'no-store, max-age=0')
+    resposta.headers.set('x-sofia-contagem', contagem)
+    return resposta
   }
 
   // Conta o clique e aplica a virada automática por limite.
@@ -137,6 +202,16 @@ export async function GET(
 
   const resposta = NextResponse.redirect(grupo.link!, 307)
   resposta.headers.set('cache-control', 'no-store, max-age=0')
+  resposta.headers.set('x-sofia-contagem', contagem)
+  // Só em `/g`: é o único lugar que precisa ler, e não viaja com as
+  // outras páginas.
+  resposta.cookies.set(COOKIE_TOQUE, `${grupo.id}.${Math.floor(Date.now() / 1000)}`, {
+    httpOnly: true,
+    sameSite: 'lax',
+    secure: process.env.NODE_ENV === 'production',
+    path: '/g',
+    maxAge: JANELA_TOQUE_S,
+  })
   return resposta
 }
 
