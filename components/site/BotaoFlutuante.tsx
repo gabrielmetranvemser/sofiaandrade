@@ -103,7 +103,7 @@ export function BotaoFlutuante({
       <Envelope
         href={paraOGrupo.href}
         direto={paraOGrupo.direto}
-        onClick={() => evento('clicou_cta', { origem: 'flutuante' })}
+        onClick={() => evento('clicou_cta', { origem: 'flutuante', municipio_slug: alvo?.municipioSlug ?? alvo?.slug })}
         className="toque flex min-h-14 w-full items-center justify-center gap-3 rounded-full bg-verde px-7 text-[1.1875rem] font-bold text-white shadow-alta transition-all duration-300 hover:brightness-110 md:w-auto"
       >
         <IconeWhatsApp />

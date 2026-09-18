@@ -3,7 +3,7 @@
 import Link from 'next/link'
 import type { ReactNode } from 'react'
 import { evento, marcarToqueDeRobo } from '@/lib/eventos'
-import { useDestinoDoGrupo } from '@/lib/campanha/contexto'
+import { useCidadeAlvo, useDestinoDoGrupo } from '@/lib/campanha/contexto'
 import type { OrigemClique } from '@/lib/tipos'
 
 /**
@@ -45,7 +45,11 @@ export function CliqueGrupo({
   className?: string
 }) {
   const destino = useDestinoDoGrupo(origem, href)
-  const registrar = () => evento('clicou_cta', { origem })
+  const alvo = useCidadeAlvo()
+  // A cidade vai junto quando o anúncio trouxe uma: é assim que a
+  // medição separa município por município sem ler o texto do botão.
+  const registrar = () =>
+    evento('clicou_cta', { origem, municipio_slug: alvo?.municipioSlug ?? alvo?.slug })
 
   if (destino.direto) {
     return (

@@ -115,7 +115,7 @@ export function Header({
               <BotaoGrupo
                 href={paraOGrupo}
                 direto={destino.direto}
-                onClick={() => evento('clicou_cta', { origem: 'topo' })}
+                onClick={() => evento('clicou_cta', { origem: 'topo', municipio_slug: alvo?.municipioSlug ?? alvo?.slug })}
                 // Verde com o ícone, como todo botão de grupo: amarelo aqui era
                 // a mesma cor do filtro, e nada dizia que abria o WhatsApp.
                 className="toque hidden min-h-11 items-center gap-2 rounded-full bg-verde px-5 text-[0.9375rem] font-bold text-white shadow-suave transition-all hover:brightness-110 sm:inline-flex"
@@ -190,7 +190,7 @@ export function Header({
                 direto={destino.direto}
                 onClick={() => {
                   setAberto(false)
-                  evento('clicou_cta', { origem: 'topo' })
+                  evento('clicou_cta', { origem: 'topo', municipio_slug: alvo?.municipioSlug ?? alvo?.slug })
                 }}
                 className="mt-2 mb-1 flex min-h-14 items-center justify-center gap-3 rounded-full bg-verde px-6 py-2 text-center text-[1.1875rem] leading-snug font-bold text-white"
               >

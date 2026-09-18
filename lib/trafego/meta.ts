@@ -154,6 +154,16 @@ export async function enviarEvento(evento: EventoMeta): Promise<Resultado> {
   return enviarComConfig(cfg, evento)
 }
 
+/** Acrescenta os nomes que o Gerenciador oferece nas regras. */
+function comNomesDaMeta(dados: Record<string, unknown>): Record<string, unknown> {
+  const municipio = typeof dados.municipio === 'string' ? dados.municipio : null
+  return {
+    ...dados,
+    ...(municipio && !dados.content_name ? { content_name: municipio } : {}),
+    ...(dados.content_category ? {} : { content_category: 'grupo-whatsapp' }),
+  }
+}
+
 export async function enviarComConfig(cfg: Trafego, evento: EventoMeta): Promise<Resultado> {
   if (!cfg.capiAtiva) return { ok: false, mensagem: 'Envio pelo servidor desligado.' }
   if (!cfg.metaPixelId) return { ok: false, mensagem: 'Sem ID de pixel.' }
@@ -180,8 +190,14 @@ export async function enviarComConfig(cfg: Trafego, evento: EventoMeta): Promise
         event_source_url: evento.url,
         action_source: 'website',
         user_data: userData,
+        // ⚠️ `municipio` VIAJA TAMBÉM COMO `content_name`. O campo
+        //    próprio é o que a tela de métricas do painel lê; o
+        //    `content_name` é o que aparece na lista de regras de
+        //    Conversão Personalizada do Gerenciador. Sem ele, o gestor
+        //    não consegue criar "Lead de Ji-Paraná" sem depender de a
+        //    Meta ter indexado um parâmetro customizado.
         ...(evento.dados && Object.keys(evento.dados).length
-          ? { custom_data: evento.dados }
+          ? { custom_data: comNomesDaMeta(evento.dados) }
           : {}),
       },
     ],

@@ -142,6 +142,41 @@ function contarNoPixel(tipo: TipoEvento, eventId: string, extra: Record<string, 
 }
 
 /**
+ * O MESMO EVENTO NO dataLayer, PARA O TAG MANAGER.
+ *
+ * ⚠️ EXISTE PARA O GESTOR DE TRÁFEGO MEDIR CIDADE POR CIDADE. Antes, a
+ *    única forma de saber de qual município era o clique era ler o TEXTO
+ *    do botão numa regra do GTM — o que quebra toda vez que alguém mexe
+ *    na copy, e some quando o rótulo é igual em todas as cidades.
+ *
+ *    Aqui a cidade e a origem chegam como campos, não como texto: o
+ *    gatilho do GTM vira "evento sofia = clicou_grupo", e a cidade é uma
+ *    variável do dataLayer. Copy e medição param de estar amarradas.
+ *
+ * Só existe quando o GTM está carregado, e ele só carrega com
+ * autorização de desempenho no aviso de cookies.
+ */
+function avisarTagManager(
+  tipo: TipoEvento,
+  eventId: string,
+  extra: Omit<Evento, 'tipo' | 'sessao' | 'dispositivo' | 'utm'>,
+): void {
+  const w = window as unknown as { dataLayer?: unknown[] }
+  if (!Array.isArray(w.dataLayer)) return
+  try {
+    w.dataLayer.push({
+      event: 'sofia',
+      sofia_acao: tipo,
+      sofia_cidade: extra.municipio_slug ?? null,
+      sofia_origem: extra.origem ?? null,
+      sofia_event_id: eventId,
+    })
+  } catch {
+    /* medição nunca quebra a página */
+  }
+}
+
+/**
  * Dispara um evento. Nunca lança, nunca bloqueia a navegação.
  * Usa sendBeacon quando existe — sobrevive ao unload da página,
  * que é exatamente o caso do clique que leva pro WhatsApp.
@@ -174,7 +209,15 @@ export function evento(
   contarNoPixel(tipo, eventId, {
     municipio: extra.municipio_slug ?? undefined,
     origem: extra.origem ?? undefined,
+    // Os mesmos dois campos com os nomes que a Meta usa nas regras de
+    // Conversão Personalizada. Sem isso, criar "Lead de Vilhena" no
+    // Gerenciador exige parâmetro customizado, que nem sempre aparece
+    // na lista.
+    content_name: extra.municipio_slug ?? undefined,
+    content_category: 'grupo-whatsapp',
   })
+
+  avisarTagManager(tipo, eventId, extra)
 
   try {
     const dados = JSON.stringify(corpo)
