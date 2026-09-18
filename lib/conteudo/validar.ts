@@ -1,4 +1,5 @@
 import type { Campo } from '@/content/esquema'
+import { ehIcone } from '@/lib/icones'
 import { interpretarVideo } from '@/lib/video'
 import { marcacaoQuebrada, tamanhoVisivel } from '@/lib/texto/marcacao'
 
@@ -125,6 +126,55 @@ function validarCampo(
         erros[caminho] = 'Precisa começar com / ou # (endereço dentro do site).'
       }
       return t
+    }
+
+    /**
+     * Destino do link da bio: de dentro ou de fora, e às vezes um
+     * telefone.
+     *
+     * ⚠️ VAZIO PASSA, e é o estado normal: das sete funções, quatro
+     *    sabem sozinhas para onde ir e deixam este campo em branco
+     *    para sempre. Quem confere se a função que EXIGE endereço
+     *    recebeu um é quem desenha o botão — sem endereço ele não
+     *    aparece na página, em vez de aparecer quebrado.
+     *
+     * ⚠️ O QUE ESTA VALIDAÇÃO EXISTE PARA BARRAR É `javascript:`. Um
+     *    `href` com esse esquema executa código na página de quem
+     *    tocar, e o campo é texto livre num painel com senha única. A
+     *    peneira é lista branca: o que não é um dos formatos abaixo
+     *    não entra, em vez de uma lista negra que sempre esquece um
+     *    caso (`data:`, `vbscript:`, espaço antes dos dois pontos).
+     */
+    case 'destino': {
+      const t = limpo(valor)
+      if (!t) return t
+
+      const interno = t.startsWith('/') && !t.startsWith('//')
+      const ancora = t.startsWith('#')
+      const externo = /^(https?:\/\/|mailto:|tel:)/i.test(t)
+      // Telefone com DDD, do jeito que a campanha digita: com ou sem
+      // parênteses, traço e espaço. Vira wa.me na hora de desenhar.
+      const telefone = /^\+?[\d\s().-]{10,20}$/.test(t)
+
+      if (!interno && !ancora && !externo && !telefone) {
+        erros[caminho] =
+          'Não reconheci esse endereço. Use /uma-pagina, https://…, ou um telefone com DDD.'
+      }
+      return t
+    }
+
+    /**
+     * Nome de ícone do catálogo.
+     *
+     * ⚠️ VOLTA VAZIO EM SILÊNCIO quando não reconhece, e não dá erro.
+     *    Ícone que não existe tem uma resposta certa e óbvia — o
+     *    padrão da função —, e a página desenha esse. Parar um
+     *    salvamento inteiro por causa de um desenho seria cobrar caro
+     *    por algo que o próprio painel resolve.
+     */
+    case 'icone': {
+      const t = limpo(valor)
+      return ehIcone(t) ? t : ''
     }
 
     case 'listaTexto': {

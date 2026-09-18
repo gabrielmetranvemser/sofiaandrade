@@ -49,7 +49,7 @@ rede da pessoa conhece.
 
 ## O painel
 
-`/painel`, senha única. Oito telas, cada uma com um dono:
+`/painel`, senha única. Nove telas, cada uma com um dono:
 
 | Tela | O que resolve |
 |---|---|
@@ -58,6 +58,7 @@ rede da pessoa conhece.
 | **Vídeos** | todos os espaços de vídeo num lugar só — trabalho de produção, com os arquivos na mão |
 | **Identidade** | nome, número, marca, ícone, cores, textura, cartão de compartilhamento e a identificação eleitoral do rodapé |
 | **Grupos** | link, situação, fixar, limite de cliques, exportar CSV, gerar QR por município |
+| **Link da bio** | os endereços de `/bio` prontos para colar em cada lugar, com o UTM certo e QR; a lista do que está no ar; em que botão as pessoas tocam |
 | **Métricas** | funil, qual botão trabalha, cliques por município, UTM, celular vs desktop |
 | **Tráfego** | pixel da Meta, Conversions API pelo servidor e Google Tag Manager — com o texto de privacidade pronto para colar quando o pixel for ligado |
 | **Tráfego ▸ Links** | um link de anúncio por município, com a cidade já escolhida e o UTM certo. Copiar um, copiar os 52, baixar CSV |
@@ -80,6 +81,7 @@ app/
 │
 ├─ g/[slug]/route.ts            REDIRECIONADOR — conta o clique e vira o grupo
 ├─ grupos/page.tsx              o buscador de grupo em página própria (fallback e destino de erro)
+├─ bio/page.tsx                 o link da bio: a tarja e os botões que o painel monta
 ├─ filtro/page.tsx              gerador de moldura
 ├─ politica-de-privacidade/
 │
@@ -88,7 +90,8 @@ app/
 │  ├─ page.tsx                  início
 │  ├─ secoes/[secao]/           editor por seção + histórico
 │  ├─ videos/ · identidade/     produção de vídeo · marca e SEO
-│  ├─ grupos/ · metricas/       operação e números
+│  ├─ grupos/ · bio/            operação: os grupos e o link da bio
+│  ├─ metricas/                 números
 │  ├─ trafego/ · buscas/        anúncio e busca
 │  └─ acoes*.ts                 Server Actions (toda escrita passa aqui)
 │
@@ -97,6 +100,7 @@ app/
 components/
 ├─ site/       as seções da página, uma por arquivo
 ├─ grupos/     o buscador: localização do aparelho ou nome da cidade
+├─ bio/        os botões do link da bio e o ouvinte único que os mede
 ├─ filtro/     webview do Instagram, canvas, resultado
 ├─ animacao/   palco de rolagem e cena da bandeira
 ├─ trafego/    pixel e GTM (só carregam se o painel preencher)
@@ -109,6 +113,8 @@ lib/
 ├─ midia/          slots de imagem: leitura e processamento (sharp → WebP)
 ├─ trafego/        pixel, Conversions API e origem do clique
 ├─ video.ts        interpretação de link, enquadramento e medidas
+├─ bio.ts          o que cada botão da bio faz e para onde ele vai
+├─ icones.ts       catálogo de ícones do lucide.dev — GERADO, ver scripts/
 ├─ dados.ts        grupos e municípios, com fallback local ↔ Supabase
 ├─ geo.ts          busca tolerante a acento e erro de digitação, haversine
 ├─ imagem.ts       EXIF, downscale, desenho e exportação do canvas
@@ -122,7 +128,7 @@ content/
 └─ mapa.ts         costura tudo na ordem da página
 
 data/              municipios-ro.json (52) · localidades · grupos.local.json
-supabase/migrations/   15 migrations, em ordem
+supabase/migrations/   19 migrations, em ordem
 ```
 
 ### Motor e maquiagem
@@ -210,6 +216,69 @@ vindas do anúncio → entradas no grupo, uma linha por peça e cidade.
 
 ---
 
+## O link da bio
+
+`/bio` é o endereço que fica na bio do Instagram. Uma tarja, um título e
+uma lista de botões que a campanha monta no painel — sem deploy.
+
+**Não é uma home menor.** A home existe para CONVENCER quem não sabe
+quem ela é: história, prova, vídeo, vinte blocos. Quem toca no link da
+bio já está no perfil dela, já viu o rosto e já leu o nome — chegou
+decidido a fazer alguma coisa, e o que faltava era o caminho. Esta
+página é só o caminho. A home fica a um toque, para quem quiser.
+
+Cada botão escolhe uma FUNÇÃO, e não um endereço: "grupo de WhatsApp da
+cidade", "o gerador de foto", "Instagram da candidata", "falar no
+WhatsApp", "outra página do site", "endereço de fora". Quando o caminho
+do grupo mudar — já mudou uma vez, de âncora para página própria — o
+botão acompanha sozinho. Endereço escrito na unha existe, mas é a
+exceção. Botão sem endereço não aparece: melhor um botão a menos que um
+que não faz nada.
+
+**Os ícones são do [lucide.dev](https://lucide.dev/icons)**, 85 deles,
+com nome em português e busca pelos dois nomes (`trator` e `tractor`
+acham o mesmo). Vêm embutidos em `lib/icones.ts`, que é GERADO do pacote
+oficial por `node scripts/gerar-icones.mjs` — traço certo, zero
+requisição e zero JavaScript, porque o SVG é escrito no HTML pelo
+servidor. WhatsApp e Instagram estão desenhados no script: o Lucide
+tirou os logotipos de marca na v1.
+
+### De onde vem o UTM
+
+A página **não** pendura `utm_*` nos links, e é deliberado. Quem guarda
+a origem é o cookie de primeira parte que o `proxy.ts` grava na
+CHEGADA — o mesmo mecanismo do tráfego por município, acima. Pendurar
+UTM nos botões criaria um segundo caminho brigando com ele:
+`combinarMarcas` trata UTM novo como mídia nova e apagaria o `fbclid`
+do clique original, mandando à Meta uma conversão órfã.
+
+A origem entra **uma vez, na porta**, e é isso que **Painel ▸ Link da
+bio** entrega pronto: o mesmo endereço com o UTM certo para cada lugar —
+bio, story, WhatsApp, TikTok, YouTube, panfleto (com QR) —, mais um
+campo livre para o que não estiver na lista. Colar `/bio` limpo funciona,
+só que a visita chega sem origem, misturada com quem digitou o site à
+mão.
+
+Os três casos, conferidos em `scripts/testar-utm.ts`:
+
+| Chegada | O que a conversão carrega |
+|---|---|
+| `/bio` | orgânico — sem origem, e é a verdade |
+| `/bio?utm_source=instagram&utm_medium=bio` | `instagram\|bio\|…` até o grupo |
+| anúncio com `fbclid` + `utm_*` | o UTM do anúncio **e** o `fbc` para a Meta |
+
+**A página é prerenderizada**, e o cookie continua por requisição: o
+proxy roda antes do cache. Conferido — `curl -I` com UTM devolve
+`Set-Cookie`, e a requisição seguinte sem UTM não devolve nada, com
+`x-nextjs-cache: HIT` nas duas.
+
+Cada toque grava `clicou_bio` com o TEXTO do botão, na coluna `rotulo`.
+É evento próprio, e não `clicou_cta`: metade dos botões da bio não leva
+a grupo nenhum, e somá-los ali dentro faria a taxa dos botões de grupo
+despencar sem que botão nenhum tivesse piorado.
+
+---
+
 ## Segurança: o link do grupo
 
 O `grupos.link` é o segredo do projeto. Se vazar, raspam os 52.
@@ -272,7 +341,7 @@ Supabase já conectado. Tabelas: `municipios`, `grupos`, `eventos`,
 `administradores`, `conteudo`, `conteudo_versoes`, `midia`,
 `midia_slots`, `trafego`. Dois baldes de Storage.
 
-Para levantar um projeto novo (outra campanha), rodar as 15 migrations
+Para levantar um projeto novo (outra campanha), rodar as 19 migrations
 de `supabase/migrations/` em ordem e preencher no `.env.local`:
 
 ```
@@ -314,6 +383,11 @@ domínio estarem confirmados.
 - [ ] abrir `/?cidade=porto-velho` e conferir que TODO botão de grupo leva a `/g/porto-velho`
 - [ ] abrir `/?cidade=porto-velo` (errado de propósito): a página cai no comportamento normal, sem adivinhar
 - [ ] com um grupo cheio: clicar no botão, cair em `/grupos`, escolher outra cidade, e conferir no banco que o `clicou_grupo` guardou o UTM do anúncio original
+- [ ] `node --experimental-strip-types scripts/testar-utm.ts` passa (a atribuição é o único lugar do projeto onde o erro NÃO aparece na tela)
+- [ ] `/bio` com o endereço de **Painel ▸ Link da bio** e, depois de tocar num botão, o evento no banco com o UTM daquele lugar
+- [ ] `curl -I '…/bio?utm_source=instagram'` devolve `Set-Cookie`; `curl -I '…/bio'` logo depois NÃO devolve
+- [ ] editar o título em **Seções ▸ Link da bio**, salvar, e `/bio` mudar sem republicar
+- [ ] botão da bio sem endereço preenchido: some da página, em vez de aparecer quebrado
 
 ---
 

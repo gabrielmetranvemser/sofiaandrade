@@ -28,13 +28,16 @@ import { SLOTS_POR_SECAO, type Slot } from './slots'
 /**
  * A ordem em que as seções aparecem na página.
  *
- * ⚠️ A PÁGINA DE ENTRADA VEM PRIMEIRO, e ela nem é da home. É a primeira
- *    coisa que quem toca num anúncio vê — desde 17/09 é a página que mais
- *    recebe gente paga —, e quem abre o painel para mexer "na página do
- *    anúncio" não deve precisar rolar a lista da home inteira até achá-la.
+ * ⚠️ AS DUAS PÁGINAS DE CHEGADA VÊM PRIMEIRO, e nenhuma das duas é da
+ *    home. A de entrada é o que quem toca num anúncio vê — desde 17/09 é
+ *    a página que mais recebe gente paga. O link da bio é o que quem
+ *    vem do Instagram vê. Quem abre o painel para mexer "na página do
+ *    anúncio" ou "no link da bio" não deve precisar rolar a lista da
+ *    home inteira até achá-las.
  */
 const ORDEM_DA_PAGINA = [
   'entrada',
+  'bio',
   'hero',
   'faixa',
   'origem',
@@ -66,6 +69,7 @@ const ANCORA: Record<string, string | null> = {
   // Porto Velho porque o grupo de lá está sempre aberto: com cidade de
   // grupo fechado, a prévia mostraria a busca, e não a página de entrada.
   entrada: '/grupos?cidade=porto-velho',
+  bio: '/bio',
   hero: '/',
   faixa: '/',
   origem: '/#origem',
@@ -92,6 +96,7 @@ const ANCORA: Record<string, string | null> = {
 const RESUMO: Record<string, string> = {
   entrada:
     'A página que abre para quem toca no anúncio de uma cidade: tarja com as fotos, contagem regressiva, título com a cidade, o botão do WhatsApp e a dobra azul da trajetória.',
+  bio: 'A página curta que fica na bio do Instagram: a mesma tarja, e uma lista de botões que a campanha monta — grupo, filtro, site, Instagram, pedir material, e o que mais precisar.',
   hero: 'A primeira tela: título, botões e a foto com o número.',
   faixa: 'A tarja amarela que corre logo abaixo da primeira tela.',
   origem: 'A história de origem, com retrato, fotos de detalhe e vídeo.',
@@ -129,7 +134,7 @@ const RESUMO: Record<string, string> = {
  * corresponde ao que se está editando, o que é pior que não mostrar.
  */
 const VISUAIS = new Set([
-  'entrada', 'hero', 'faixa', 'origem', 'album', 'rua', 'problema', 'valores', 'cena',
+  'entrada', 'bio', 'hero', 'faixa', 'origem', 'album', 'rua', 'problema', 'valores', 'cena',
   'provas', 'social', 'trilha', 'futuro', 'grupos', 'filtro', 'compartilhar',
   'ctaFinal', 'rodape',
 ])

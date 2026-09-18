@@ -13,6 +13,8 @@
  *    perde o trabalho do editor.
  */
 
+import { FUNCOES_BIO } from '@/lib/bio'
+
 export interface Base {
   rotulo: string
   ajuda?: string
@@ -59,6 +61,29 @@ export type Campo =
   | (Base & { tipo: 'deslizante'; min: number; max: number; passo?: number; sufixo?: string })
   /** Endereço interno: começa com / ou #. Nunca externo. */
   | (Base & { tipo: 'ancora' })
+  /**
+   * Endereço que pode ser de dentro OU de fora — o campo do link da bio.
+   *
+   * ⚠️ NÃO É `url` NEM `ancora`, e precisou ser um terceiro tipo porque
+   *    o mesmo campo atende as duas coisas: um botão da bio pode
+   *    apontar para `/filtro` e o de baixo para o WhatsApp. Com `url`,
+   *    a validação recusaria o caminho interno; com `ancora`, recusaria
+   *    o externo. Obrigar a campanha a escolher o tipo certo antes de
+   *    digitar é devolver a ela um problema que é nosso.
+   *
+   * O que ele barra é o esquema que não deveria existir num `href` —
+   * `javascript:` à frente de todos. Ver `lib/conteudo/validar.ts`.
+   */
+  | (Base & { tipo: 'destino' })
+  /**
+   * Um ícone do catálogo (`lib/icones.ts`), escolhido numa grade.
+   *
+   * ⚠️ GRAVA O NOME DO LUCIDE, e não o desenho. É o que permite
+   *    atualizar o traço de todos os ícones do site rodando um script,
+   *    e é o nome que a pessoa digita em lucide.dev para pedir um que
+   *    ainda não está na lista.
+   */
+  | (Base & { tipo: 'icone' })
   /** Existe no dado, não aparece na tela (ids, chaves técnicas). */
   | { tipo: 'oculto' }
   /** Interruptor. Sempre grava true ou false — nunca string vazia. */
@@ -739,6 +764,118 @@ export const ESQUEMA: Record<string, SecaoEsquema> = {
     },
   },
 
+  bio: {
+    rotulo: 'Link da bio',
+    grupo: 'Página',
+    nota:
+      'A página curta que fica na bio do Instagram (/bio). Cada botão é uma linha da lista abaixo: escolha a função, escreva o texto e, se quiser, um ícone. ⚠️ Botão demais é botão nenhum — a pessoa vem da bio com um assunto na cabeça, e cinco opções já fazem ela parar para escolher. Os endereços prontos para colar no Instagram estão em Link da bio, no menu.',
+    campos: {
+      etiqueta: {
+        tipo: 'texto',
+        rotulo: 'Selo do topo',
+        max: 40,
+        ajuda:
+          'O selo amarelo. Entra no lugar da contagem regressiva quando ela está desligada ou quando falta um dia ou menos.',
+      },
+      contagem: {
+        tipo: 'texto',
+        rotulo: 'Contagem regressiva',
+        max: 40,
+        ajuda: '{dias} é calculado sozinho até o dia da eleição. Vazio, entra o selo acima.',
+      },
+      titulo: {
+        tipo: 'texto',
+        rotulo: 'Título',
+        max: 70,
+        destaque: true,
+        ajuda: 'Curto: é a primeira coisa embaixo da tarja. O trecho destacado fica verde.',
+      },
+      apoio: {
+        tipo: 'longo',
+        rotulo: 'Frase de apoio',
+        max: 180,
+        linhas: 2,
+        destaque: true,
+        ajuda: 'Uma linha, no máximo duas. Vazia, o bloco some e os botões sobem.',
+      },
+      links: {
+        tipo: 'lista',
+        rotulo: 'Botões',
+        rotuloItem: 'Botão',
+        titulo: 'rotulo',
+        min: 1,
+        max: 12,
+        ajuda:
+          'Na ordem em que aparecem. O primeiro é o que mais gente toca — deixe o pedido principal em cima.',
+        item: {
+          id: ID,
+          ligado: {
+            tipo: 'booleano',
+            rotulo: 'No ar',
+            ajuda: 'Desligado, o botão some da página sem perder o que está escrito aqui.',
+          },
+          funcao: {
+            tipo: 'escolha',
+            rotulo: 'O que este botão faz',
+            // ⚠️ A LISTA VEM DE `lib/bio.ts`, e não está escrita aqui.
+            //    Ela é lida em três lugares — o formulário, quem monta
+            //    o endereço e quem decide o que sai do ar no silêncio
+            //    eleitoral — e a cópia escrita à mão já divergiu neste
+            //    projeto: foi assim que `mapa` sumiu da lista de
+            //    origens e a tela "qual botão trabalha" passou meses
+            //    jurando que ninguém tocava no mapa de Rondônia.
+            opcoes: FUNCOES_BIO.map((f) => ({ valor: f.valor, rotulo: f.rotulo })),
+            ajuda:
+              'As quatro primeiras já sabem para onde ir. As três últimas usam o campo Endereço.',
+          },
+          rotulo: {
+            tipo: 'texto',
+            rotulo: 'Texto do botão',
+            max: 42,
+            ajuda:
+              'Acima de 42 caracteres ele quebra em celular de 360px. É este texto que aparece no painel de métricas dizendo qual botão a pessoa usou.',
+          },
+          descricao: {
+            tipo: 'texto',
+            rotulo: 'Linha de baixo',
+            max: 60,
+            ajuda: 'Opcional, em letra menor. Serve para tirar a dúvida de quem hesita.',
+          },
+          icone: {
+            tipo: 'icone',
+            rotulo: 'Ícone',
+            ajuda:
+              'Os desenhos são do lucide.dev. Não achou o que queria? Procure lá, copie o nome (ex.: "tractor") e peça para incluirmos — ou deixe em branco, que cada função já traz o ícone dela.',
+          },
+          destino: {
+            tipo: 'destino',
+            rotulo: 'Endereço',
+            ajuda:
+              'Só para as três últimas funções. Falar no WhatsApp: o número com DDD (ou um link do wa.me com a mensagem já escrita). Outra página: /filtro, /grupos. Endereço de fora: começando com https:// — e se quiser medir do outro lado, cole-o já com o UTM (…/?utm_source=bio&utm_medium=link), porque esta página não acrescenta parâmetro em link de fora.',
+          },
+          destaque: {
+            tipo: 'booleano',
+            rotulo: 'Botão principal',
+            ajuda:
+              'Verde e cheio, como o botão de entrar no grupo. ⚠️ Um só: dois botões principais é nenhum.',
+          },
+        },
+      },
+      nota: {
+        tipo: 'texto',
+        rotulo: 'Frase abaixo dos botões',
+        max: 90,
+        ajuda: 'Opcional. Vazia, some.',
+      },
+      instagramRotulo: {
+        tipo: 'texto',
+        rotulo: 'Rodapé: link do Instagram',
+        max: 40,
+        ajuda: 'Fica no pé do cartão, no azul, ao lado do número. Vazio, some.',
+      },
+    },
+  },
+
   filtro: {
     rotulo: 'Coloque o 2233 na foto',
     grupo: 'Página',
@@ -1212,6 +1349,16 @@ export const ESQUEMA: Record<string, SecaoEsquema> = {
       grupos: {
         tipo: 'grupo',
         rotulo: 'Página de grupos',
+        campos: {
+          tituloAba: { tipo: 'texto', rotulo: 'Título da aba', max: 60 },
+          descricao: { tipo: 'longo', rotulo: 'Descrição', max: 200, linhas: 2 },
+          ogTitulo: { tipo: 'texto', rotulo: 'Título do cartão', max: 60 },
+          ogDescricao: { tipo: 'longo', rotulo: 'Descrição do cartão', max: 160, linhas: 2 },
+        },
+      },
+      bio: {
+        tipo: 'grupo',
+        rotulo: 'Link da bio',
         campos: {
           tituloAba: { tipo: 'texto', rotulo: 'Título da aba', max: 60 },
           descricao: { tipo: 'longo', rotulo: 'Descrição', max: 200, linhas: 2 },

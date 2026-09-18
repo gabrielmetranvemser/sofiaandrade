@@ -12,6 +12,20 @@
       "autoPort": true
     },
     {
+      "name": "sofia-2233-producao-local",
+      "runtimeExecutable": "env",
+      "runtimeArgs": [
+        "MEDICAO_DESLIGADA=1",
+        "npm",
+        "run",
+        "start",
+        "--",
+        "-p",
+        "3300"
+      ],
+      "port": 3300
+    },
+    {
       "name": "sofia-2233-sem-medicao",
       "runtimeExecutable": "env",
       "runtimeArgs": [

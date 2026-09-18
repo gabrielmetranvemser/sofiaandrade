@@ -105,17 +105,31 @@ export function FaixaDoTopo({
         slots={slots}
         vazio="silhueta"
         lcp
+        prioridade
         sizes="(max-width: 640px) 40vw, 230px"
         className={`${foto} left-[-2%] z-20 w-[38%]`}
       />
 
+      {/* ⚠️ PRIORIDADE ALTA, IGUAL À DELA — e ela já esteve baixa aqui.
+          As duas fotos têm a MESMA largura (38%) e o mesmo topo, então
+          são candidatas iguais a LCP, e o LCP é sempre a última a
+          pintar. Com esta em `low`, o navegador atrasava justamente a
+          que ia definir a métrica: o Lighthouse de 18/09 apontou o
+          retrato do aliado como elemento de LCP, nesta página e na de
+          entrada, com 3,5 s.
+
+          `fetchPriority` no <img> é ordem de fila, e não `<link
+          preload>` — não é o caso dos quatro preloads brigando que
+          está descrito em components/ui/Imagem.tsx. Aqui são duas
+          imagens, as duas na primeira tela, as duas do mesmo tamanho:
+          a fila certa é as duas na frente. */}
       <Image
         src={aliado}
         alt={aliadoAlt}
         width={1755}
         height={2200}
-        loading="eager"
-        fetchPriority="low"
+        priority
+        fetchPriority="high"
         sizes="(max-width: 640px) 40vw, 230px"
         className={`${foto} left-[31%] z-10 w-[38%]`}
       />

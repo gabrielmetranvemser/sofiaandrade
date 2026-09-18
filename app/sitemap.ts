@@ -14,6 +14,12 @@ export default function sitemap(): MetadataRoute.Sitemap {
     { url: config.siteUrl, lastModified: agora, changeFrequency: 'daily', priority: 1 },
     { url: `${config.siteUrl}/grupos`, lastModified: agora, changeFrequency: 'daily', priority: 0.9 },
     { url: `${config.siteUrl}/filtro`, lastModified: agora, changeFrequency: 'weekly', priority: 0.8 },
+    // O link da bio entra com prioridade baixa de propósito: ele existe
+    // para ser colado num perfil, não para ser achado no Google. Fica
+    // no mapa porque uma página que responde 200 e não está listada é
+    // exatamente o que o Search Console reclama como "descoberta, não
+    // indexada" — ruído na tela de Buscas por nada.
+    { url: `${config.siteUrl}/bio`, lastModified: agora, changeFrequency: 'weekly', priority: 0.4 },
     {
       url: `${config.siteUrl}/politica-de-privacidade`,
       lastModified: agora,

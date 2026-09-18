@@ -97,6 +97,14 @@ export const paginas = {
     ogTitulo: 'Grupos de WhatsApp · Sofia Andrade 2233',
     ogDescricao: 'Um grupo para cada um dos 52 municípios de Rondônia.',
   },
+  bio: {
+    tituloAba: 'Sofia Andrade 2233 — links',
+    descricao:
+      'Grupo de WhatsApp da sua cidade, o filtro do 2233 na sua foto e o site da campanha, ' +
+      'tudo num lugar só.',
+    ogTitulo: 'Sofia Andrade 2233',
+    ogDescricao: 'Grupo da sua cidade, filtro do 2233 e o site da campanha.',
+  },
   privacidade: {
     tituloAba: 'Política de Privacidade',
     descricao:
@@ -701,6 +709,95 @@ export const entrada = {
 } as const
 
 // ─────────────────────────────────────────────────────────────
+// 7c. LINK DA BIO — o endereço que fica na bio do Instagram
+//
+// ⚠️ NÃO É UMA HOME MENOR. A home convence: tem história, prova e
+//    vídeo, e existe para quem chegou sem saber quem ela é. Quem toca
+//    no link da bio já está no perfil dela, já viu o rosto e já leu o
+//    nome — falta só o caminho. Esta página é só o caminho.
+//
+// ⚠️ A ORDEM DOS BOTÕES É A ORDEM DA CAMPANHA, e o primeiro carrega o
+//    peso todo: em lista de links, o toque se concentra no topo. O
+//    grupo de WhatsApp vem primeiro porque é a métrica que decide se o
+//    projeto valeu (ver o README). O filtro vem em seguida porque cada
+//    foto trocada é peça de campanha circulando de graça.
+//
+// ⚠️ SEIS É MUITO, QUATRO É BOM. Cada botão a mais divide o toque de
+//    quem chegou decidido e faz parar quem chegou em dúvida. A lista
+//    abaixo já vem no limite do que uma bio aguenta.
+//
+// ⚠️ NÃO HÁ BOTÃO DE "SEGUIR NO INSTAGRAM", e a ausência é a decisão.
+//    Este endereço mora na bio do Instagram: quem toca nele acabou de
+//    sair do perfil dela. Um botão pedindo para seguir ocuparia a
+//    melhor posição da página para mandar a pessoa de volta ao lugar de
+//    onde ela veio. O @ continua no pé do cartão, como assinatura —
+//    serve a quem chegou por outro caminho (QR de panfleto, disparo de
+//    WhatsApp) sem custar um lugar na lista.
+//
+//    A função continua no painel: se a campanha quiser o botão de
+//    volta, é escolher "Instagram da candidata" num item novo.
+// ─────────────────────────────────────────────────────────────
+export const bio = {
+  contagem: 'Faltam {dias} dias para a eleição',
+  etiqueta: 'Sofia Andrade · {{candidata.numero}}',
+  titulo: 'Escolha por onde [[começar.]]',
+  apoio: 'Tudo o que a campanha tem para você, num lugar só.',
+  links: [
+    {
+      id: 'bio-01',
+      ligado: true,
+      funcao: 'grupo',
+      rotulo: 'Entrar no grupo da minha cidade',
+      descricao: 'Agenda, carreata e avisos no seu WhatsApp',
+      icone: 'whatsapp',
+      destino: '',
+      destaque: true,
+    },
+    {
+      id: 'bio-02',
+      ligado: true,
+      funcao: 'filtro',
+      rotulo: 'Colocar o 2233 na foto',
+      descricao: 'Sua foto não sai do seu aparelho',
+      icone: 'sparkles',
+      destino: '',
+      destaque: false,
+    },
+    {
+      id: 'bio-03',
+      ligado: true,
+      funcao: 'site',
+      rotulo: 'Conhecer a Sofia',
+      descricao: 'A página completa da campanha',
+      icone: 'globe',
+      destino: '',
+      destaque: false,
+    },
+    // O pedido de material mora em OUTRO SITE da campanha, num
+    // subdomínio próprio — não é uma página deste projeto. Por isso é
+    // "Endereço de fora" e não "Outra página deste site": ele abre em
+    // aba nova e o botão ganha a seta diagonal, que é o que avisa a
+    // pessoa de que ela está saindo daqui.
+    //
+    // Para medir do outro lado, cole o endereço já com UTM
+    // (…/?utm_source=bio&utm_medium=link). Esta página não acrescenta
+    // parâmetro em link de fora — ver app/bio/page.tsx.
+    {
+      id: 'bio-05',
+      ligado: true,
+      funcao: 'link',
+      rotulo: 'Solicitar materiais',
+      descricao: 'Adesivo, santinho e arte para postar',
+      icone: 'package',
+      destino: 'https://material.sofiaandrade.com.br/',
+      destaque: false,
+    },
+  ],
+  nota: 'Página oficial da campanha. Nada aqui pede seus dados.',
+  instagramRotulo: '{{candidata.instagramHandle}}',
+} as const
+
+// ─────────────────────────────────────────────────────────────
 // 8. FILTRO
 // ─────────────────────────────────────────────────────────────
 export const filtro = {
@@ -1269,6 +1366,7 @@ export const PADRAO = {
   futuro,
   grupos,
   entrada,
+  bio,
   filtro,
   compartilhar,
   ctaFinal,

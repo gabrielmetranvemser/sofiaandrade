@@ -100,6 +100,21 @@ export type TipoEvento =
   | 'compartilhou_pagina'
   | 'clicou_instagram'
   /**
+   * Tocou num botão do link da bio (`/bio`).
+   *
+   * ⚠️ NÃO É `clicou_cta`, e a separação é o que salva as duas contas.
+   *    `clicou_cta` quer dizer "apertou um botão que leva ao grupo", e
+   *    é o numerador da tela "qual botão trabalha". Metade dos botões
+   *    da bio não leva a grupo nenhum — leva ao Instagram, a um pedido
+   *    de material, a uma página. Somados ali dentro, eles fariam a
+   *    taxa de conversão dos botões de grupo despencar sem que botão
+   *    nenhum tivesse piorado.
+   *
+   *    Este evento carrega `rotulo`: é o texto do botão, e é como o
+   *    painel responde "qual link da bio a pessoa usa".
+   */
+  | 'clicou_bio'
+  /**
    * Depois do toque no botão da página de entrada, a página saiu da
    * tela: o WhatsApp (app ou página dele) tomou a frente. Não é entrada
    * no grupo — é a prova de que o caminho até lá não travou.
@@ -146,6 +161,14 @@ export const ORIGENS_CLIQUE = [
   'lp',
   /** O "tocar aqui de novo" de quando o WhatsApp não abriu. */
   'lp_de_novo',
+  /**
+   * O link da bio (`/bio`) — o endereço que fica na bio do Instagram.
+   *
+   * Vale na chegada (`pagina_vista`) e na saída: o botão de grupo de lá
+   * aponta para `/g/…?de=bio`, então a entrada no grupo chega ao painel
+   * sabendo que veio da bio, e não da home nem do anúncio.
+   */
+  'bio',
 ] as const
 
 export type OrigemClique = (typeof ORIGENS_CLIQUE)[number]
@@ -158,4 +181,18 @@ export interface Evento {
   utm?: string | null
   sessao?: string | null
   dispositivo?: 'celular' | 'desktop' | null
+  /**
+   * QUAL item, quando o tipo sozinho não diz.
+   *
+   * ⚠️ NASCEU PARA O LINK DA BIO, onde a pergunta do painel é "qual dos
+   *    botões a pessoa usa" — e a resposta não cabe em `origem`, que é
+   *    uma lista fechada de LUGARES do layout. A bio tem botões que a
+   *    campanha cria e apaga sem deploy; um enum não acompanha isso.
+   *
+   * ⚠️ É TEXTO LIVRE, e por isso tem teto de 60 caracteres e passa pela
+   *    mesma peneira dos outros campos na rota de eventos. Nunca entra
+   *    em consulta montada por concatenação: o cliente do Supabase
+   *    parametriza, e o painel só o exibe.
+   */
+  rotulo?: string | null
 }
