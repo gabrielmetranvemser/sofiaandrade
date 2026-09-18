@@ -117,7 +117,10 @@ export function BotaoEntrarNoGrupo({
 
   function aoTocar(e: MouseEvent<HTMLAnchorElement>, origem: 'lp' | 'lp_de_novo') {
     marcarToqueDeRobo(e.currentTarget, e.nativeEvent.isTrusted)
-    evento('clicou_cta', { origem })
+    // ⚠️ A CIDADE VIAJA NO EVENTO, e não só no texto do botão. É o que
+    //    deixa o gestor de tráfego separar Vilhena de Ji-Paraná no Tag
+    //    Manager e no Gerenciador sem depender do rótulo escrito.
+    evento('clicou_cta', { origem, municipio_slug: municipioSlug })
     setFase('abrindo')
     acompanhar()
   }

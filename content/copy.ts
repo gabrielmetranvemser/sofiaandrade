@@ -661,11 +661,16 @@ export const entrada = {
   apoio: 'Não é lista de aviso. É onde eu falo com [[quem está do meu lado.]]',
   // O rótulo do botão verde desta página. No lugar de "Entrar no grupo
   // de", dos Botões do site: aqui a vaga é o assunto.
-  // Curto porque o botão tem 296px no celular: com a cidade dentro,
-  // "Quero minha vaga em Porto Velho" quebra em duas linhas e o botão
-  // cresce 16px justo na parte mais apertada da tela. A cidade está no
-  // título, uma linha acima.
-  botao: 'Quero minha vaga',
+  // ⚠️ A CIDADE VOLTOU PARA DENTRO DO BOTÃO, e não é preciosismo de
+  //    copy: o gestor de tráfego marca o clique pelo TEXTO do botão no
+  //    Tag Manager. Com "Quero minha vaga" em todas as cidades, os
+  //    relatórios dele passam a somar tudo numa linha só e ele perde a
+  //    leitura por município — que é a única que importa aqui.
+  //
+  //    O texto quebra em duas linhas em cidade de nome comprido. São
+  //    16px a mais de botão, e o botão continua inteiro na primeira tela
+  //    (medido em 360×640, com o aviso de cookies aberto).
+  botao: 'Entrar no grupo de {cidade}',
   notaBotao: 'Abre no seu WhatsApp. Lá, é só tocar em "Entrar no grupo".',
   itens: [
     { id: 'entrada-01', texto: 'Cabem só [[1.024 pessoas.]] Quando encher, o WhatsApp não deixa entrar mais ninguém' },
