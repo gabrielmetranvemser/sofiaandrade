@@ -62,6 +62,7 @@ export const TRAFEGO_VAZIO: Trafego = {
 export const EVENTO_META: Partial<Record<TipoEvento, string>> = {
   clicou_grupo: 'Lead',
   clicou_cta: 'ClicouCTA',
+  clicou_bio: 'ClicouBio',
   entrou_grupo_indisponivel: 'GrupoIndisponivel',
   buscou_cidade: 'BuscouCidade',
   usou_localizacao: 'UsouLocalizacao',
@@ -90,6 +91,7 @@ export const EVENTOS_PADRAO_META = new Set(['PageView', 'Lead'])
 export const EXPLICACAO_EVENTO: Partial<Record<TipoEvento, string>> = {
   clicou_grupo: 'Entrou de fato num grupo de WhatsApp. É a conversão da página.',
   clicou_cta: 'Apertou um botão que leva à lista de grupos.',
+  clicou_bio: 'Tocou num botão do link da bio. O nome do botão vem junto.',
   entrou_grupo_indisponivel: 'Tentou entrar num grupo cheio ou que ainda não abriu.',
   buscou_cidade: 'Digitou o nome de uma cidade na busca.',
   usou_localizacao: 'Deixou o site achar a cidade dela pelo GPS.',

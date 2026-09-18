@@ -157,6 +157,61 @@ export async function carregarMetricas(): Promise<Metricas> {
   }
 }
 
+/**
+ * O LINK DA BIO — quantos chegaram e em que botão tocaram.
+ *
+ * ⚠️ FORA DE `carregarMetricas`, e de propósito. Aquela função é a tela
+ *    de Métricas inteira: sete consultas em paralelo que só valem a
+ *    pena porque quem abre aquela tela vai olhar as sete. Quem abre
+ *    Link da bio está montando a lista de botões e quer saber de UM
+ *    assunto — pendurar as duas consultas daqui lá dentro faria a tela
+ *    de Métricas pagar por elas em toda abertura.
+ */
+export interface MetricasDaBio {
+  ativo: boolean
+  /** Uma linha por botão, do mais tocado ao menos. */
+  porBotao: { botao: string; toques: number; pessoas: number }[]
+  /** Uma linha por dia: quantos chegaram, tocaram e entraram no grupo. */
+  porDia: {
+    dia: string
+    visitas: number
+    tocaram: number
+    entraramNoGrupo: number
+    abriramOFiltro: number
+  }[]
+}
+
+export async function carregarMetricasDaBio(): Promise<MetricasDaBio> {
+  const vazio = { ativo: false, porBotao: [], porDia: [] }
+  if (!config.supabaseAtivo) return vazio
+  const sb = criarClienteAdmin()
+  if (!sb) return vazio
+
+  const [botoes, dias] = await Promise.all([
+    sb.from('metricas_bio').select('*').limit(20),
+    sb.from('metricas_bio_dia').select('*').limit(14),
+  ])
+
+  // As views são novas (migration 0019). Enquanto ela não estiver
+  // aplicada, `data` vem nulo e a tela mostra o estado vazio — mesma
+  // regra das views de 0016 e 0017, e nada quebra.
+  return {
+    ativo: true,
+    porBotao: (botoes.data ?? []).map((r: Record<string, unknown>) => ({
+      botao: String(r.botao ?? ''),
+      toques: Number(r.toques ?? 0),
+      pessoas: Number(r.pessoas ?? 0),
+    })),
+    porDia: (dias.data ?? []).map((r: Record<string, unknown>) => ({
+      dia: String(r.dia ?? ''),
+      visitas: Number(r.visitas ?? 0),
+      tocaram: Number(r.tocaram ?? 0),
+      entraramNoGrupo: Number(r.entraram_no_grupo ?? 0),
+      abriramOFiltro: Number(r.abriram_o_filtro ?? 0),
+    })),
+  }
+}
+
 /** Soma um período do funil, para os cartões do topo. */
 export function somarFunil(funil: FunilDia[], dias: number) {
   const recorte = funil.slice(0, dias)

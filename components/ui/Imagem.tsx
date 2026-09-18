@@ -34,6 +34,14 @@ export function Imagem({
    *    escondida no celular). O PageSpeed de 17/09 apontou a foto dela
    *    como LCP e sem `fetchpriority=high`. Aqui ela vai `eager` e com
    *    prioridade alta, e o resto sai da frente.
+   *
+   * ⚠️ OS DOIS JUNTOS SÃO LEGÍTIMOS, e é o caso da tarja da página de
+   *    entrada e do link da bio: lá são duas imagens só, as duas na
+   *    primeira tela, e elas disputam a banda com 120 KB de fonte que o
+   *    `next/font` já pré-carrega. Sem o preload, o navegador só
+   *    descobre a foto depois de ler o HTML e entra na fila atrás
+   *    delas. Passar `lcp prioridade` pede as duas coisas — fila da
+   *    frente e descoberta cedo.
    */
   lcp?: boolean
   vazio?: 'quadro' | 'silhueta'
@@ -76,7 +84,7 @@ export function Imagem({
       width={img.largura}
       height={img.altura}
       sizes={sizes ?? '(max-width: 768px) 100vw, 50vw'}
-      priority={lcp ? undefined : prioridade}
+      priority={prioridade}
       loading={lcp ? 'eager' : undefined}
       fetchPriority={lcp ? 'high' : undefined}
       placeholder={img.blur ? 'blur' : 'empty'}

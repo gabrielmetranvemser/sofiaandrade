@@ -32,6 +32,7 @@ const TIPOS = new Set([
   'baixou_filtro', 'compartilhou_filtro',
   'compartilhou_pagina', 'clicou_instagram',
   'saiu_para_whatsapp', 'whatsapp_nao_abriu',
+  'clicou_bio',
 ])
 
 // ⚠️ VEM DE `lib/tipos.ts`, e não é uma cópia escrita à mão. A cópia
@@ -87,6 +88,7 @@ export async function POST(req: NextRequest) {
 
     const origem = texto(corpo.origem, 24)
     const dispositivo = texto(corpo.dispositivo, 12)
+    const rotulo = texto(corpo.rotulo, 60)
 
     // ⚠️ O NAVEGADOR MANDA O UTM DA PÁGINA EM QUE ESTÁ, e ele some na
     //    primeira navegação interna: quem chega pelo anúncio na home e
@@ -104,6 +106,18 @@ export async function POST(req: NextRequest) {
       sessao: texto(corpo.sessao, 40),
       dispositivo:
         dispositivo === 'celular' || dispositivo === 'desktop' ? dispositivo : null,
+      // ⚠️ SÓ ENTRA QUANDO EXISTE, e a condição é um seguro contra a
+      //    ordem do deploy. `rotulo` é coluna nova (migration 0019);
+      //    num servidor que subiu antes de ela ser aplicada, mandar a
+      //    chave faz o PostgREST recusar o insert INTEIRO — e o `catch`
+      //    logo abaixo engole o erro de propósito, porque métrica nunca
+      //    pode derrubar a página. O resultado seria o site inteiro
+      //    parar de gravar evento, em silêncio, até alguém estranhar o
+      //    painel zerado.
+      //
+      //    Fora da bio ninguém manda `rotulo`, então nesse cenário o
+      //    que se perde é só o clique da bio — e não o funil todo.
+      ...(rotulo ? { rotulo } : {}),
     })
 
     return ok()
@@ -143,8 +157,20 @@ function repassarParaMeta(req: NextRequest, corpo: Record<string, unknown>): voi
   const dados: Record<string, unknown> = {}
   const municipio = texto(corpo.municipio_slug, 64)
   const origem = texto(corpo.origem, 24)
+  const rotulo = texto(corpo.rotulo, 60)
   if (municipio) dados.municipio = municipio
   if (origem) dados.origem = origem
+  if (rotulo) dados.rotulo = rotulo
+
+  // ⚠️ O MESMO PAR DO NAVEGADOR, e tem de ser o mesmo: os dois caminhos
+  //    descrevem o MESMO evento, amarrados pelo `eventId`, e a Meta
+  //    junta os dois. Divergir aqui faria a conversão chegar ora como
+  //    "grupo-whatsapp", ora como "link-da-bio", conforme o lado que
+  //    chegasse primeiro. Ver `contarNoPixel`, em lib/eventos.ts.
+  if (corpo.tipo === 'clicou_bio') {
+    dados.content_category = 'link-da-bio'
+    if (rotulo) dados.content_name = rotulo
+  }
 
   after(async () => {
     await enviarEvento({ nome, eventId, url, identidade, dados })

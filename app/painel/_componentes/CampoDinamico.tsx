@@ -3,9 +3,10 @@
 import type { Campo } from '@/content/esquema'
 import { tamanhoVisivel } from '@/lib/texto/marcacao'
 import { EditorTexto } from './EditorTexto'
+import { SeletorDeIcone } from './SeletorDeIcone'
 
 /**
- * UM componente para os 11 tipos de campo. É a resposta a "17 seções não
+ * UM componente para os 13 tipos de campo. É a resposta a "17 seções não
  * se escreve como 17 telas".
  *
  * O estado é a seção inteira num objeto só, endereçado por caminho.
@@ -168,9 +169,18 @@ export function CampoDinamico({ campo, valor, caminho, erros, onMudar }: Props) 
     )
   }
 
-  // ── url e âncora ─────────────────────────────────────────────
-  if (campo.tipo === 'url' || campo.tipo === 'ancora') {
+  // ── url, âncora e destino ────────────────────────────────────
+  // Os três são um campo de endereço; o que muda é o que a validação
+  // aceita e, por isso, o exemplo dentro do campo. O `destino` é o do
+  // link da bio, que atende os dois lados — ver lib/conteudo/validar.ts.
+  if (campo.tipo === 'url' || campo.tipo === 'ancora' || campo.tipo === 'destino') {
     const v = typeof valor === 'string' ? valor : ''
+    const exemplo =
+      campo.tipo === 'ancora'
+        ? '/pagina ou #secao'
+        : campo.tipo === 'destino'
+          ? 'https://… · /filtro · (69) 90000-0000'
+          : 'https://…'
     return (
       <div>
         <Rotulo para={id}>{campo.rotulo}</Rotulo>
@@ -179,12 +189,31 @@ export function CampoDinamico({ campo, valor, caminho, erros, onMudar }: Props) 
           type="text"
           value={v}
           onChange={(e) => onMudar(caminho, e.target.value)}
-          placeholder={campo.tipo === 'ancora' ? '/pagina ou #secao' : 'https://…'}
+          placeholder={exemplo}
           className={`${ENTRADA} font-mono text-sm ${erro ? 'border-red-400' : ''}`}
           aria-invalid={Boolean(erro)}
+          aria-describedby={campo.ajuda ? `${id}-ajuda` : undefined}
         />
+        {campo.ajuda ? (
+          <p id={`${id}-ajuda`} className="mt-1 text-xs text-grafite">
+            {campo.ajuda}
+          </p>
+        ) : null}
         {erro ? <p className="mt-1 text-xs font-medium text-red-600">{erro}</p> : null}
       </div>
+    )
+  }
+
+  // ── ícone ────────────────────────────────────────────────────
+  if (campo.tipo === 'icone') {
+    return (
+      <SeletorDeIcone
+        id={id}
+        rotulo={campo.rotulo}
+        ajuda={campo.ajuda}
+        valor={typeof valor === 'string' ? valor : ''}
+        onMudar={(novo) => onMudar(caminho, novo)}
+      />
     )
   }
 

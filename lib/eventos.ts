@@ -169,6 +169,10 @@ function avisarTagManager(
       sofia_acao: tipo,
       sofia_cidade: extra.municipio_slug ?? null,
       sofia_origem: extra.origem ?? null,
+      // Qual botão da bio, pelo texto dele. Mesma razão do resto:
+      // vira variável do dataLayer em vez de regra em cima do texto
+      // lido do DOM, que quebra quando alguém edita a copy.
+      sofia_rotulo: extra.rotulo ?? null,
       sofia_event_id: eventId,
     })
   } catch {
@@ -206,15 +210,24 @@ export function evento(
     pagina: window.location.href,
   }
 
+  // ⚠️ O QUE A META VÊ EM `content_*` TEM DE SER VERDADE. O toque num
+  //    botão da bio não é assunto de grupo de WhatsApp — pode ser o
+  //    pedido de material ou o filtro de foto —, e mandá-lo com
+  //    `content_category: 'grupo-whatsapp'` faria uma Conversão
+  //    Personalizada montada sobre essa categoria contar como grupo o
+  //    que não é grupo. Na bio, o que identifica o evento é o BOTÃO.
+  const daBio = tipo === 'clicou_bio'
+
   contarNoPixel(tipo, eventId, {
     municipio: extra.municipio_slug ?? undefined,
     origem: extra.origem ?? undefined,
-    // Os mesmos dois campos com os nomes que a Meta usa nas regras de
+    rotulo: extra.rotulo ?? undefined,
+    // Os mesmos campos com os nomes que a Meta usa nas regras de
     // Conversão Personalizada. Sem isso, criar "Lead de Vilhena" no
     // Gerenciador exige parâmetro customizado, que nem sempre aparece
     // na lista.
-    content_name: extra.municipio_slug ?? undefined,
-    content_category: 'grupo-whatsapp',
+    content_name: (daBio ? extra.rotulo : extra.municipio_slug) ?? undefined,
+    content_category: daBio ? 'link-da-bio' : 'grupo-whatsapp',
   })
 
   avisarTagManager(tipo, eventId, extra)
